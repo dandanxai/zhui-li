@@ -9,6 +9,7 @@
     <DianjiSection />
     <WenmaiSection />
     <HomeFooter />
+    <BackToTop />
     </div>
 </template>
 
@@ -22,6 +23,7 @@ import DajiangSection from '@/components/home-sections/DajiangSection.vue'
 import DianjiSection from '@/components/home-sections/DianjiSection.vue'
 import WenmaiSection from '@/components/home-sections/WenmaiSection.vue'
 import HomeFooter from '@/components/home-sections/HomeFooter.vue'
+import BackToTop from '@/components/BackToTop.vue'
 
 onMounted(() => {
     setTimeout(() => ScrollTrigger.refresh(), 500)
