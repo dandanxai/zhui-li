@@ -21,12 +21,12 @@
         <div class="absolute -bottom-2 left-1/2 w-0 h-[1px] bg-palace-red transition-all group-hover:w-full group-hover:left-0"></div>
     </router-link>
     
-    <router-link to="/#dianji" class="hover:text-palace-red transition-colors relative group text-left">
+    <router-link to="dianji" class="hover:text-palace-red transition-colors relative group text-left">
         典籍 <span class="text-[9px] uppercase opacity-50 block text-center mt-1">Texts</span>
         <div class="absolute -bottom-2 left-1/2 w-0 h-[1px] bg-palace-red transition-all group-hover:w-full group-hover:left-0"></div>
     </router-link>
     
-    <router-link to="/#wenmai" class="hover:text-palace-red transition-colors relative group text-left">
+    <router-link to="wenmai" class="hover:text-palace-red transition-colors relative group text-left">
         文脉 <span class="text-[9px] uppercase opacity-50 block text-center mt-1">Heritage</span>
         <div class="absolute -bottom-2 left-1/2 w-0 h-[1px] bg-palace-red transition-all group-hover:w-full group-hover:left-0"></div>
     </router-link>
@@ -53,8 +53,8 @@
         <router-link to="/" @click="toggleMenu" class="text-4xl md:text-6xl font-serif text-paper-bg hover:text-palace-red transition-all tracking-[0.2em] hover-trigger">首卷 · 开篇</router-link>
         <router-link to="/lanzhu" @click="toggleMenu" class="text-4xl md:text-6xl font-serif text-paper-bg hover:text-palace-red transition-all tracking-[0.2em] hover-trigger">览筑 · 规制</router-link>
         <router-link to="/dajiang" @click="toggleMenu" class="text-4xl md:text-6xl font-serif text-paper-bg hover:text-palace-red transition-all tracking-[0.2em] hover-trigger">大匠 · 匠心</router-link>
-        <router-link to="/#dianji" @click="toggleMenu" class="text-4xl md:text-6xl font-serif text-paper-bg hover:text-palace-red transition-all tracking-[0.2em] hover-trigger">典籍 · 法式</router-link>
-        <router-link to="/#wenmai" @click="toggleMenu" class="text-4xl md:text-6xl font-serif text-paper-bg hover:text-palace-red transition-all tracking-[0.2em] hover-trigger">文脉 · 传承</router-link>
+        <router-link to="dianji" @click="toggleMenu" class="text-4xl md:text-6xl font-serif text-paper-bg hover:text-palace-red transition-all tracking-[0.2em] hover-trigger">典籍 · 法式</router-link>
+        <router-link to="wenmai" @click="toggleMenu" class="text-4xl md:text-6xl font-serif text-paper-bg hover:text-palace-red transition-all tracking-[0.2em] hover-trigger">文脉 · 传承</router-link>
         
         <a href="#" @click.prevent="openAiMaster" class="text-4xl md:text-6xl font-serif text-palace-red hover:text-white transition-all tracking-[0.2em] hover-trigger relative">
         智脑 · 推演

@@ -39,6 +39,25 @@ routes: [
         path: '/master/:id',
         name: 'master-info',
         component: () => import('../views/MasterInfoView.vue')
+    },
+    {
+        path: '/dianji',
+        name: 'dianji',
+        component: () => import('../views/DianjiView.vue')
+    },
+    {
+        path: '/wenmai',
+        name: 'wenmai',
+        component: () => import('../views/WenmaiView.vue')
+    },
+    {
+        path: '/dashboard',
+        name: 'dashboard',
+        component: () => import('../views/DashboardView.vue'),
+        meta: { 
+            hideGlobalUI: true, // 开启“纯净/全屏”模式
+            title: '营造·天枢 | 数字化可视化平台' 
+        }
     }
 ],
 
