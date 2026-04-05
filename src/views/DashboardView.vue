@@ -1,95 +1,157 @@
 <template>
-    <div class="h-screen w-screen bg-[#fcfaf5] text-[#2c2c2c] overflow-hidden flex flex-col font-serif relative">
+<div class="h-screen w-screen bg-[#fcfaf5] text-[#2c2c2c] overflow-hidden flex flex-col font-serif relative selection:bg-palace-red selection:text-white">
     
-    <div class="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/natural-paper.png')]"></div>
-    <div class="absolute -bottom-20 -left-20 w-96 h-96 bg-palace-red/5 rounded-full blur-[100px]"></div>
+    <div class="absolute inset-0 opacity-[0.03] pointer-events-none" style="background-image: radial-gradient(#000 1px, transparent 1px); background-size: 40px 40px;"></div>
 
-    <header class="h-20 flex items-center justify-between px-10 border-b border-palace-red/10 relative z-20 bg-[#fcfaf5]/60 backdrop-blur-sm">
-        <div class="w-1/3 flex items-center gap-4 text-[10px] tracking-[0.4em] text-gray-400">
-        <span class="w-10 h-[1px] bg-palace-red/40"></span> 
-        DIGITAL_CHINESE_ESTHETICS
+    <header class="h-24 flex items-center justify-between px-12 relative z-30 bg-white/60 backdrop-blur-xl border-b-[3px] border-double border-palace-red/20 shadow-[0_4px_30px_rgba(155,46,46,0.03)] overflow-hidden">
+  
+    <div class="absolute inset-0 opacity-[0.04] pointer-events-none select-none mix-blend-multiply" 
+        style="background-image: url('https://www.transparenttextures.com/patterns/natural-paper.png');"></div>
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-full bg-gradient-to-b from-palace-red/[0.03] to-transparent pointer-events-none"></div>
+
+    <div class="w-1/3 flex items-center gap-8 relative">
+        <div class="flex flex-col gap-1">
+        <div class="flex items-center gap-2">
+            <span class="w-2 h-2 bg-palace-red animate-pulse rounded-full shadow-[0_0_8px_#9b2e2e]"></span>
+            <span class="text-[11px] font-mono tracking-[0.4em] text-[#111] font-bold uppercase">Archive_System</span>
+        </div>
+        <div class="flex items-center gap-4 text-[9px] font-mono text-gray-400 tracking-tighter italic">
+            <span>LOC: 39.916N / 116.390E</span>
+            <span class="border-l border-gray-200 pl-4 uppercase">Node_Active</span>
+        </div>
+        </div>
+        <div class="h-8 w-[1px] bg-gradient-to-b from-transparent via-palace-red/20 to-transparent"></div>
+    </div>
+
+    <div class="flex-1 text-center relative group cursor-default">
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div class="w-64 h-16 bg-palace-red/[0.02] blur-2xl rounded-full scale-x-150"></div>
+        </div>
+        <div class="relative inline-block">
+        <h1 class="text-5xl tracking-[1.2em] text-[#1a1a1a] font-black font-serif ml-[1.2em] transition-all duration-700 hover:tracking-[1.3em]">
+            营造<span class="text-palace-red relative">·天枢
+            <span class="absolute -bottom-2 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-palace-red to-transparent opacity-40 scale-x-0 group-hover:scale-x-100 transition-transform duration-700"></span>
+            </span>
+        </h1>
+        <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap text-[8px] tracking-[0.8em] text-gray-400 uppercase font-mono opacity-60">
+            Ancient Architecture Digital Twin System
+        </div>
+        </div>
+    </div>
+
+    <div class="w-1/3 flex justify-end items-center gap-10">
+        <div class="hidden lg:flex items-end gap-[3px] h-6 mb-1 opacity-40">
+        <div v-for="n in 8" :key="n" 
+            class="w-[1.5px] bg-palace-red transition-all duration-300"
+            :style="{ height: (20 + Math.random() * 80) + '%' }"></div>
         </div>
         
-        <div class="w-1/3 text-center">
-        <h1 class="text-4xl tracking-[1.5em] text-[#1a1a1a] drop-shadow-sm ml-[1.5em]">
-            营造<span class="text-palace-red font-bold">·</span>天枢
-        </h1>
+        <div class="text-right flex flex-col gap-1.5 border-r-2 border-palace-red/20 pr-6">
+        <span class="text-[10px] tracking-[0.3em] text-palace-red font-black uppercase italic">Live_Heritage</span>
+        <span class="font-mono text-xl text-gray-800 font-bold tabular-nums tracking-tighter">{{ currentTime }}</span>
         </div>
+        
+        <div class="flex flex-col gap-1 group cursor-pointer">
+        <div v-for="i in 3" :key="i" class="w-1 h-1 bg-palace-red/30 rounded-full group-hover:bg-palace-red transition-colors"></div>
+        </div>
+    </div>
 
-        <div class="w-1/3 flex justify-end items-center gap-6">
-        <div class="text-right flex flex-col">
-            <span class="text-[9px] tracking-widest text-palace-red/60 uppercase">System_Active</span>
-            <span class="font-mono text-xs">{{ currentTime }}</span>
-        </div>
-        <div class="w-10 h-10 border border-palace-red/20 rounded-full relative animate-spin-slow">
-            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-palace-red rounded-full"></div>
-        </div>
-        </div>
+    <div class="absolute bottom-0 left-0 w-full h-[1.5px] bg-gradient-to-r from-transparent via-palace-red/40 to-transparent animate-header-scan"></div>
     </header>
 
     <div class="flex-1 flex gap-6 p-6 relative z-10 overflow-hidden">
-        
-        <aside class="w-[25%] flex flex-col gap-6">
-        <DashboardBox title="ARCHIVE_CHRONICLE" sub="营造漫谈" class="flex-1 overflow-hidden">
-            <ScrollLog />
+    
+    <aside class="w-[24%] flex flex-col gap-6">
+        <DashboardBox title="CHRONICLE" sub="营造漫谈" class="flex-1">
+        <ScrollLog />
         </DashboardBox>
-        <DashboardBox title="SEASONAL_ATMOSPHERE" sub="四时意象" class="h-[28%]">
-            <HealthStats />
+        <DashboardBox title="SEASONAL" sub="四时意象" class="h-[25%]">
+        <SeasonalView />
         </DashboardBox>
-        <DashboardBox title="COLOR_PALETTE" sub="大木取色" class="h-[28%]">
-            <KnowledgeGraph />
+        <DashboardBox title="PALETTE" sub="寻味中国" class="h-[20%]">
+        <PaletteBox />
         </DashboardBox>
-        </aside>
+    </aside>
 
-        <main class="flex-1 flex flex-col gap-6 relative">
-        <div class="flex-1 bg-white border border-palace-red/5 rounded-sm relative overflow-hidden group shadow-sm">
-            <div class="absolute top-6 right-6 z-30 flex bg-[#fcfaf5] p-1 border border-palace-red/10 shadow-sm">
+    <main class="flex-1 flex flex-col gap-6">
+        <div class="flex-1 bg-white border border-palace-red/5 rounded-sm relative shadow-sm overflow-hidden">
+        <div class="absolute top-6 right-6 z-30 flex bg-[#fcfaf5]/80 p-1 border border-palace-red/10 shadow-sm backdrop-blur-md">
             <button @click="viewMode = 'map'" :class="viewMode === 'map' ? 'bg-palace-red text-white' : 'text-gray-400'" class="px-6 py-1.5 text-[10px] tracking-[0.2em] transition-all">寻古舆图</button>
             <button @click="viewMode = '3d'" :class="viewMode === '3d' ? 'bg-palace-red text-white' : 'text-gray-400'" class="px-6 py-1.5 text-[10px] tracking-[0.2em] transition-all">营造解构</button>
-            </div>
-            
-            <transition name="fade-scale" mode="out-in">
+        </div>
+        <transition name="fade-scale" mode="out-in">
             <component :is="viewMode === 'map' ? MapView : ThreeDView" />
-            </transition>
+        </transition>
         </div>
-
-        <div class="h-40 bg-white border border-palace-red/5 rounded-sm p-6 relative shadow-sm">
-            <RuleComparator />
+        <div class="h-40 bg-white border border-palace-red/5 rounded-sm p-6 shadow-sm">
+        <QuoteBox />
         </div>
-        </main>
+    </main>
 
-        <aside class="w-[25%] flex flex-col gap-6">
-        <DashboardBox title="STRUCTURAL_CHALLENGE" sub="营造挑战" class="flex-1">
-            <RadarChart />
+    <aside class="w-[24%] flex flex-col gap-6">
+        <DashboardBox title="STRUCTURE" sub="构造挑战" class="flex-1">
+        <StructureChallenge />
         </DashboardBox>
-        <DashboardBox title="GLOBAL_VISITORS" sub="云端共赏" class="h-[28%]">
-            <TrendChart />
+        <DashboardBox title="SOCIAL" sub="云端共赏" class="h-[25%]">
+        <SocialFootprint />
         </DashboardBox>
-        <DashboardBox title="DIGITAL_SEAL" sub="数字朱印" class="h-[28%]">
-            <DigitalFingerprint />
+        <DashboardBox title="SEAL" sub="数字朱印" class="h-[20%]">
+        <DigitalSeal />
         </DashboardBox>
-        </aside>
+    </aside>
 
     </div>
 
-    <footer class="h-10 border-t border-palace-red/10 flex items-center justify-between px-10 text-[9px] tracking-widest text-gray-400 uppercase">
-        <span>Unit: Imperial_Measurement</span>
-        <span class="opacity-30">传承数字化 · 赋予古建筑第二次生命</span>
-        <span>V2.6.0 Stable</span>
+    <footer class="h-12 border-t border-palace-red/10 flex items-center justify-between px-10 relative z-20 bg-white/30 backdrop-blur-sm overflow-hidden">
+    
+        <div class="flex items-center gap-6 text-[10px] font-mono tracking-widest text-gray-500">
+            <div class="flex items-center gap-2">
+                <span class="w-1.5 h-1.5 bg-palace-red/40 rounded-full animate-pulse"></span>
+                <span class="opacity-60 uppercase">Unit:</span>
+                <span class="text-palace-red/80 font-bold">Imperial_Measurement</span>
+            </div>
+            <div class="hidden md:flex items-center gap-2 border-l border-palace-red/10 pl-6">
+                <span class="opacity-60 uppercase">Coord:</span>
+                <span class="text-gray-800 tracking-tighter">39.916N / 116.390E</span>
+            </div>
+        </div>
+
+        <div class="absolute left-1/2 -translate-x-1/2 flex items-center gap-4">
+            <div class="h-[1px] w-8 bg-gradient-to-r from-transparent to-palace-red/20"></div>
+            <span class="text-[12px] md:text-[13px] font-serif text-[#1a1a1a] tracking-[0.4em] font-bold italic">
+                传承数字化 <span class="mx-1 text-palace-red/40">·</span> 赋予古建筑第二次生命
+            </span>
+            <div class="h-[1px] w-8 bg-gradient-to-l from-transparent to-palace-red/20"></div>
+        </div>
+
+        <div class="flex items-center gap-6 text-[10px] font-mono">
+            <div class="flex flex-col items-end leading-none gap-1">
+                <span class="text-palace-red font-bold tracking-tighter">V2.7.0_STABLE</span>
+                <span class="text-[8px] text-gray-400 uppercase tracking-widest opacity-60">System_Archive_Core</span>
+            </div>
+            <div class="hidden lg:flex gap-[2px] items-end h-4 opacity-30">
+                <div v-for="n in 6" :key="n" 
+                    class="w-[1.5px] bg-palace-red" 
+                    :style="{ height: (n * 20) + '%' }">
+                </div>
+            </div>
+        </div>
+
+        <div class="absolute bottom-0 left-0 w-full h-[2px] bg-palace-red/5"></div>
     </footer>
-    </div>
+</div>
 </template>
 
 <script setup>
 import { ref, onMounted, defineAsyncComponent } from 'vue'
 import DashboardBox from '../components/dashboard/DashboardBox.vue'
 import ScrollLog from '../components/dashboard/ScrollLog.vue'
-import RuleComparator from '../components/dashboard/RuleComparator.vue'
-import HealthStats from '../components/dashboard/HealthStats.vue'
-import KnowledgeGraph from '../components/dashboard/KnowledgeGraph.vue'
-import RadarChart from '../components/dashboard/RadarChart.vue'
-import TrendChart from '../components/dashboard/TrendChart.vue'
-import DigitalFingerprint from '../components/dashboard/DigitalFingerprint.vue'
+import SeasonalView from '../components/dashboard/SeasonalView.vue'
+import PaletteBox from '../components/dashboard/PaletteBox.vue'
+import QuoteBox from '../components/dashboard/QuoteBox.vue'
+import StructureChallenge from '../components/dashboard/StructureChallenge.vue'
+import SocialFootprint from '../components/dashboard/SocialFootprint.vue'
+import DigitalSeal from '../components/dashboard/DigitalSeal.vue'
 
 const MapView = defineAsyncComponent(() => import('../components/dashboard/MapView.vue'))
 const ThreeDView = defineAsyncComponent(() => import('../components/dashboard/ThreeDView.vue'))
@@ -98,17 +160,14 @@ const viewMode = ref('map')
 const currentTime = ref('')
 
 onMounted(() => {
-    setInterval(() => {
+setInterval(() => {
     currentTime.value = new Date().toLocaleTimeString('zh-CN', { hour12: false })
-    }, 1000)
+}, 1000)
 })
 </script>
 
 <style scoped>
-.fade-scale-enter-active, .fade-scale-leave-active { transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+.fade-scale-enter-active, .fade-scale-leave-active { transition: all 0.5s ease; }
 .fade-scale-enter-from { opacity: 0; transform: scale(1.02); }
 .fade-scale-leave-to { opacity: 0; transform: scale(0.98); }
-
-.animate-spin-slow { animation: spin 20s linear infinite; }
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 </style>

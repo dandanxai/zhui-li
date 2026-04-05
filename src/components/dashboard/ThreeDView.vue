@@ -1,54 +1,46 @@
 <template>
-    <div class="absolute inset-0 w-full h-full bg-[#fcfaf5] overflow-hidden">
-    
-    <div ref="canvasContainer" class="w-full h-full z-10 cursor-move"></div>
-
-    <div class="absolute top-6 left-6 z-20 space-y-2 pointer-events-none">
-        <div class="text-[10px] text-gray-500 font-mono tracking-widest border-l-2 border-palace-red pl-3">
-        <p class="text-[#111] font-bold mb-1 font-serif text-lg tracking-widest">大木解构</p>
-        <p class="text-palace-red">MODEL: DOUGONG.GLB</p>
-        <p>STATUS: INTERACTIVE</p>
-        <p>ACTION: DRAG / CLICK_FOR_INFO</p>
+<div class="absolute inset-0 w-full h-full bg-[#fcfaf5] overflow-hidden group">
+    <div class="absolute top-8 left-8 z-20 pointer-events-none">
+    <div class="flex items-center gap-3">
+        <div class="w-2 h-8 bg-palace-red shadow-[0_0_10px_rgba(155,46,46,0.4)]"></div>
+        <div class="flex flex-col">
+        <h2 class="text-2xl font-black font-serif tracking-[0.3em] text-[#111]">营造解构 · 斗拱</h2>
+        <span class="text-[9px] font-mono text-palace-red/60 uppercase tracking-[0.5em] mt-1 italic">Structural_Deconstruction // V1.0</span>
         </div>
     </div>
-
-    <div class="absolute bottom-6 left-6 z-20 text-[10px] text-gray-500 font-serif tracking-widest pointer-events-none bg-white/60 px-3 py-1 border border-palace-red/10 backdrop-blur-sm">
-        <span class="text-palace-red mr-2">※</span>旋转视角 / <b>拖拽拆解</b> / <b>点击构件查看解析</b>
     </div>
 
-    <button @click="resetModel" class="absolute bottom-6 right-6 z-20 pointer-events-auto bg-[#fcfaf5] border border-palace-red/30 text-[#111] hover:bg-palace-red hover:text-white px-6 py-2 text-[10px] font-serif tracking-[0.3em] transition-all duration-300 shadow-sm active:scale-95 flex items-center gap-2 group">
-        <svg class="w-4 h-4 text-palace-red group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-        一键重装
-    </button>
+    <div class="absolute top-8 right-32 z-20 font-mono text-[10px] text-gray-400 bg-white/50 px-3 py-1 border border-palace-red/10 flex items-center gap-2 backdrop-blur-sm">
+    <span class="w-1.5 h-1.5 bg-palace-red rounded-full animate-pulse"></span>
+    ZOOM_LEVEL: {{ zoomPercent }}%
+    </div>
 
-    <transition name="bubble-fade">
-        <div v-if="activePartInfo.visible" 
-            class="absolute z-50 pointer-events-none transform -translate-x-1/2 -translate-y-full pb-4 transition-all duration-75"
-            :style="{ left: activePartInfo.x + 'px', top: activePartInfo.y + 'px' }">
-        
-        <div class="bg-[#fcfaf5]/95 backdrop-blur-md border border-palace-red/30 shadow-xl p-4 w-56 relative flex flex-col gap-2">
-            <div class="absolute top-0 left-0 w-2 h-2 border-t border-l border-palace-red"></div>
-            <div class="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-palace-red"></div>
-            
-            <div class="flex justify-between items-start border-b border-palace-red/10 pb-2">
-            <h3 class="text-sm font-serif font-bold text-[#111] tracking-widest">{{ activePartInfo.name }}</h3>
-            <span class="text-[8px] font-mono text-palace-red border border-palace-red/20 px-1 bg-palace-red/5">SELECTED</span>
-            </div>
-            
-            <p class="text-[10px] text-gray-600 leading-relaxed font-serif text-justify">
-            {{ activePartInfo.desc }}
-            </p>
+    <div ref="canvasContainer" class="w-full h-full z-10 cursor-grab active:cursor-grabbing"></div>
 
-            <div class="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-[#fcfaf5] border-b border-r border-palace-red/30 transform rotate-45"></div>
+    <transition name="bubble">
+    <div v-if="info.visible" 
+        class="absolute z-50 pointer-events-none transform -translate-x-1/2 -translate-y-[110%]"
+        :style="{ left: info.x + 'px', top: info.y + 'px' }">
+        <div class="bg-white border-2 border-black p-4 w-56 shadow-[10px_10px_0px_rgba(155,46,46,0.1)] relative">
+        <div class="text-sm font-serif font-black border-b-2 border-palace-red/20 pb-2 mb-2 text-[#111] uppercase tracking-wider">
+            {{ info.title }}
         </div>
+        <div class="text-[11px] text-gray-600 leading-relaxed font-serif italic">{{ info.desc }}</div>
+        <div class="absolute bottom-[-9px] left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-b-2 border-r-2 border-black rotate-45"></div>
         </div>
+    </div>
     </transition>
 
+    <div class="absolute bottom-8 right-8 z-20 flex gap-4">
+    <button @click="resetModel" class="bg-black text-white px-6 py-2 text-[10px] font-black tracking-widest hover:bg-palace-red transition-all shadow-xl uppercase border border-white/20">
+        Reset_Assembly // 一键复位
+    </button>
     </div>
+</div>
 </template>
 
 <script setup>
-import { onMounted, ref, onBeforeUnmount, nextTick } from 'vue'
+import { onMounted, ref, onBeforeUnmount } from 'vue'
 import gsap from 'gsap'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
@@ -56,273 +48,133 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { DragControls } from 'three/examples/jsm/controls/DragControls.js'
 
 const canvasContainer = ref(null)
+const info = ref({ visible: false, x: 0, y: 0, title: '', desc: '' })
+const zoomPercent = ref(100)
 
-let scene, camera, renderer, orbitControls, dragControls
-let draggableObjects = []
-const initialStates = new Map()
+let scene, camera, renderer, orbitControls, dragControls, draggableObjects = []
+let clickedObject = null, pointerDownTime = 0
+const initialPositions = new Map()
 
-const raycaster = new THREE.Raycaster()
-const mouse = new THREE.Vector2()
-let animationFrameId = null
-let resizeObserver = null
-
-// --- 交互状态 ---
-const clickedMesh = ref(null) 
-const activePartInfo = ref({ visible: false, x: 0, y: 0, name: '', desc: '' })
-
-// 智能点击检测辅助变量
-let pointerDownTime = 0
-let pointerDownPos = { x: 0, y: 0 }
-
-// 构件字典
-const partDictionary = {
-    'ludou': { name: '栌斗 (Lú Dǒu)', desc: '斗拱最底层的核心承重块，形如方形大斗，将上部结构的重量均匀传递至柱头。' },
-    'huagong': { name: '华拱 (Huá Gǒng)', desc: '垂直于建筑面阔方向出跳的拱，逐层向外伸展，承托挑出的屋檐。' },
-    'ang': { name: '昂 (Áng)', desc: '利用杠杆原理设计的斜向构件，前端挑起屋檐，后端压在梁下，极具力学智慧。' },
-    'jiaohudou': { name: '交互斗 (Jiāo Hù Dǒu)', desc: '位于拱端的小斗，用于承接上一层的十字交叉构件，起到连接与缓冲作用。' },
-    'default': { name: '木构件 (Component)', desc: '中国古建筑不使用铁钉，全靠木构件之间的榫卯咬合，以柔克刚，抵御地震。' }
+const dict = {
+'ludou': { title: '栌斗 (Lú Dǒu)', desc: '承载整组斗拱重量的底座，是力量传递的核心枢纽。' },
+'huagong': { title: '华拱 (Huá Gǒng)', desc: '向外伸展的悬挑结构，承托屋檐出挑深度。' },
+'default': { title: '营造构件', desc: '中国大木作通过精密榫卯实现结构弹性，千年不倒。' }
 }
 
-onMounted(async () => {
-    await nextTick()
-    initThreeJS()
-    resizeObserver = new ResizeObserver(() => onWindowResize())
-    if (canvasContainer.value) resizeObserver.observe(canvasContainer.value)
+const initThree = () => {
+scene = new THREE.Scene()
+camera = new THREE.PerspectiveCamera(45, canvasContainer.value.clientWidth / canvasContainer.value.clientHeight, 0.1, 1000)
+camera.position.set(0, 3, 10)
+
+renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
+renderer.setPixelRatio(window.devicePixelRatio)
+renderer.setSize(canvasContainer.value.clientWidth, canvasContainer.value.clientHeight)
+canvasContainer.value.appendChild(renderer.domElement)
+
+// 灯光增强
+scene.add(new THREE.AmbientLight(0xffffff, 1.5))
+const sun = new THREE.DirectionalLight(0xffeeda, 2)
+sun.position.set(10, 20, 10)
+scene.add(sun)
+
+// 1. 开启缩放控制
+orbitControls = new OrbitControls(camera, renderer.domElement)
+orbitControls.enableDamping = true
+orbitControls.enableZoom = true  // 开启缩放
+orbitControls.minDistance = 2   // 最小距离
+orbitControls.maxDistance = 20  // 最大距离
+
+// 监听缩放更新 UI
+orbitControls.addEventListener('change', () => {
+    const dist = camera.position.distanceTo(orbitControls.target)
+    zoomPercent.value = Math.round((10 / dist) * 100)
 })
 
-onBeforeUnmount(() => {
-    if (renderer && renderer.domElement) {
-    renderer.domElement.removeEventListener('pointerdown', onPointerDown)
-    renderer.domElement.removeEventListener('pointerup', onPointerUp)
-    renderer.domElement.removeEventListener('pointermove', onPointerMove)
-    }
-    if (resizeObserver && canvasContainer.value) resizeObserver.unobserve(canvasContainer.value)
-    if (animationFrameId) cancelAnimationFrame(animationFrameId)
-    if (renderer) {
-    renderer.dispose()
-    renderer.forceContextLoss()
-    }
-})
-
-const initThreeJS = () => {
-    const container = canvasContainer.value
-    if (!container) return
-
-    scene = new THREE.Scene()
-    camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000)
-    camera.position.set(0, 2, 8)
-
-    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
-    renderer.setSize(container.clientWidth, container.clientHeight)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-    
-    // 修复警告：使用官方最新推荐的阴影映射算法
-    renderer.shadowMap.enabled = true
-    renderer.shadowMap.type = THREE.PCFShadowMap 
-    
-    container.appendChild(renderer.domElement)
-
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.5)
-    scene.add(ambientLight)
-    const dirLight = new THREE.DirectionalLight(0xffeeda, 2)
-    dirLight.position.set(5, 10, 5)
-    dirLight.castShadow = true
-    scene.add(dirLight)
-
-    orbitControls = new OrbitControls(camera, renderer.domElement)
-    orbitControls.enableDamping = true
-    orbitControls.dampingFactor = 0.05
-    orbitControls.enableZoom = false
-
-    const loader = new GLTFLoader()
-    loader.load('/dougong.glb', (gltf) => {
+// 加载模型
+new GLTFLoader().load('/dougong.glb', (gltf) => {
     const model = gltf.scene
-    scene.add(model)
-    
     const box = new THREE.Box3().setFromObject(model)
     const center = box.getCenter(new THREE.Vector3())
     model.position.sub(center)
-    orbitControls.target.set(0, 0, 0)
+    scene.add(model)
 
-    model.traverse((child) => {
-        if (child.isMesh) {
-        if (child.material) {
-            child.material = child.material.clone()
-            child.material.roughness = 0.8
-            child.material.metalness = 0.1
-        }
-        child.castShadow = true
-        child.receiveShadow = true
+    model.traverse(child => {
+    if (child.isMesh) {
+        child.material = child.material.clone()
+        initialPositions.set(child.uuid, child.position.clone())
         draggableObjects.push(child)
-        initialStates.set(child.uuid, { 
-            position: child.position.clone(), 
-            rotation: child.rotation.clone(),
-            originalEmissive: child.material.emissive ? child.material.emissive.clone() : new THREE.Color(0x000000)
-        })
-        }
+    }
     })
     
-    initDragControls()
-    })
-
-    // ★ 绑定自定义的智能点击事件 ★
-    renderer.domElement.addEventListener('pointerdown', onPointerDown)
-    renderer.domElement.addEventListener('pointerup', onPointerUp)
-    renderer.domElement.addEventListener('pointermove', onPointerMove)
-
-    const animate = () => {
-    animationFrameId = requestAnimationFrame(animate)
-    if (orbitControls) orbitControls.update()
-    
-    if (clickedMesh.value && activePartInfo.value.visible) {
-        updateBubblePosition()
-    }
-
-    renderer.render(scene, camera)
-    }
-    animate()
-}
-
-const initDragControls = () => {
+    // 拖拽逻辑
     dragControls = new DragControls(draggableObjects, camera, renderer.domElement)
-    dragControls.addEventListener('dragstart', () => { 
-    if (orbitControls) orbitControls.enabled = false 
-    activePartInfo.value.visible = false 
-    resetHighlight()
+    dragControls.addEventListener('dragstart', (e) => {
+    orbitControls.enabled = false
+    info.value.visible = false
+    e.object.material.emissive.set(0x9b2e2e) // 拖拽时发光
     })
-    dragControls.addEventListener('dragend', () => { 
-    if (orbitControls) orbitControls.enabled = true 
+    dragControls.addEventListener('dragend', (e) => {
+    orbitControls.enabled = true
+    e.object.material.emissive.set(0x000000)
     })
+})
+
+// 点击事件
+renderer.domElement.addEventListener('pointerdown', () => pointerDownTime = Date.now())
+renderer.domElement.addEventListener('pointerup', (e) => {
+    if (Date.now() - pointerDownTime < 250) handleInfo(e)
+})
+
+const animate = () => {
+    requestAnimationFrame(animate)
+    orbitControls.update()
+    if (info.value.visible && clickedObject) updateBubblePos()
+    renderer.render(scene, camera)
+}
+animate()
 }
 
-// ==========================================
-// ★ 核心修复：智能点击检测逻辑 ★
-// ==========================================
-const onPointerDown = (event) => {
-    pointerDownTime = performance.now()
-    pointerDownPos = { x: event.clientX, y: event.clientY }
+const handleInfo = (e) => {
+const rect = canvasContainer.value.getBoundingClientRect()
+const mouse = new THREE.Vector2(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1)
+const ray = new THREE.Raycaster()
+ray.setFromCamera(mouse, camera)
+const intersects = ray.intersectObjects(draggableObjects)
+
+if (intersects.length > 0) {
+    clickedObject = intersects[0].object
+    const name = clickedObject.name.toLowerCase()
+    const data = dict[Object.keys(dict).find(k => name.includes(k))] || dict.default
+    info.value = { visible: true, title: data.title, desc: data.desc, x: 0, y: 0 }
+} else { 
+    info.value.visible = false 
+}
 }
 
-const onPointerUp = (event) => {
-    const timeDiff = performance.now() - pointerDownTime
-    const dist = Math.sqrt(
-    Math.pow(event.clientX - pointerDownPos.x, 2) + 
-    Math.pow(event.clientY - pointerDownPos.y, 2)
-    )
-
-    // 如果按下的时间小于 300ms 且鼠标几乎没有移动（小于 5 像素），则判定为“点击”而非“拖拽”
-    if (timeDiff < 300 && dist < 5) {
-    handleSmartClick(event)
-    }
-}
-
-const handleSmartClick = (event) => {
-    if (!canvasContainer.value) return
-    
-    const rect = canvasContainer.value.getBoundingClientRect()
-    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
-    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
-    
-    raycaster.setFromCamera(mouse, camera)
-    const intersects = raycaster.intersectObjects(draggableObjects, true)
-
-    if (intersects.length > 0) {
-    const object = intersects[0].object
-    clickedMesh.value = object
-    
-    resetHighlight()
-    object.material.emissive.setHex(0x330000) 
-
-    const meshName = object.name.toLowerCase().replace(/\s+/g, '')
-    const matchedKey = Object.keys(partDictionary).find(k => meshName.includes(k)) || 'default'
-    const info = partDictionary[matchedKey]
-
-    activePartInfo.value.name = info.name
-    activePartInfo.value.desc = info.desc
-    activePartInfo.value.visible = true
-    updateBubblePosition()
-    } else {
-    activePartInfo.value.visible = false
-    clickedMesh.value = null
-    resetHighlight()
-    }
-}
-
-const updateBubblePosition = () => {
-    if (!clickedMesh.value || !canvasContainer.value) return
-    const vector = new THREE.Vector3()
-    vector.setFromMatrixPosition(clickedMesh.value.matrixWorld)
-    vector.project(camera)
-    
-    const rect = canvasContainer.value.getBoundingClientRect()
-    const x = (vector.x * 0.5 + 0.5) * rect.width
-    const y = -(vector.y * 0.5 - 0.5) * rect.height
-    
-    activePartInfo.value.x = x
-    activePartInfo.value.y = y
-}
-
-const resetHighlight = () => {
-    draggableObjects.forEach(child => {
-    const state = initialStates.get(child.uuid)
-    if (state && child.material) {
-        child.material.emissive.copy(state.originalEmissive)
-    }
-    })
-}
-
-const onPointerMove = (event) => {
-    if (!canvasContainer.value) return
-    const rect = canvasContainer.value.getBoundingClientRect()
-    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
-    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
-    
-    raycaster.setFromCamera(mouse, camera)
-    const intersects = raycaster.intersectObjects(draggableObjects, true)
-    if (orbitControls) orbitControls.enableZoom = intersects.length > 0
+const updateBubblePos = () => {
+const vec = new THREE.Vector3()
+clickedObject.getWorldPosition(vec)
+vec.project(camera)
+const rect = canvasContainer.value.getBoundingClientRect()
+info.value.x = (vec.x * 0.5 + 0.5) * rect.width
+info.value.y = -(vec.y * 0.5 - 0.5) * rect.height
 }
 
 const resetModel = () => {
-    if (draggableObjects.length === 0) return
-    activePartInfo.value.visible = false
-    resetHighlight()
-    
-    draggableObjects.forEach(child => {
-    const state = initialStates.get(child.uuid)
-    if (state) {
-        gsap.to(child.position, { x: state.position.x, y: state.position.y, z: state.position.z, duration: 1, ease: "power2.out" })
-        gsap.to(child.rotation, { x: state.rotation.x, y: state.rotation.y, z: state.rotation.z, duration: 1, ease: "power2.out" })
-    }
-    })
-    
-    gsap.to(camera.position, { x: 0, y: 2, z: 8, duration: 1.5, ease: "power2.inOut" })
-    if (orbitControls) gsap.to(orbitControls.target, { x: 0, y: 0, z: 0, duration: 1.5, ease: "power2.inOut" })
+draggableObjects.forEach(obj => {
+    const pos = initialPositions.get(obj.uuid)
+    gsap.to(obj.position, { x: pos.x, y: pos.y, z: pos.z, duration: 1, ease: 'power2.out' })
+})
 }
 
-const onWindowResize = () => {
-    if(!canvasContainer.value || !camera || !renderer) return
-    const width = canvasContainer.value.clientWidth
-    const height = canvasContainer.value.clientHeight
-    camera.aspect = width / height
-    camera.updateProjectionMatrix()
-    renderer.setSize(width, height)
-}
+onMounted(() => initThree())
+onBeforeUnmount(() => renderer?.dispose())
 </script>
 
 <style scoped>
-.bubble-fade-enter-active {
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.bubble-fade-leave-active {
-    transition: all 0.2s ease-in;
-}
-.bubble-fade-enter-from,
-.bubble-fade-leave-to {
-    opacity: 0;
-    transform: translate(-50%, -80%) scale(0.8);
-}
-.bubble-fade-enter-to {
-    opacity: 1;
-    transform: translate(-50%, -100%) scale(1);
-}
+.bubble-enter-active { transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1); }
+.bubble-enter-from { opacity: 0; transform: translate(-50%, -80%) scale(0.8); }
+
+/* 禁用原生 Canvas 的默认行为 */
+canvas { outline: none; -webkit-tap-highlight-color: transparent; }
 </style>
