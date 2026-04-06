@@ -9,7 +9,7 @@
         <div id="hz-progress" class="h-full bg-palace-red w-0"></div>
     </div>
 
-    <div class="horizontal-container flex h-screen items-center pl-[25vw] pr-[25vw] w-[450vw] md:w-[350vw]">
+    <div class="horizontal-container flex h-screen items-center pl-[20vw] pr-[20vw] w-max">
         
         <div class="scroll-item w-screen md:w-[70vw] shrink-0 relative flex items-center justify-center px-10 hover-trigger">
             <div class="relative w-[90%] md:w-[70%] h-[60vh] overflow-hidden shadow-2xl">
@@ -58,7 +58,7 @@
                 <img src="https://img.cc0.cn/pixabay/2019102106333866668.jpg!cc0.cn.jpg" class="hz-img w-full h-full object-cover transform scale-110 filter grayscale contrast-125">
             </div>
             <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <h3 class="text-[8rem] font-serif text-white mix-blend-difference drop-shadow-2xl">古典桥梁</h3>
+                <h3 class="text-[8rem] font-serif text-white mix-blend-difference drop-shadow-2xl text-center">古典桥梁</h3>
             </div>
             <div class="absolute bottom-20 left-1/2 transform -translate-x-1/2 w-[85%] text-center bg-paper-bg py-6 px-10 shadow-2xl border-t-2 border-palace-red">
                 <p class="text-sm text-ink-dark tracking-widest leading-loose text-justify md:text-center">
@@ -71,56 +71,60 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, nextTick } from 'vue'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-onMounted(() => {
-    let hzContainer = document.querySelector(".horizontal-container")
+onMounted(async () => {
+    // 1. 等待 DOM 完全挂载
+    await nextTick()
     
+    let hzContainer = document.querySelector(".horizontal-container")
+    if (!hzContainer) return
+
+    // 2. 初始化横向滚动
     let scrollTween = gsap.to(hzContainer, {
-    x: () => -(hzContainer.scrollWidth - window.innerWidth) + "px",
-    ease: "none",
-    scrollTrigger: {
-        trigger: ".horizontal-section",
-        pin: true,
-        scrub: 1,
-        start: "top top",
-        end: () => "+=" + hzContainer.scrollWidth,
-        onUpdate: (self) => {
-        gsap.set("#hz-progress", { width: `${self.progress * 100}%` });
+        x: () => -(hzContainer.scrollWidth - window.innerWidth),
+        ease: "none",
+        scrollTrigger: {
+            trigger: ".horizontal-section",
+            pin: true,
+            scrub: 1,
+            start: "top top",
+            // 滚动长度与内容宽度挂钩
+            end: () => "+=" + (hzContainer.scrollWidth),
+            invalidateOnRefresh: true, // 核心：刷新时重算
+            onUpdate: (self) => {
+                gsap.set("#hz-progress", { width: `${self.progress * 100}%` });
+            }
         }
-    }
     })
 
-    // 内部图片视差
+    // 3. 内部图片视差
     gsap.utils.toArray('.hz-img').forEach(img => {
-    gsap.to(img, {
-        xPercent: 15, ease: "none",
-        scrollTrigger: {
-        trigger: img.parentElement,
-        containerAnimation: scrollTween,
-        start: "left right",
-        end: "right left",
-        scrub: true
-        }
-    })
+        gsap.to(img, {
+            xPercent: 15, 
+            ease: "none",
+            scrollTrigger: {
+                trigger: img.parentElement,
+                containerAnimation: scrollTween,
+                start: "left right",
+                end: "right left",
+                scrub: true,
+                invalidateOnRefresh: true
+            }
+        })
     })
 })
 </script>
 
 <style scoped>
-.writing-vertical-rl {
-    writing-mode: vertical-rl;
-    text-orientation: upright;
+.horizontal-container {
+    will-change: transform;
 }
-.img-mask-elegant {
-    mask-image: linear-gradient(to right, black 80%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to right, black 80%, transparent 100%);
-}
-.mix-blend-difference {
-    mix-blend-mode: difference;
-}
+.writing-vertical-rl { writing-mode: vertical-rl; text-orientation: upright; }
+.img-mask-elegant { mask-image: linear-gradient(to right, black 80%, transparent 100%); -webkit-mask-image: linear-gradient(to right, black 80%, transparent 100%); }
+.mix-blend-difference { mix-blend-mode: difference; }
 </style>

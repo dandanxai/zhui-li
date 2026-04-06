@@ -1,54 +1,93 @@
 <template>
-    <section id="wenmai" class="bg-ink-dark text-paper-bg py-60 px-6 md:px-16 relative overflow-hidden border-t border-white/5">
-    <div class="absolute top-20 left-10 text-[15rem] font-serif text-white/5 select-none pointer-events-none">2026</div>
-    <div class="absolute bottom-10 right-10 text-[10rem] font-serif text-gold-accent/5 select-none pointer-events-none">HERITAGE</div>
-
-    <div class="max-w-6xl mx-auto relative z-10 culture-content">
-        <div class="mb-32 text-left md:pl-10">
-        <span class="text-gold-accent font-serif tracking-[0.5em] text-sm block mb-6 uppercase opacity-70">卷四 · 文脉</span>
-        <h2 class="text-6xl md:text-[7rem] font-serif text-white leading-[1.1] filter drop-shadow-2xl">
-            赓续文脉<br>
-            <span class="text-gold-accent italic ml-20 md:ml-40">生生不息</span>
-        </h2>
-        </div>
-
-        <div class="relative flex flex-col md:flex-row items-start gap-12 md:gap-0">
+    <section id="wenmai" class="bg-[#0a0a0a] text-paper-bg py-40 md:py-60 relative overflow-hidden">
         
-        <div class="culture-card w-full md:w-1/3 p-10 border-l border-gold-accent/30 bg-white/5 backdrop-blur-md relative group">
-            <span class="absolute -top-6 -left-4 text-5xl font-serif text-gold-accent/20 group-hover:text-gold-accent/50 transition-colors">01</span>
-            <h4 class="text-gold-accent font-serif text-2xl mb-8 tracking-widest">工程基因</h4>
-            <p class="text-gray-400 font-light leading-loose text-sm tracking-widest text-justify">
-            古建文脉，绝非故纸堆里的冰冷遗迹，而是中华民族刻在骨子里的工程基因。千百年来，它始终秉持对自然山水的敬畏，顺应天时，因地制宜。
-            </p>
-            <div class="w-full h-[1px] bg-white/10 mt-10"></div>
+        <div class="absolute top-0 right-10 md:right-40 text-[30vw] font-serif font-black text-white/[0.02] select-none pointer-events-none leading-none z-0 writing-vertical-rl">
+            文脉
         </div>
 
-        <div class="culture-card w-full md:w-1/3 p-10 border-l border-gold-accent/30 bg-white/5 backdrop-blur-md relative group md:-translate-y-20 md:mx-6">
-            <span class="absolute -top-6 -left-4 text-5xl font-serif text-gold-accent/20 group-hover:text-gold-accent/50 transition-colors">02</span>
-            <h4 class="text-gold-accent font-serif text-2xl mb-8 tracking-widest">科学远见</h4>
-            <p class="text-gray-400 font-light leading-loose text-sm tracking-widest text-justify">
-            榫卯的力学解构、斗拱的抗震哲理、四水归堂的生态法则。古代大匠以超越时代的科学眼光，为世界建筑史贡献了无与伦比的“中国方案”。
-            </p>
-            <div class="hidden md:block absolute -right-6 top-1/2 w-12 h-[1px] bg-gold-accent/30"></div>
-        </div>
+        <div class="max-w-7xl mx-auto px-6 md:px-16 relative z-10 flex flex-col md:flex-row items-start gap-20">
+            
+            <div class="w-full md:w-5/12 md:sticky md:top-40 z-20">
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="w-12 h-[1px] bg-gold-accent"></div>
+                    <span class="text-gold-accent font-serif tracking-[0.5em] text-sm uppercase">卷四 · 传承弘扬</span>
+                </div>
+                
+                <h2 class="text-6xl md:text-7xl font-serif text-white leading-[1.2] font-black mb-10 tracking-wide">
+                    千载营造<br>
+                    <span class="text-transparent border-text italic mt-4 inline-block transform -translate-x-4">生生不息</span>
+                </h2>
+                
+                <p class="text-gray-400 font-light leading-loose text-lg tracking-widest text-justify mb-16">
+                    古建的文脉，绝非故纸堆里的冰冷遗迹，而是中华民族刻在骨子里的工程基因。<br><br>在呼唤可持续发展的今天，重温古建的“规矩与方圆”，不仅是文化自信的寻根，更是让传统的科学精神照亮未来的营造之路。
+                </p>
 
-        <div class="culture-card w-full md:w-1/3 p-10 border border-gold-accent/40 bg-gold-accent/5 backdrop-blur-lg relative group md:translate-y-16">
-            <span class="absolute -top-6 -left-4 text-5xl font-serif text-gold-accent/30 group-hover:text-gold-accent transition-colors">03</span>
-            <div class="absolute inset-0 border border-gold-accent/10 scale-95 pointer-events-none"></div>
-            <h4 class="text-white font-serif text-2xl mb-8 tracking-widest underline underline-offset-8 decoration-gold-accent/50">传承与拓新</h4>
-            <p class="text-gray-300 font-light leading-loose text-sm tracking-widest text-justify">
-            传承，是为了更好地前行。在呼唤可持续发展的今天，重温古建的“规矩与方圆”，不仅是文化自信的寻根，更是让传统的科学精神照亮未来的营造之路。
-            </p>
-        </div>
+                <button class="group flex items-center gap-6 text-gold-accent hover:text-white transition-colors duration-500">
+                    <span class="text-sm font-bold tracking-[0.4em] uppercase">展开千年长卷</span>
+                    <div class="w-12 h-12 rounded-full border border-gold-accent/30 flex items-center justify-center group-hover:border-white group-hover:bg-white/10 transition-all duration-500">
+                        <i class="ri-arrow-right-line text-xl transform group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+                </button>
+            </div>
 
-        </div>
+            <div class="w-full md:w-7/12 relative mt-20 md:mt-0 pt-10 pb-40">
+                
+                <div class="absolute left-[27px] top-0 bottom-0 w-[1px] bg-white/10 z-0 hidden md:block"></div>
+                <div class="golden-line absolute left-[27px] top-0 w-[2px] bg-gradient-to-b from-gold-accent via-gold-accent to-transparent z-10 hidden md:block origin-top"></div>
 
-        <div class="mt-60 flex flex-col items-center">
-        <div class="w-20 h-[1px] bg-gold-accent/50 mb-10"></div>
-        <p class="text-white text-xl md:text-2xl font-serif tracking-[0.5em] mb-12 opacity-80">致敬中国古代建筑科学家</p>
-        <div class="w-[1px] h-40 bg-gradient-to-b from-gold-accent via-gold-accent/20 to-transparent"></div>
+                <div class="flex flex-col gap-32 relative z-20">
+                    
+                    <div class="heritage-node relative pl-0 md:pl-24 group">
+                        <div class="hidden md:flex absolute left-4 top-2 w-4 h-4 rounded-full bg-[#0a0a0a] border-2 border-gold-accent/30 items-center justify-center group-hover:border-gold-accent transition-colors duration-500">
+                            <div class="w-1.5 h-1.5 rounded-full bg-gold-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        </div>
+                        
+                        <div class="flex items-baseline gap-6 mb-6">
+                            <span class="text-4xl font-serif text-white/20 font-black">01</span>
+                            <h4 class="text-3xl font-serif text-white tracking-widest">循道 · 敬畏自然</h4>
+                        </div>
+                        <div class="bg-white/[0.02] border border-white/5 p-10 hover:bg-white/[0.05] transition-colors duration-500">
+                            <p class="text-gray-400 font-light leading-loose text-[15px] tracking-widest text-justify">
+                                古建营造始终秉持“天人合一”的哲学。不违背山水走势，因地制宜。无论是四水归堂的集水智慧，还是干阑式建筑的防潮逻辑，都是先民与自然和谐共生的工程学表达。
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="heritage-node relative pl-0 md:pl-24 group">
+                        <div class="hidden md:flex absolute left-4 top-2 w-4 h-4 rounded-full bg-[#0a0a0a] border-2 border-gold-accent/30 items-center justify-center group-hover:border-gold-accent transition-colors duration-500">
+                            <div class="w-1.5 h-1.5 rounded-full bg-gold-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        </div>
+                        
+                        <div class="flex items-baseline gap-6 mb-6">
+                            <span class="text-4xl font-serif text-white/20 font-black">02</span>
+                            <h4 class="text-3xl font-serif text-white tracking-widest">制器 · 科学精神</h4>
+                        </div>
+                        <div class="bg-white/[0.02] border border-white/5 p-10 hover:bg-white/[0.05] transition-colors duration-500">
+                            <p class="text-gray-400 font-light leading-loose text-[15px] tracking-widest text-justify">
+                                抛弃玄学，走向精密。榫卯的力学解构、斗拱的抗震哲理、模数制的标准化生产。古代大匠以超越时代的科学眼光，为世界建筑史贡献了无与伦比的“中国方案”。
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="heritage-node relative pl-0 md:pl-24 group">
+                        <div class="hidden md:flex absolute left-4 top-2 w-4 h-4 rounded-full bg-[#0a0a0a] border-2 border-gold-accent/30 items-center justify-center group-hover:border-gold-accent transition-colors duration-500">
+                            <div class="w-1.5 h-1.5 rounded-full bg-gold-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        </div>
+                        
+                        <div class="flex items-baseline gap-6 mb-6">
+                            <span class="text-4xl font-serif text-white/20 font-black">03</span>
+                            <h4 class="text-3xl font-serif text-gold-accent tracking-widest">传世 · 守正拓新</h4>
+                        </div>
+                        <div class="bg-gold-accent/5 border border-gold-accent/20 p-10 hover:bg-gold-accent/10 transition-colors duration-500 shadow-[0_0_30px_rgba(230,196,143,0.05)]">
+                            <p class="text-gray-300 font-light leading-loose text-[15px] tracking-widest text-justify">
+                                传承，是为了更好地前行。将传统的榫卯技艺与现代材料科学结合，让古建的形制在数字化浪潮中重生。我们要传承的不仅是飞檐翘角，更是那份精益求精的大匠之魂。
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
         </div>
-    </div>
     </section>
 </template>
 
@@ -60,23 +99,35 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 gsap.registerPlugin(ScrollTrigger)
 
 onMounted(() => {
-    // 标题区域动画
-    gsap.from(".culture-content h2", {
-        x: -50, opacity: 0, duration: 1.5, ease: "power3.out",
-        scrollTrigger: { trigger: ".culture-content h2", start: "top 85%" }
+    // 1. 左侧标题浮现动画
+    gsap.from(".text-transparent.border-text", {
+        opacity: 0, x: -50, duration: 1.5, ease: "power3.out",
+        scrollTrigger: { trigger: "#wenmai", start: "top 60%" }
     })
-    
-    // 卡片错位进场动画
-    gsap.utils.toArray('.culture-card').forEach((card, i) => {
-        gsap.from(card, {
-            y: 100,
-            opacity: 0,
-            duration: 1.2,
-            ease: "power2.out",
-            delay: i * 0.2,
+
+    // 2. 核心动画：右侧脉络金线向下生长
+    gsap.fromTo(".golden-line", 
+        { scaleY: 0 }, 
+        { 
+            scaleY: 1, 
+            ease: "none",
             scrollTrigger: {
-                trigger: card,
-                start: "top 90%",
+                trigger: ".golden-line",
+                start: "top 60%", // 线条开始进入视口时
+                end: "bottom 40%", // 线条底部离开视口时画完
+                scrub: 1 // 绑定滚动条，跟随滚动生长的灵魂
+            }
+        }
+    )
+
+    // 3. 右侧节点依次上浮淡入
+    gsap.utils.toArray('.heritage-node').forEach((node, i) => {
+        gsap.from(node, {
+            y: 80, opacity: 0, duration: 1, ease: "power3.out",
+            scrollTrigger: {
+                trigger: node,
+                start: "top 80%", // 节点到达屏幕下方 80% 处触发
+                toggleActions: "play none none reverse"
             }
         })
     })
@@ -84,12 +135,16 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* 增加平滑的背景渐变效果 */
-.culture-card {
-    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), background 0.4s ease;
+@import url('https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css');
+
+.writing-vertical-rl {
+    writing-mode: vertical-rl;
+    text-orientation: upright;
 }
-.culture-card:hover {
-    background: rgba(255, 255, 255, 0.08);
-    transform: translateY(-10px) !important;
+
+/* 镂空文字的描边样式，极其高级 */
+.border-text {
+    -webkit-text-stroke: 2px #e6c48f; /* 使用金色的描边 */
+    color: transparent;
 }
 </style>

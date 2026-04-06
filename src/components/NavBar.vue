@@ -6,10 +6,10 @@
     </router-link>
     
     <div class="hidden lg:flex space-x-10 pointer-events-auto text-xs tracking-[0.2em] font-serif items-start">
-        <router-link to="/dashboard" class="text-palace-red transition-colors relative group text-left font-bold">
+        <a href="/dashboard" target="_blank" class="text-palace-red transition-colors relative group text-left font-bold cursor-pointer">
             天枢 <span class="text-[9px] uppercase opacity-70 block text-center mt-1">Dashboard</span>
             <div class="absolute -bottom-2 left-0 w-full h-[1px] bg-palace-red opacity-30"></div>
-        </router-link>
+        </a>
 
         <router-link to="/" class="hover:text-palace-red transition-colors relative group text-left">
             首页 <span class="text-[9px] uppercase opacity-50 block text-center mt-1">Home</span>
@@ -36,7 +36,7 @@
             <div class="absolute -bottom-2 left-1/2 w-0 h-[1px] bg-palace-red transition-all group-hover:w-full group-hover:left-0"></div>
         </router-link>
         
-        <button @click="openAiMaster" class="hover:text-palace-red transition-colors relative group text-left outline-none">
+        <button @click="openAiMaster" class="hover:text-palace-red transition-colors relative group text-left outline-none pointer-events-auto">
             <span class="relative">
                 智脑
                 <span class="absolute -top-0.5 -right-3 w-1.5 h-1.5 bg-palace-red rounded-full animate-pulse"></span>
@@ -46,7 +46,7 @@
         </button>
     </div>
 
-    <button @click="toggleMenu" class="text-xs tracking-widest uppercase pointer-events-auto hover-trigger relative group p-2">
+    <button @click="toggleMenu" class="text-xs tracking-widest uppercase pointer-events-auto hover-trigger relative group p-2 outline-none">
         <span v-if="!isMenuOpen">展开卷轴 / MENU</span>
         <span v-else>合上卷轴 / CLOSE</span>
     </button>
@@ -59,7 +59,9 @@
         </div>
 
         <nav class="relative z-10 flex flex-col items-center space-y-6 md:space-y-10 text-center">
-            <router-link to="/dashboard" @click="toggleMenu" class="text-4xl md:text-6xl font-serif text-palace-red hover:text-white transition-all tracking-[0.2em] font-bold">天枢 · 舆图</router-link>
+            <a href="/dashboard" target="_blank" @click="toggleMenu" class="text-4xl md:text-6xl font-serif text-palace-red hover:text-white transition-all tracking-[0.2em] font-bold cursor-pointer">
+                天枢 · 舆图
+            </a>
             
             <router-link to="/" @click="toggleMenu" class="text-3xl md:text-5xl font-serif text-paper-bg/80 hover:text-palace-red transition-all tracking-[0.2em]">首卷 · 开篇</router-link>
             <router-link to="/lanzhu" @click="toggleMenu" class="text-3xl md:text-5xl font-serif text-paper-bg/80 hover:text-palace-red transition-all tracking-[0.2em]">览筑 · 规制</router-link>
@@ -67,10 +69,10 @@
             <router-link to="/dianji" @click="toggleMenu" class="text-3xl md:text-5xl font-serif text-paper-bg/80 hover:text-palace-red transition-all tracking-[0.2em]">典籍 · 法式</router-link>
             <router-link to="/wenmai" @click="toggleMenu" class="text-3xl md:text-5xl font-serif text-paper-bg/80 hover:text-palace-red transition-all tracking-[0.2em]">文脉 · 传承</router-link>
             
-            <a href="#" @click.prevent="openAiMaster" class="text-3xl md:text-5xl font-serif text-palace-red hover:text-white transition-all tracking-[0.2em] relative">
+            <button @click="openAiMaster" class="text-3xl md:text-5xl font-serif text-palace-red hover:text-white transition-all tracking-[0.2em] relative outline-none">
                 智脑 · 推演
                 <span class="absolute top-2 -right-6 md:-right-8 w-3 h-3 bg-palace-red rounded-full animate-pulse"></span>
-            </a>
+            </button>
         </nav>
     </div>
 </Transition>
@@ -99,7 +101,7 @@ const openAiMaster = () => {
 .menu-fade-enter-from, .menu-fade-leave-to { opacity: 0; transform: scale(1.05); }
 
 /* 导航链接的 hover 效果 */
-nav a {
+nav a, nav router-link {
     transition: transform 0.3s ease;
 }
 nav a:hover {
