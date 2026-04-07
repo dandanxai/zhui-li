@@ -102,11 +102,26 @@ const initAnimations = () => {
         pinSpacing: false         // 保证不影响原来的高度布局
     })
 
-    // 左下角标题
-    gsap.to(".book-title", {
-        opacity: 1, duration: 0.5,
-        scrollTrigger: { trigger: ".book-section", start: "top center", end: "bottom center", toggleActions: "play reverse play reverse" }
+    // 🍏 苹果风：中间的书本模型从下方优雅浮现
+    gsap.from(".book-model", {
+        y: 100, 
+        opacity: 0, 
+        duration: 1.5, 
+        ease: "power3.out",
+        scrollTrigger: { 
+            trigger: ".book-section", 
+            start: "top 80%" 
+        }
     })
+
+    // 🍏 苹果风：左下角标题也从下往上浮出
+    gsap.fromTo(".book-title", 
+        { y: 30, opacity: 0 },
+        { 
+            y: 0, opacity: 1, duration: 1.2, ease: "power3.out",
+            scrollTrigger: { trigger: ".book-section", start: "top center", end: "bottom center", toggleActions: "play reverse play reverse" }
+        }
+    )
 
     // 2. 书本从左向右倾斜 (解决倾斜效果)
     gsap.fromTo(".book-model", 
@@ -165,7 +180,8 @@ const changeBook = (index) => {
             currentColor.value = bookData[index].color
             
             gsap.to('h4.dynamic-cover', { opacity: 1, duration: 0.3 })
-            gsap.to('div.book-bg-text.dynamic-cover', { opacity: 0.03, duration: 0.3 })
+            // 设定微弱透明度
+            gsap.to('div.book-bg-text.dynamic-cover', { opacity: 0.08, duration: 0.3 })
         }
     })
 }

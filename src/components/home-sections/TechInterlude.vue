@@ -84,7 +84,7 @@ onMounted(async () => {
 await nextTick()
 initThreeJS()
 
-// 1. 满屏无感淡入动画 (保持不变)
+// 1. 满屏无感淡入动画 
 gsap.from("#tech-interlude", {
     opacity: 0,
     duration: 1.5,
@@ -95,7 +95,7 @@ gsap.from("#tech-interlude", {
     }
 })
 
-// 2. ★ 新增：磁吸完美对齐逻辑 (Magnetic Snap) ★
+// 2. ★ 磁吸完美对齐逻辑 (Magnetic Snap) ★
 ScrollTrigger.create({
     trigger: "#tech-interlude",
     start: "top 50%",   // 当黑色区域头部到达屏幕中间时触发
@@ -172,6 +172,12 @@ loader.load('/dougong.glb', (gltf) => {
     initDragControls()
     onWindowResize()
     renderer.render(scene, camera)
+
+    // 👇 👇 👇 核心添加：模型渲染完毕后，告诉全局 GSAP 重新计算坐标
+    setTimeout(() => {
+        ScrollTrigger.refresh()
+        console.log("3D模型加载完毕，GSAP坐标已重新校准！")
+    }, 200)
 })
 
 

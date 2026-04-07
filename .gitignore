@@ -27,3 +27,7 @@ dist-ssr
 .env.local
 .env.*.local
 server/.env
+
+# .gitignore
+public/models/*.glb
+public/models/*.gltf

@@ -81,6 +81,19 @@ onMounted(async () => {
     // 1. 等待 DOM 完全挂载
     await nextTick()
     
+    // 🍏 苹果风：大标题区域交错上浮入场
+    gsap.from(".absolute.top-24 > *", {
+        y: 40, 
+        opacity: 0, 
+        duration: 1.2, 
+        stagger: 0.2, // 子元素依次延迟 0.2s 出现
+        ease: "power3.out",
+        scrollTrigger: { 
+            trigger: "#lanzhu", 
+            start: "top 80%" // 当该区域顶部到达屏幕 80% 处触发
+        }
+    })
+
     let hzContainer = document.querySelector(".horizontal-container")
     if (!hzContainer) return
 
@@ -93,7 +106,6 @@ onMounted(async () => {
             pin: true,
             scrub: 1,
             start: "top top",
-            // 滚动长度与内容宽度挂钩
             end: () => "+=" + (hzContainer.scrollWidth),
             invalidateOnRefresh: true, // 核心：刷新时重算
             onUpdate: (self) => {

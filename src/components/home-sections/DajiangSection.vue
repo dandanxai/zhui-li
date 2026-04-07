@@ -108,17 +108,43 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 gsap.registerPlugin(ScrollTrigger)
 
 onMounted(() => {
+    // 🍏 修复 1：把顶部标题改为 fromTo，明确终点 opacity: 1
+    gsap.fromTo(".mb-40.relative > *", 
+        { y: 50, opacity: 0 }, // 明确起点
+        {
+            y: 0, 
+            opacity: 1,        // 明确终点
+            duration: 1.2, 
+            stagger: 0.15, 
+            ease: "power3.out",
+            scrollTrigger: { 
+                trigger: "#dajiang", 
+                start: "top 80%" 
+            }
+        }
+    )
+
     gsap.utils.toArray('.scientist-block').forEach((block) => {
-    // 背景大字视差
-    gsap.to(block.querySelector('.text-outline, .text-gray-200\\/80, .text-gray-200\\/60'), {
-        y: -60, ease: "none",
-        scrollTrigger: { trigger: block, start: "top bottom", end: "bottom top", scrub: true }
-    })
-    // 文本框浮现
-    gsap.from(block.querySelector('.z-10'), {
-        y: 50, opacity: 0, duration: 1, ease: "power2.out",
-        scrollTrigger: { trigger: block, start: "top 80%" }
-    })
+        // 背景大字视差 (to 动画不需要改，它不涉及初始透明度问题)
+        gsap.to(block.querySelector('.text-outline, .text-gray-200\\/80, .text-gray-200\\/60'), {
+            y: -60, ease: "none",
+            scrollTrigger: { trigger: block, start: "top bottom", end: "bottom top", scrub: true }
+        })
+        
+        // 🍏 修复 2：把卡片浮现改为 fromTo，彻底解决卡片“消失/隐身”的问题！
+        const card = block.querySelector('.z-10')
+        if (card) {
+            gsap.fromTo(card, 
+                { y: 60, opacity: 0 }, // 起点：偏下且透明
+                {
+                    y: 0, 
+                    opacity: 1,        // 终点：回到原位且完全可见
+                    duration: 1.2, 
+                    ease: "power3.out",
+                    scrollTrigger: { trigger: block, start: "top 85%" }
+                }
+            )
+        }
     })
 })
 </script>

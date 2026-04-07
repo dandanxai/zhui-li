@@ -99,10 +99,17 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 gsap.registerPlugin(ScrollTrigger)
 
 onMounted(() => {
-    // 1. 左侧标题浮现动画
-    gsap.from(".text-transparent.border-text", {
-        opacity: 0, x: -50, duration: 1.5, ease: "power3.out",
-        scrollTrigger: { trigger: "#wenmai", start: "top 60%" }
+    // 🍏 苹果风：左侧固定叙事区交错上浮
+    gsap.from(".md\\:sticky > *", {
+        y: 50, 
+        opacity: 0, 
+        duration: 1.2, 
+        stagger: 0.15, // 标题、段落、按钮会像流水一样依次出来
+        ease: "power3.out",
+        scrollTrigger: { 
+            trigger: "#wenmai", 
+            start: "top 75%" 
+        }
     })
 
     // 2. 核心动画：右侧脉络金线向下生长
@@ -120,13 +127,13 @@ onMounted(() => {
         }
     )
 
-    // 3. 右侧节点依次上浮淡入
+    // 3. 右侧节点依次上浮淡入 (将 ease 改为 power3.out)
     gsap.utils.toArray('.heritage-node').forEach((node, i) => {
         gsap.from(node, {
-            y: 80, opacity: 0, duration: 1, ease: "power3.out",
+            y: 60, opacity: 0, duration: 1.2, ease: "power3.out",
             scrollTrigger: {
                 trigger: node,
-                start: "top 80%", // 节点到达屏幕下方 80% 处触发
+                start: "top 85%", // 节点到达屏幕下方 85% 处触发
                 toggleActions: "play none none reverse"
             }
         })
