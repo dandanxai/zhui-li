@@ -46,10 +46,40 @@
         </button>
     </div>
 
-    <button @click="toggleMenu" class="text-xs tracking-widest uppercase pointer-events-auto hover-trigger relative group p-2 outline-none">
-        <span v-if="!isMenuOpen">展开卷轴 / MENU</span>
-        <span v-else>合上卷轴 / CLOSE</span>
-    </button>
+    <div class="flex items-center gap-6 md:gap-10 pointer-events-auto">
+        
+        <div class="flex items-center hidden md:flex border-r border-paper-bg/30 pr-6">
+            <button 
+                v-if="!isLoggedIn" 
+                @click="$router.push('/login')"
+                class="border border-paper-bg px-4 py-1 text-xs font-bold tracking-widest hover:bg-paper-bg hover:text-[#111] transition-colors"
+            >
+                登 录
+            </button>
+
+            <div v-else class="flex items-center gap-3 group relative cursor-pointer py-1">
+                <div class="w-6 h-6 bg-palace-red rounded-full flex items-center justify-center text-white font-bold text-[10px]">
+                    {{ userName.charAt(0) }}
+                </div>
+                <span class="text-xs font-bold tracking-widest">{{ userName }}</span>
+
+                <div class="absolute top-full right-0 w-28 bg-[#fcfaf5] border border-gray-200 shadow-xl 
+                            opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto
+                            before:content-[''] before:absolute before:-top-4 before:left-0 before:w-full before:h-4">
+                    
+                    <div class="pt-2"> <button @click="handleLogout" class="w-full text-center py-3 text-xs tracking-widest text-[#111] hover:text-palace-red hover:bg-gray-100 transition-colors">
+                            退出登录
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button @click="toggleMenu" class="text-xs tracking-widest uppercase hover-trigger relative group p-2 outline-none">
+            <span v-if="!isMenuOpen">展开卷轴 / MENU</span>
+            <span v-else>合上卷轴 / CLOSE</span>
+        </button>
+    </div>
 </header>
 
 <Transition name="menu-fade">
@@ -58,7 +88,7 @@
             <span class="text-[40vw] font-serif text-white">营造</span>
         </div>
 
-        <nav class="relative z-10 flex flex-col items-center space-y-6 md:space-y-10 text-center">
+        <nav class="relative z-10 flex flex-col items-center space-y-6 md:space-y-10 text-center pointer-events-auto">
             <a href="/dashboard" target="_blank" @click="toggleMenu" class="text-4xl md:text-6xl font-serif text-palace-red hover:text-white transition-all tracking-[0.2em] font-bold cursor-pointer">
                 天枢 · 舆图
             </a>
@@ -73,15 +103,31 @@
                 智脑 · 推演
                 <span class="absolute top-2 -right-6 md:-right-8 w-3 h-3 bg-palace-red rounded-full animate-pulse"></span>
             </button>
+
+            <div class="pt-10 mt-10 border-t border-white/10 flex flex-col items-center">
+                <button v-if="!isLoggedIn" @click="$router.push('/login'); toggleMenu()" class="text-xl tracking-widest text-gray-400 hover:text-white transition-colors">
+                    登 录
+                </button>
+                <div v-else class="flex flex-col items-center gap-4">
+                    <span class="text-xl tracking-widest text-white">居士：{{ userName }}</span>
+                    <button @click="handleLogout(); toggleMenu()" class="text-sm tracking-widest text-palace-red hover:text-white">退出登录</button>
+                </div>
+            </div>
         </nav>
     </div>
 </Transition>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+// 🏮 引入写好的登录鉴权接口
+import { getInfo } from '@/api/login'
 
 const isMenuOpen = ref(false)
+const router = useRouter()
+const isLoggedIn = ref(false)
+const userName = ref('')
 
 const toggleMenu = () => {
     isMenuOpen.value = !isMenuOpen.value
@@ -94,6 +140,38 @@ const openAiMaster = () => {
         toggleMenu();
     }
 }
+
+// 🏮 核心逻辑：检查 Token 状态并获取用户信息
+const checkAuth = () => {
+const token = localStorage.getItem('ZHL_TOKEN')
+if (token) {
+    isLoggedIn.value = true
+    getInfo().then(res => {
+    if (res.data && res.data.user) {
+        // 优先使用若依系统的昵称，没有则退化为账号名
+        userName.value = res.data.user.nickName || res.data.user.userName
+    }
+    }).catch(() => {
+    // 捕获异常（Token失效等），执行退出
+    handleLogout()
+    })
+}
+}
+
+// 🏮 核心逻辑：退出登录
+const handleLogout = () => {
+localStorage.removeItem('ZHL_TOKEN')
+isLoggedIn.value = false
+userName.value = ''
+if(router.currentRoute.value.path !== '/') {
+    router.push('/')
+}
+}
+
+// 组件挂载时检查一次登录状态
+onMounted(() => {
+checkAuth()
+})
 </script>
 
 <style scoped>

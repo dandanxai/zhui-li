@@ -233,7 +233,8 @@ const initThreeJS = () => {
     sunLight.position.set(10, 20, 10);
     scene.add(sunLight);
 
-    const modelPath = building.value.modelUrl || `/models/${building.value.id}.glb`;
+    // const modelPath = building.value.modelUrl || `/models/${building.value.id}.glb`;
+    const modelPath = building.value.modelUrl || 'https://dandanxia-hs.oss-cn-hangzhou.aliyuncs.com/dazhengdian.glb';
 
     const loader = new GLTFLoader(manager);
     loader.load(modelPath, (gltf) => {
@@ -256,7 +257,7 @@ const initThreeJS = () => {
 
     const animate = () => {
         animationId = requestAnimationFrame(animate);
-        const moveSpeed = 0.08; 
+        const moveSpeed = 0.04; 
         const forward = new THREE.Vector3();
         camera.getWorldDirection(forward);
         forward.y = 0; 

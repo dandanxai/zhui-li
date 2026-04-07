@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@amap/amap-jsapi-loader": "^1.0.1",
+    "axios": "^1.14.0",
     "gsap": "^3.14.2",
     "marked": "^17.0.6",
     "three": "^0.183.2",

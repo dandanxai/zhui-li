@@ -53,7 +53,10 @@
                             <div v-if="msg.type !== 'image'" class="bg-white/[0.02] border border-white/5 p-8 rounded-3xl rounded-tl-none relative markdown-body shadow-inner" v-html="renderMarkdown(msg.content)"></div>
                             
                             <div v-else class="bg-white/[0.02] border border-white/5 p-4 rounded-3xl rounded-tl-none relative group overflow-hidden">
-                                <img v-if="msg.content" :src="msg.content" class="w-full rounded-2xl shadow-2xl cursor-zoom-in hover:scale-[1.01] transition-transform duration-500" @click="viewImage(msg.content)" />
+                                <img v-if="msg.content && msg.content.startsWith('http')" :src="msg.content" class="w-full rounded-2xl shadow-2xl cursor-zoom-in hover:scale-[1.01] transition-transform duration-500" @click="viewImage(msg.content)" />
+                                <div v-else-if="msg.content && !msg.content.startsWith('http')" class="p-4 text-palace-red text-sm tracking-widest font-bold">
+                                    {{ msg.content }}
+                                </div>
                                 <div v-else class="h-64 flex flex-col items-center justify-center text-gray-500 gap-4">
                                     <div class="w-8 h-8 border-2 border-palace-red border-t-transparent rounded-full animate-spin"></div>
                                     <p class="italic text-sm tracking-widest">正在为您挥毫泼墨...</p>
@@ -96,6 +99,8 @@
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick } from 'vue';
 import { marked } from 'marked';
+// 🏮 核心引入：使用抽离出去的规范化 API
+import { drawImage, chatStream } from '@/api/ai';
 
 const isOpen = ref(false); 
 const mode = ref('chat'); 
@@ -125,67 +130,109 @@ const askMaster = async () => {
     if (!userMessage.value.trim() || isLoading.value) return; 
     const text = userMessage.value;
     const currentMode = mode.value;
+    
     history.value.push({ role: 'user', content: text });
     userMessage.value = ''; 
     isLoading.value = true; 
 
+    // ----------------------------------------------------
+    // 🏮 模式 A: 丹青作画 (生图接口)
+    // ----------------------------------------------------
     if (currentMode === 'draw') {
         const aiMsgIndex = history.value.push({ role: 'assistant', type: 'image', content: '' }) - 1;
         try {
-            const res = await fetch('http://localhost:3000/api/draw', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: text })
-            });
-            const data = await res.json();
-            history.value[aiMsgIndex].content = data.url || '丹青受阻';
+            // 调用封装好的 API (自动走 request.js 拦截器)
+            const res = await drawImage(text);
+            
+            // 根据若依或你后端的返回格式判断 (通常若依拦截器会返回 res.data 或者直接返回解析后的结构)
+            if (res && res.url) {
+                history.value[aiMsgIndex].content = res.url;
+            } else if (res && res.data && res.data.url) {
+                history.value[aiMsgIndex].content = res.data.url;
+            } else {
+                history.value[aiMsgIndex].content = '画师报错：' + (res.error || res.msg || '未获取到图卷');
+            }
         } catch (e) {
-            history.value[aiMsgIndex].content = '画师今日笔墨已尽。';
-        } finally { isLoading.value = false; scrollToBottom(); }
+            history.value[aiMsgIndex].content = '网络异常，画师罢工了。' + (e.message || '');
+        } finally { 
+            isLoading.value = false; 
+            scrollToBottom(); 
+        }
+        
+    // ----------------------------------------------------
+    // 🏮 模式 B: 对话推演 (SSE 流式接口)
+    // ----------------------------------------------------
     } else {
         const aiMsgIndex = history.value.push({ role: 'assistant', type: 'text', content: '' }) - 1;
         abortController = new AbortController();
+        
         try {
-            const response = await fetch('http://localhost:3000/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: text }),
-                signal: abortController.signal
-            });
+            // 调用封装好的流式请求 API
+            const response = await chatStream(text, abortController.signal);
+            
+            // 🏮 核心防坑：HTTP 状态码显式报错
+            if (!response.ok) {
+                history.value[aiMsgIndex].content = `中枢连接失败！状态码: ${response.status} (检查后端是否启动及代理配置)`;
+                isLoading.value = false;
+                return;
+            }
+
             const reader = response.body.getReader();
             const decoder = new TextDecoder('utf-8'); 
+            
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break; 
-                const lines = decoder.decode(value).split('\n');
+                
+                // 🏮 修复1：加上 { stream: true }，防止中文字节被拦腰截断导致乱码
+                const chunkText = decoder.decode(value, { stream: true });
+                const lines = chunkText.split('\n');
+                
                 for (const line of lines) {
-                    if (line.startsWith('data: ')) {
-                        const dataString = line.replace('data: ', '');
+                    const trimmedLine = line.trim();
+                    // 🏮 修复2：容错处理，不管冒号后面有没有空格，只要是 data: 开头就全收！
+                    if (trimmedLine.startsWith('data:')) {
+                        // 直接截掉前5个字符（即 "data:"），剩下的就是干净的 JSON
+                        const dataString = trimmedLine.substring(5).trim();
+                        
                         if (dataString === '[DONE]') break;
+                        
                         try {
                             const parsed = JSON.parse(dataString);
-                            history.value[aiMsgIndex].content += parsed.text || '';
+                            if (parsed.error) {
+                                history.value[aiMsgIndex].content += `\n\n**[后端告警]**: ${parsed.error}`;
+                            } else {
+                                history.value[aiMsgIndex].content += parsed.text || '';
+                            }
                             scrollToBottom();
-                        } catch (e) { }
+                        } catch (e) { 
+                            // 某一块被截断的 JSON 解析失败不管它，等下一块拼上
+                        }
                     }
                 }
             }
-        } catch (e) { } finally { isLoading.value = false; }
+        } catch (e) { 
+            // 判断是否是主动停止
+            if (e.name !== 'AbortError') {
+                history.value[aiMsgIndex].content = '流式读取中断：' + e.message;
+            }
+        } finally { 
+            isLoading.value = false; 
+        }
     }
 };
 
 const handleOpenAI = (e) => {
-isOpen.value = true;
-// 如果事件带有 prompt 载荷（来自右键菜单）
-if (e.detail && e.detail.prompt) {
-    userMessage.value = e.detail.prompt;
-    if (e.detail.mode) mode.value = e.detail.mode;
-    // 延迟一瞬确保窗口已打开，然后自动触发发送
-    setTimeout(() => {
-    askMaster();
-    }, 400);
-}
-scrollToBottom();
+    isOpen.value = true;
+    if (e.detail && e.detail.prompt) {
+        userMessage.value = e.detail.prompt;
+        if (e.detail.mode) mode.value = e.detail.mode;
+        // 延迟一瞬确保窗口已打开，然后自动触发发送
+        setTimeout(() => {
+            askMaster();
+        }, 400);
+    }
+    scrollToBottom();
 };
 
 const closeChat = () => { if (!isLoading.value) isOpen.value = false; };
@@ -205,12 +252,16 @@ onUnmounted(() => {
 
 <style scoped>
 @import url('https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css');
+
 .markdown-body { font-size: 15px; line-height: 2.2; color: #eee; text-align: justify; }
 :deep(.markdown-body strong) { color: #fff; font-weight: 900; border-bottom: 1px solid #9b2e2e; }
+
 .chat-container::-webkit-scrollbar { width: 3px; }
 .chat-container::-webkit-scrollbar-thumb { background: rgba(155, 46, 46, 0.4); border-radius: 10px; }
+
 .prompt-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); padding: 1.5rem; border-radius: 1.5rem; transition: all 0.3s ease; cursor: pointer; }
 .prompt-card:hover { border-color: rgba(155, 46, 46, 0.5); background: rgba(255, 255, 255, 0.05); transform: translateY(-2px); }
+
 .master-modal-enter-active, .master-modal-leave-active { transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
 .master-modal-enter-from, .master-modal-leave-to { opacity: 0; transform: scale(1.05); filter: blur(20px); }
 </style>

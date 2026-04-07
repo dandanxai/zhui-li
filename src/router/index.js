@@ -18,6 +18,25 @@ const router = createRouter({
             component: HomeView,
             meta: { title: '筑理 · 开启营造之旅' }
         },
+        // 在 routes 数组中加入这段：
+        {
+            path: '/login',
+            name: 'login',
+            component: () => import('../views/LoginView.vue'),
+            meta: { 
+                title: '入卷 · 考工台登录',
+                hideGlobalUI: true // 隐藏全局导航栏（如果你在 App.vue 里做了类似 dashboard 的判断）
+            }
+        },
+        {
+            path: '/register',
+            name: 'register',
+            component: () => import('../views/RegisterView.vue'),
+            meta: { 
+                title: '入府 · 考工台登记',
+                hideGlobalUI: true 
+            }
+        },
         {
             path: '/lanzhu',
             name: 'lanzhu',
