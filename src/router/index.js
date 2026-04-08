@@ -36,7 +36,7 @@ const router = createRouter({
                 hideGlobalUI: true 
             }
         },
-        // 🏮 核心修改：个人中心
+        // 🏮 个人中心
         {
             path: '/profile',
             name: 'profile',
@@ -45,6 +45,13 @@ const router = createRouter({
                 title: '居士书斋 · 个人中心',
                 requireAuth: true // 🏮 关键标记：必须登录才能进
             }
+        },
+        // 🏮 新增：全局搜索结果页
+        {
+            path: '/search',
+            name: 'search',
+            component: () => import('../views/SearchResultView.vue'),
+            meta: { title: '寻觅 · 全局卷宗查阅' }
         },
         {
             path: '/lanzhu',
@@ -114,7 +121,7 @@ const router = createRouter({
 })
 
 /**
- * 🏮 核心修改：全局前置守卫 (处理权限 & 加载动画)
+ * 🏮 全局前置守卫 (处理权限 & 加载动画)
  */
 router.beforeEach((to, from, next) => {
     // 1. 获取 Token

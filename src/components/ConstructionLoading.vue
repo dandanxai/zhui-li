@@ -1,104 +1,97 @@
 <template>
-<div class="fixed inset-0 z-[2000] bg-[#fcfaf5] flex flex-col items-center justify-center overflow-hidden font-serif selection:none">
+<div class="fixed inset-0 z-[2000] bg-[#fcfaf5] flex flex-col items-center justify-center overflow-hidden">
     
-    <div class="absolute inset-0 opacity-[0.03] pointer-events-none" 
-         style="background-image: radial-gradient(#000 1px, transparent 1px); background-size: 30px 30px;"></div>
-    <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0">
-        <span class="text-[40vw] font-black text-black/[0.02] animate-water-ink">筑</span>
+    <div class="absolute inset-0 opacity-[0.02] pointer-events-none select-none flex items-center justify-center mix-blend-multiply">
+        <span class="text-[40vw] font-black font-serif writing-vertical-rl tracking-widest">考工</span>
     </div>
 
-    <div class="relative w-64 h-64 flex items-center justify-center z-10">
-        <div class="absolute w-1.5 h-32 bg-[#111] animate-pillar-grow"></div>
-        
-        <div class="absolute w-40 h-1 bg-palace-red opacity-0 animate-joint-slide-1 top-[45%]"></div>
-        <div class="absolute w-24 h-1 bg-[#111] opacity-0 animate-joint-slide-2 top-[35%]"></div>
-        <div class="absolute w-56 h-1 bg-palace-red opacity-0 animate-joint-slide-3 top-[25%]"></div>
+    <div class="relative w-64 h-64 flex items-center justify-center">
+        <div class="absolute inset-0 border-[1px] border-[#111]/10 rounded-full animate-[spin_12s_linear_infinite]"></div>
+        <div class="absolute inset-3 border border-dashed border-palace-red/40 rounded-full animate-[spin_20s_linear_infinite_reverse]"></div>
+        <div class="absolute inset-8 border-[1px] border-[#111]/5 rounded-full"></div>
 
-        <div class="absolute w-full h-[1px] bg-black/5 scale-x-0 animate-line-expand"></div>
+        <svg viewBox="0 0 100 100" class="w-28 h-28 relative z-10 text-[#111]">
+            <g class="svg-draw-lines" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5,40 Q50,15 95,40" class="path-1" />
+                <path d="M15,40 L85,40" class="path-2" />
+                <path d="M25,40 V50 M40,40 V50 M60,40 V50 M75,40 V50" class="path-3" />
+                <path d="M20,50 H80" class="path-4" />
+                <path d="M30,50 V80 M70,50 V80" stroke-width="2" class="path-5" />
+                <path d="M45,50 V80 M55,50 V80" stroke-width="1" class="path-6" />
+                <path d="M15,80 H85" stroke-width="2" class="path-7" />
+                <path d="M20,85 H80" class="path-8" />
+                <path d="M25,90 H75" class="path-9" />
+            </g>
+            <circle cx="50" cy="50" r="3" fill="#9b2e2e" class="animate-pulse" />
+        </svg>
+
+        <div class="absolute inset-0 overflow-hidden rounded-full pointer-events-none">
+            <div class="w-full h-1/2 bg-gradient-to-b from-transparent via-palace-red/10 to-transparent animate-scan-line"></div>
+        </div>
     </div>
 
-    <div class="mt-12 flex flex-col items-center reveal-up">
-        <div class="flex items-center gap-4 mb-4">
-            <div class="w-8 h-[1px] bg-palace-red/30"></div>
-            <div class="text-[11px] tracking-[0.8em] text-[#111] font-black uppercase">
-                肆时营造 · 正在合龙
-            </div>
-            <div class="w-8 h-[1px] bg-palace-red/30"></div>
+    <div class="mt-12 flex flex-col items-center relative z-10">
+        <div class="text-sm font-serif tracking-[0.8em] text-[#111] font-bold ml-[0.8em] flex items-center gap-4">
+            <span class="w-1.5 h-1.5 bg-palace-red rounded-full animate-ping"></span>
+            系统组装中
         </div>
-        
-        <div class="w-48 h-[2px] bg-black/5 relative overflow-hidden">
-            <div class="absolute inset-y-0 left-0 bg-palace-red animate-loading-stripes" style="width: 100%"></div>
-        </div>
-        
-        <p class="mt-4 font-mono text-[9px] text-gray-400 tracking-widest uppercase">
-            System_Loading // ARCHIVE_Constructing
+        <p class="mt-4 text-[10px] tracking-widest text-gray-400 font-mono uppercase">
+            Digitizing Ancient Architecture ...
         </p>
+
+        <div class="mt-8 w-48 h-[1px] bg-black/10 relative overflow-hidden">
+            <div class="absolute inset-y-0 left-0 bg-palace-red w-full origin-left animate-progress-bar"></div>
+        </div>
     </div>
 </div>
 </template>
 
 <style scoped>
-/* 1. 立柱垂直生长：时长增加到 1.5s */
-@keyframes pillar-grow {
-    0% { transform: scaleY(0); opacity: 0; }
-    10% { transform: scaleY(0); opacity: 1; }
-    100% { transform: scaleY(1); opacity: 1; }
+/* 竖排文字 */
+.writing-vertical-rl {
+    writing-mode: vertical-rl;
 }
 
-/* 2. 榫卯对位：时长增加到 1.2s，增加模糊渐变感 */
-@keyframes joint-slide {
-    0% { transform: scaleX(1.8); opacity: 0; filter: blur(15px); }
-    100% { transform: scaleX(1); opacity: 1; filter: blur(0); }
+/* 🏮 SVG 魔法：让线条自动一笔一画描绘出来的核心逻辑 */
+.svg-draw-lines path {
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+    animation: drawLine 2s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
 }
 
-/* 3. 辅助线展开：时长增加到 2s */
-@keyframes line-expand {
-    0% { transform: scaleX(0); opacity: 0; }
-    100% { transform: scaleX(1); opacity: 1; }
+/* 错开每根线条的描绘时间，产生“搭建”的层次感 */
+.path-1 { animation-delay: 0.0s !important; }
+.path-2 { animation-delay: 0.2s !important; }
+.path-3 { animation-delay: 0.4s !important; }
+.path-4 { animation-delay: 0.6s !important; }
+.path-5 { animation-delay: 0.8s !important; }
+.path-6 { animation-delay: 1.0s !important; }
+.path-7 { animation-delay: 1.2s !important; }
+.path-8 { animation-delay: 1.4s !important; }
+.path-9 { animation-delay: 1.6s !important; }
+
+@keyframes drawLine {
+    0% { stroke-dashoffset: 200; }
+    100% { stroke-dashoffset: 0; }
 }
 
-/* 4. 水墨背景呼吸：极慢节奏 */
-@keyframes water-ink {
-    0%, 100% { transform: scale(1); opacity: 0.02; }
-    50% { transform: scale(1.03); opacity: 0.04; }
+/* 全息扫描光效 */
+@keyframes scan-line {
+    0% { transform: translateY(-100%); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translateY(200%); opacity: 0; }
+}
+.animate-scan-line {
+    animation: scan-line 2.5s linear infinite;
 }
 
-/* 5. 进度条动画：放慢到 3s 一循环 */
-@keyframes loading-stripes {
-    0% { transform: translateX(-100%); }
-    50% { transform: translateX(0); }
-    100% { transform: translateX(100%); }
+/* 数据拉取进度条 */
+@keyframes progress-bar {
+    0% { transform: scaleX(0); opacity: 1; }
+    80% { transform: scaleX(1); opacity: 1; }
+    100% { transform: scaleX(1); opacity: 0; }
 }
-
-/* 动画类分配（调整了 Duration 和 Delay） */
-.animate-pillar-grow { 
-    animation: pillar-grow 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
-}
-.animate-joint-slide-1 { 
-    animation: joint-slide 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards; 
-}
-.animate-joint-slide-2 { 
-    animation: joint-slide 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards; 
-}
-.animate-joint-slide-3 { 
-    animation: joint-slide 1.2s cubic-bezier(0.16, 1, 0.3, 1) 1.2s forwards; 
-}
-.animate-line-expand {
-    animation: line-expand 2s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
-}
-.animate-water-ink {
-    animation: water-ink 10s ease-in-out infinite;
-}
-.animate-loading-stripes {
-    animation: loading-stripes 3s cubic-bezier(0.76, 0, 0.24, 1) infinite;
-}
-
-/* 文字浮现：在合龙接近尾声时（1.5s）再淡入 */
-.reveal-up {
-    animation: reveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) 1.5s both;
-}
-@keyframes reveal {
-    from { opacity: 0; transform: translateY(15px); filter: blur(5px); }
-    to { opacity: 1; transform: translateY(0); filter: blur(0); }
+.animate-progress-bar {
+    animation: progress-bar 2s ease-in-out infinite;
 }
 </style>

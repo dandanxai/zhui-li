@@ -94,3 +94,12 @@ export function getClassic(id) {
     method: 'get'
     })
 }
+
+// 全局搜索接口
+export function globalSearch(keyword) {
+    return request({
+    url: '/building/search/global',
+    method: 'get',
+    params: { keyword }
+    })
+}

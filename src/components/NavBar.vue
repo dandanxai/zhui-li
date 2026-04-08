@@ -55,6 +55,29 @@
 
     <div class="flex items-center gap-6 md:gap-10 pointer-events-auto">
         
+        <div class="flex items-center relative">
+            <div :class="['flex items-center justify-between transition-all duration-500 ease-in-out overflow-hidden border-b border-palace-red/50', 
+                            isSearchOpen ? 'w-56 md:w-72 opacity-100 px-2' : 'w-0 opacity-0 border-none']">
+                <input 
+                    ref="searchInput"
+                    v-model="searchQuery" 
+                    type="text" 
+                    placeholder="搜寻营造灵感..."
+                    class="bg-transparent border-none outline-none text-paper-bg placeholder:text-paper-bg/40 w-full text-xs tracking-widest"
+                    @keyup.enter="handleSearch"
+                />
+                <button 
+                    @click="handleSearch" 
+                    class="text-[10px] font-bold tracking-[0.3em] whitespace-nowrap text-paper-bg hover:text-palace-red transition-colors opacity-70 hover:opacity-100 ml-2"
+                >
+                    搜索
+                </button>
+            </div>
+            <button @click="toggleSearch" class="p-2 hover:text-palace-red transition-colors outline-none flex items-center justify-center">
+                <svg v-if="!isSearchOpen" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <svg v-else xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+        </div>
         <div class="flex items-center hidden md:flex border-r border-paper-bg/30 pr-6">
             <button 
                 v-if="!isLoggedIn" 
@@ -64,18 +87,34 @@
                 登 录
             </button>
 
-            <div v-else class="flex items-center gap-3 group relative cursor-pointer py-1 mix-blend-normal">
+            <div v-else class="flex items-center gap-3 group relative cursor-pointer py-1">
                 <div class="w-6 h-6 bg-palace-red rounded-full overflow-hidden flex items-center justify-center text-white font-bold text-[10px]">
                     <img v-if="userAvatar" :src="userAvatar" class="w-full h-full object-cover" alt="avatar" />
                     <span v-else>{{ userName.charAt(0) }}</span>
                 </div>
                 
-                <span class="text-xs font-bold tracking-widest text-paper-bg">{{ userName }}</span>
-                
+                <span class="text-xs font-bold tracking-widest">{{ userName }}</span>
+
                 <div class="absolute top-full right-0 w-28 bg-[#fcfaf5] border border-gray-200 shadow-xl 
                         opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto
                         before:content-[''] before:absolute before:-top-4 before:left-0 before:w-full before:h-4">
-                    </div>
+                
+                <div class="py-1"> 
+                    <router-link 
+                        to="/profile" 
+                        class="block w-full text-center py-3 text-xs tracking-widest text-[#111] hover:text-palace-red hover:bg-gray-100 transition-colors border-b border-gray-50"
+                    >
+                        个人中心
+                    </router-link>
+
+                    <button 
+                        @click="handleLogout" 
+                        class="w-full text-center py-3 text-xs tracking-widest text-[#111] hover:text-palace-red hover:bg-gray-100 transition-colors"
+                    >
+                        退出登录
+                    </button>
+                </div>
+            </div>
             </div>
         </div>
 
@@ -123,7 +162,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+// 🏮 新增了 nextTick 用于搜索框自动聚焦
+import { ref, onMounted, nextTick } from 'vue' 
 import { useRouter } from 'vue-router'
 import { getInfo } from '@/api/login'
 
@@ -131,7 +171,32 @@ const isMenuOpen = ref(false)
 const router = useRouter()
 const isLoggedIn = ref(false)
 const userName = ref('')
-const userAvatar = ref('') // 🏮 新增头像变量
+const userAvatar = ref('')
+
+// 🏮 新增：搜索功能状态与逻辑
+const isSearchOpen = ref(false)
+const searchQuery = ref('')
+const searchInput = ref(null)
+
+const toggleSearch = () => {
+    isSearchOpen.value = !isSearchOpen.value
+    if (isSearchOpen.value) {
+        // 展开时自动获取焦点
+        nextTick(() => {
+            if (searchInput.value) searchInput.value.focus()
+        })
+    } else {
+        searchQuery.value = '' // 收起时清空内容
+    }
+}
+
+const handleSearch = () => {
+    if (!searchQuery.value.trim()) return
+    // 触发搜索跳转 (可根据你的实际路由路径修改 /search)
+    router.push({ path: '/search', query: { keyword: searchQuery.value } })
+    isSearchOpen.value = false
+    searchQuery.value = ''
+}
 
 const toggleMenu = () => {
     isMenuOpen.value = !isMenuOpen.value
@@ -151,7 +216,6 @@ const checkAuth = () => {
         isLoggedIn.value = true
         getInfo().then(res => {
             if (res.data && res.data.user) {
-                // 🏮 同时获取名字和头像
                 userName.value = res.data.user.nickName || res.data.user.userName
                 userAvatar.value = res.data.user.avatar || ''
             }
@@ -165,7 +229,7 @@ const handleLogout = () => {
     localStorage.removeItem('ZHL_TOKEN')
     isLoggedIn.value = false
     userName.value = ''
-    userAvatar.value = '' // 清除头像
+    userAvatar.value = ''
     if(router.currentRoute.value.path !== '/') {
         router.push('/')
     }
@@ -185,5 +249,11 @@ nav a, nav router-link {
 }
 nav a:hover {
     transform: scale(1.1);
+}
+
+/* 🏮 新增：适配差值模式的占位符颜色 */
+input::placeholder {
+    color: inherit;
+    opacity: 0.4;
 }
 </style>
