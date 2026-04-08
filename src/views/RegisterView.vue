@@ -1,6 +1,16 @@
 <template>
 <div class="min-h-screen bg-[#fcfaf5] flex items-center justify-center relative selection:bg-palace-red selection:text-white font-serif overflow-hidden">
     
+    <Transition name="toast-fade">
+        <div v-if="toast.show" 
+                class="fixed top-12 left-1/2 -translate-x-1/2 z-[9999] px-8 py-4 shadow-[0_20px_40px_rgba(0,0,0,0.1)] flex items-center gap-4 min-w-[280px] bg-[#111]"
+                :class="toast.type === 'error' ? 'border-l-4 border-palace-red' : 'border-l-4 border-[#c5a977]'">
+            <span class="w-1.5 h-1.5 rounded-full animate-pulse" 
+                    :class="toast.type === 'error' ? 'bg-palace-red' : 'bg-[#c5a977]'"></span>
+            <span class="font-serif tracking-[0.2em] text-sm text-white">{{ toast.msg }}</span>
+        </div>
+    </Transition>
+
     <div class="absolute inset-0 opacity-[0.03] pointer-events-none z-0" style="background-image: radial-gradient(#000000 1.5px, transparent 1.5px); background-size: 40px 40px;"></div>
     <div class="absolute -right-20 bottom-10 text-[20rem] font-black text-black/[0.02] select-none pointer-events-none leading-none">理</div>
 
@@ -72,46 +82,78 @@ const captchaEnabled = ref(true)
 const codeUrl = ref('')
 
 const registerForm = reactive({
-username: '',
-password: '',
-confirmPassword: '',
-code: '',
-uuid: '',
-userType: '01' // 🏮 默认为前台普通用户
+    username: '',
+    password: '',
+    confirmPassword: '',
+    code: '',
+    uuid: '',
+    userType: '01' // 默认为前台普通用户
 })
 
-const getCode = async () => {
-const res = await getCodeImg()
-if (res.data.captchaEnabled === false) {
-    captchaEnabled.value = false
-    return
+// 🏮 告文 (Toast) 控制逻辑
+const toast = reactive({ show: false, msg: '', type: 'error' })
+let toastTimer = null
+const showToast = (msg, type = 'error') => {
+    toast.msg = msg
+    toast.type = type
+    toast.show = true
+    if (toastTimer) clearTimeout(toastTimer)
+    toastTimer = setTimeout(() => { toast.show = false }, 3000)
 }
-captchaEnabled.value = true
-codeUrl.value = 'data:image/gif;base64,' + res.data.img
-registerForm.uuid = res.data.uuid
+
+const getCode = async () => {
+    try {
+        const res = await getCodeImg()
+        if (res.data.captchaEnabled === false) {
+            captchaEnabled.value = false
+            return
+        }
+        captchaEnabled.value = true
+        codeUrl.value = 'data:image/gif;base64,' + res.data.img
+        registerForm.uuid = res.data.uuid
+    } catch(e) {
+        showToast("令符获取失败", "error")
+    }
 }
 
 const handleRegister = async () => {
-if (registerForm.password !== registerForm.confirmPassword) {
-    alert("两次输入的密钥不一致")
-    return
-}
-loading.value = true
-try {
-    const res = await register(registerForm)
-    if (res.data.code === 200) {
-    alert("登记成功，请前往启卷登录")
-    router.push('/login')
-    } else {
-    alert(res.data.msg || "登记失败")
-    if (captchaEnabled.value) getCode()
+    // 🏮 替换丑陋的 alert
+    if (registerForm.password !== registerForm.confirmPassword) {
+        showToast("两次输入的密钥不一致", "error")
+        return
     }
-} catch (error) {
-    if (captchaEnabled.value) getCode()
-} finally {
-    loading.value = false
-}
+    
+    loading.value = true
+    try {
+        const res = await register(registerForm)
+        if (res.data.code === 200) {
+            // 🏮 成功提示并延迟跳转
+            showToast("登记成功，请前往启卷", "success")
+            setTimeout(() => {
+                router.push('/login')
+            }, 1500)
+        } else {
+            showToast(res.data.msg || "登记失败", "error")
+            if (captchaEnabled.value) getCode()
+        }
+    } catch (error) {
+        if (captchaEnabled.value) getCode()
+        showToast("网络异常，无法登记", "error")
+    } finally {
+        loading.value = false
+    }
 }
 
 onMounted(() => { getCode() })
 </script>
+
+<style scoped>
+/* 🏮 优雅告文的滑入滑出动画 */
+.toast-fade-enter-active, .toast-fade-leave-active {
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.toast-fade-enter-from, .toast-fade-leave-to {
+    opacity: 0;
+    transform: translate(-50%, -20px);
+}
+</style>

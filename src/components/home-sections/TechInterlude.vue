@@ -70,7 +70,7 @@ const currentTab = ref(0)
 const scenes = [
 // 合并了斗拱与榫卯的文案
 { title: '微观：斗拱与榫卯', desc: '严丝合缝 · 不着一钉\n作为中华营造技艺的核心，通过榫卯相扣实现以柔克刚' },
-{ title: '宏观：敞肩力学', desc: '赵州石拱 · 千载利水\n敞肩泄洪设计，展现了极致的几何与结构力学之美' }
+// { title: '宏观：敞肩力学', desc: '赵州石拱 · 千载利水\n敞肩泄洪设计，展现了极致的几何与结构力学之美' }
 ]
 
 const canvasContainer = ref(null)
@@ -130,7 +130,7 @@ if (!container) return
 
 scene = new THREE.Scene()
 camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000)
-camera.position.set(0, 2, 6)
+camera.position.set(0, 0.7, 1.7)
 
 renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
 renderer.setSize(container.clientWidth, container.clientHeight)

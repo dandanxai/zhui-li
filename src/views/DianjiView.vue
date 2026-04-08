@@ -32,92 +32,52 @@
         </section>
     </div>
 
-    <main class="w-full max-w-7xl mx-auto px-6 md:px-12 relative z-10 flex flex-col gap-48 pt-10">
+    <main v-if="archiveBooks.length > 0" class="w-full max-w-7xl mx-auto px-6 md:px-12 relative z-10 flex flex-col gap-48 pt-10">
         
-        <section class="relative reveal-up">
-            <div class="absolute -right-10 md:right-0 top-0 text-[18vw] font-black text-black/[0.03] select-none pointer-events-none leading-none">考</div>
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 items-center relative z-10">
-                <div class="md:col-span-5 relative group">
-                    <div class="aspect-[3/4] overflow-hidden border-4 border-white shadow-2xl elegant-card bg-[#e8e4d3]">
-                        <img src="https://images.unsplash.com/photo-1599408031306-035985043812?q=80&w=800" class="w-full h-full object-cover mix-blend-multiply transition-transform duration-[1.5s] group-hover:scale-105">
-                    </div>
-                    <div class="absolute -bottom-6 -left-6 bg-palace-red text-white p-6 shadow-xl">
-                        <p class="writing-vertical font-black tracking-[0.5em] text-lg">百工之祖</p>
-                    </div>
-                </div>
-                <div class="md:col-span-7 md:pl-12 space-y-8">
-                    <div class="space-y-2">
-                        <span class="text-sm font-sans tracking-[0.4em] text-gray-400 font-bold uppercase">春秋战国 · 佚名 (齐国官书)</span>
-                        <h2 class="text-5xl font-black text-[#000] tracking-widest">考工记</h2>
-                    </div>
-                    <p class="text-[20px] text-palace-red font-bold leading-relaxed tracking-widest italic border-l-4 border-palace-red/30 pl-6">
-                        “匠人营国，方九里，旁三门。国中九经九纬，经涂九轨。”
-                    </p>
-                    <div class="text-[16px] text-[#222] font-medium leading-loose tracking-widest space-y-6">
-                        <p>中国目前所见年代最早的手工业技术文献。其中的“匠人”篇，详细记载了古代都城规划、宫室建筑的尺度与比例，是中国古代城市规划与建筑设计的思想源头。</p>
-                        <div class="bg-white border-2 border-black/5 p-6 shadow-sm">
-                            <span class="text-[12px] bg-[#111] text-white px-2 py-1 font-bold tracking-widest block w-max mb-3">文明基石</span>
-                            <span class="font-bold">确立了“左祖右社，面朝后市”的都城格局，深深影响了从汉长安城到明清北京城三千年的规划理念。</span>
-                        </div>
-                    </div>
-                </div>
+        <section v-for="(book, index) in archiveBooks.slice(0, 3)" :key="book.id" class="relative reveal-up">
+            <div class="absolute top-0 text-[18vw] font-black text-black/[0.03] select-none pointer-events-none leading-none"
+                    :class="index % 2 === 0 ? '-right-10 md:right-0' : '-left-10 md:-left-20'">
+                {{ book.title ? book.title.substring(0, 1) : '' }}
             </div>
-        </section>
-
-        <section class="relative reveal-up">
-            <div class="absolute -left-10 md:-left-20 top-10 text-[18vw] font-black text-black/[0.03] select-none pointer-events-none leading-none">法</div>
+            
             <div class="grid grid-cols-1 md:grid-cols-12 gap-12 items-center relative z-10">
-                <div class="md:col-span-7 md:pr-12 space-y-8 md:text-right order-2 md:order-1 flex flex-col md:items-end">
-                    <div class="space-y-2">
-                        <span class="text-sm font-sans tracking-[0.4em] text-gray-400 font-bold uppercase">北宋 · 李诫 (将作监)</span>
-                        <h2 class="text-5xl font-black text-[#000] tracking-widest">营造法式</h2>
-                    </div>
-                    <p class="text-[20px] text-palace-red font-bold leading-relaxed tracking-widest italic border-r-4 border-palace-red/30 pr-6 text-right">
-                        “凡构屋之制，皆以材为祖，材有八等。”
-                    </p>
-                    <div class="text-[16px] text-[#222] font-medium leading-loose tracking-widest space-y-6 text-right flex flex-col items-end">
-                        <p>王安石变法期间，为杜绝工程贪腐而颁布的国家级建筑图纸与估算标准。全书三十四卷，详细规定了大木作、小木作、彩画作等13个工种的制度。</p>
-                        <div class="bg-white border-2 border-black/5 p-6 shadow-sm text-left max-w-lg">
-                            <span class="text-[12px] bg-[#111] text-white px-2 py-1 font-bold tracking-widest block w-max mb-3">旷世发明</span>
-                            <span class="font-bold">首创“材分制”。以木材截面为基本模数，让建筑构件实现了高度的标准化与预制化，比西方早了近千年。</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="md:col-span-5 relative group order-1 md:order-2">
+                
+                <div class="md:col-span-5 relative group cursor-pointer" 
+                        :class="index % 2 === 0 ? 'order-1' : 'order-1 md:order-2'"
+                        @click="router.push(`/dianji/${book.id}`)">
+                    
                     <div class="aspect-[3/4] overflow-hidden border-4 border-white shadow-2xl elegant-card bg-[#e8e4d3]">
-                        <img src="https://images.unsplash.com/photo-1582650517303-b42616d56f8e?q=80&w=800" class="w-full h-full object-cover mix-blend-multiply transition-transform duration-[1.5s] group-hover:scale-105">
+                        <img :src="book.coverImg" class="w-full h-full object-cover mix-blend-multiply transition-transform duration-[1.5s] group-hover:scale-105">
                     </div>
-                    <div class="absolute -top-6 -right-6 bg-[#111] text-white p-6 shadow-xl">
-                        <p class="writing-vertical font-black tracking-[0.5em] text-lg">大宋国标</p>
+                    
+                    <div class="absolute p-6 shadow-xl"
+                            :class="index === 0 ? '-bottom-6 -left-6 bg-palace-red text-white' : index === 1 ? '-top-6 -right-6 bg-[#111] text-white' : '-bottom-6 -right-6 bg-[#333] text-white'">
+                        <p class="writing-vertical font-black tracking-[0.5em] text-lg">{{ book.category || '营造典籍' }}</p>
                     </div>
                 </div>
-            </div>
-        </section>
 
-        <section class="relative reveal-up">
-            <div class="absolute -right-10 md:right-10 top-0 text-[18vw] font-black text-black/[0.03] select-none pointer-events-none leading-none">园</div>
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 items-center relative z-10">
-                <div class="md:col-span-5 relative group">
-                    <div class="aspect-[3/4] overflow-hidden border-4 border-white shadow-2xl elegant-card bg-[#e8e4d3]">
-                        <img src="https://images.unsplash.com/photo-1529982412356-901cc3a363bc?q=80&w=800" class="w-full h-full object-cover mix-blend-multiply transition-transform duration-[1.5s] group-hover:scale-105">
-                    </div>
-                    <div class="absolute -bottom-6 -right-6 bg-[#333] text-white p-6 shadow-xl">
-                        <p class="writing-vertical font-black tracking-[0.5em] text-lg">造园圣经</p>
-                    </div>
-                </div>
-                <div class="md:col-span-7 md:pl-12 space-y-8">
+                <div class="md:col-span-7 space-y-8 cursor-pointer group"
+                        :class="index % 2 === 0 ? 'order-2 md:pl-12' : 'order-2 md:order-1 md:pr-12 md:text-right flex flex-col md:items-end'"
+                        @click="router.push(`/dianji/${book.id}`)">
+                    
                     <div class="space-y-2">
-                        <span class="text-sm font-sans tracking-[0.4em] text-gray-400 font-bold uppercase">明代 · 计成 (造园家)</span>
-                        <h2 class="text-5xl font-black text-[#000] tracking-widest">园冶</h2>
+                        <span class="text-sm font-sans tracking-[0.4em] text-gray-400 font-bold uppercase">{{ book.dynasty }} · {{ book.author }}</span>
+                        <h2 class="text-5xl font-black text-[#000] tracking-widest group-hover:text-palace-red transition-colors">{{ book.title }}</h2>
                     </div>
-                    <p class="text-[20px] text-[#444] font-bold leading-relaxed tracking-widest italic border-l-4 border-black/20 pl-6">
-                        “虽由人作，宛自天开。巧于因借，精在体宜。”
+                    
+                    <p class="text-[20px] font-bold leading-relaxed tracking-widest italic"
+                        :class="index % 2 === 0 ? 'text-palace-red border-l-4 border-palace-red/30 pl-6' : 'text-[#444] border-r-4 border-black/20 pr-6 text-right'">
+                        “{{ book.spiritSummary || '匠心独运，巧夺天工。' }}”
                     </p>
-                    <div class="text-[16px] text-[#222] font-medium leading-loose tracking-widest space-y-6">
-                        <p>世界第一部关于造园美学的理论专著。计成将江南士大夫的精神世界，完美地融入了亭台楼阁与山水之间，全书不讲枯燥尺寸，只谈意境与借景。</p>
-                        <div class="bg-white border-2 border-black/5 p-6 shadow-sm">
-                            <span class="text-[12px] bg-palace-red text-white px-2 py-1 font-bold tracking-widest block w-max mb-3">美学圣经</span>
-                            <span class="font-bold">彻底确立了中国古典园林的审美范式，让建筑不再是单纯的居住容器，而是寄托情怀的立体山水画卷。</span>
+                    
+                    <div class="text-[16px] text-[#222] font-medium leading-loose tracking-widest space-y-6"
+                            :class="index % 2 === 0 ? '' : 'text-right flex flex-col items-end'">
+                        <p class="line-clamp-3">{{ book.description }}</p>
+                        
+                        <div class="bg-white border-2 border-black/5 p-6 shadow-sm text-left" :class="index % 2 === 0 ? '' : 'max-w-lg'">
+                            <span class="text-[12px] text-white px-2 py-1 font-bold tracking-widest block w-max mb-3"
+                                    :class="index % 2 === 0 ? 'bg-[#111]' : 'bg-palace-red'">传世价值</span>
+                            <span class="font-bold line-clamp-2">{{ book.heritageHighlight || book.description }}</span>
                         </div>
                     </div>
                 </div>
@@ -143,14 +103,17 @@
                         历代孤本、皇家密档、民间堪舆、现代测绘。<br/>
                         海量营造数据，皆存封于此。
                     </p>
-                    <p class="text-palace-red font-sans tracking-[0.4em] text-[10px] font-black mt-4 border border-palace-red/30 inline-block px-3 py-1 bg-palace-red/10">TOTAL ARCHIVES: {{ archiveBooks.length }} RECORDS</p>
+                    <p class="text-palace-red font-sans tracking-[0.4em] text-[10px] font-black mt-4 border border-palace-red/30 inline-block px-3 py-1 bg-palace-red/10">
+                        TOTAL ARCHIVES: {{ archiveBooks.length }} RECORDS
+                    </p>
                 </div>
             </header>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10 border-t-2 border-white/10 pt-16">
                 
-                <div v-for="(book, index) in archiveBooks" :key="index" 
-                     class="group cursor-pointer p-6 bg-white/[0.03] border border-white/10 hover:bg-palace-red/10 hover:border-palace-red/50 hover:shadow-[0_0_30px_rgba(155,46,46,0.2)] transition-all duration-500 relative overflow-hidden flex flex-col h-full">
+                <div v-for="book in archiveBooks.slice(3)" :key="book.id" 
+                    @click="router.push(`/dianji/${book.id}`)"
+                    class="group cursor-pointer p-6 bg-white/[0.03] border border-white/10 hover:bg-palace-red/10 hover:border-palace-red/50 hover:shadow-[0_0_30px_rgba(155,46,46,0.2)] transition-all duration-500 relative overflow-hidden flex flex-col h-full">
                     
                     <div class="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none z-0"></div>
 
@@ -167,8 +130,8 @@
                         <span class="text-[9px] text-gray-500 tracking-[0.2em] uppercase font-sans border border-gray-700 px-1">{{ book.category }}</span>
                     </div>
                     
-                    <p class="text-[13px] text-gray-400 tracking-[0.15em] leading-loose font-medium opacity-80 group-hover:opacity-100 transition-opacity text-justify relative z-10 flex-1">
-                        {{ book.desc }}
+                    <p class="text-[13px] text-gray-400 tracking-[0.15em] leading-loose font-medium opacity-80 group-hover:opacity-100 transition-opacity text-justify relative z-10 flex-1 line-clamp-4">
+                        {{ book.description }}
                     </p>
                 </div>
 
@@ -180,35 +143,38 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
 
-const archiveBooks = [
-    { title: '考工记', dynasty: '先秦', author: '佚名', category: '都城规制', desc: '中国最早手工业技术文献，确立“面朝后市，左祖右社”的都城极高法则。' },
-    { title: '木经', dynasty: '北宋', author: '喻皓', category: '木作理论', desc: '中国最早一部木结构专著，总结高层木结构的抗风震原则，后虽失传但影响深远。' },
-    { title: '营造法式', dynasty: '北宋', author: '李诫', category: '国家标准', desc: '北宋官修建筑规范，首创“材分制”，是中国古代建筑工程技术走向理性的巅峰。' },
-    { title: '梓人遗制', dynasty: '元代', author: '薛景石', category: '器物卯榫', desc: '现存极少数详细记载古代木器制作尺寸与榫卯图样的专著，填补元代木作史料空白。' },
-    { title: '园冶', dynasty: '明代', author: '计成', category: '造园美学', desc: '世界第一部造园学专著。提出“虽由人作，宛自天开”，为江南园林奠定审美基础。' },
-    { title: '鲁班经', dynasty: '明代', author: '民间官修', category: '民间营造', desc: '流传极广的民间工匠实用手册。融合房屋尺寸、家具做法与风水理念的孤本史料。' },
-    { title: '长物志', dynasty: '明代', author: '文震亨', category: '居所格调', desc: '晚明文人生活品味最高指南。专门规定了文人居所的建筑格局，主张古朴雅致。' },
-    { title: '天工开物', dynasty: '明代', author: '宋应星', category: '综合工艺', desc: '古代综合性工艺百科，其中“陶埏”、“瓦石”篇详细记载了砖瓦烧制与砌筑工艺。' },
-    { title: '阳宅十书', dynasty: '明代', author: '王君荣', category: '堪舆风水', desc: '中国古代风水学集大成之作。将环境学与阴阳五行深度绑定，深刻影响古代村落选址。' },
-    { title: '工部做法则例', dynasty: '清代', author: '清工部', category: '皇家规范', desc: '清代官式建筑最高规范。确立“斗口制”取代“材分制”，是故宫施工的绝对依据。' },
-    { title: '工程做法', dynasty: '清代', author: '雍正帝颁', category: '造价算例', desc: '为控制工程造价而颁布的大型图册与算例，内容极其精细，是清代考工重中之重。' },
-    { title: '大清会典', dynasty: '清代', author: '官修密档', category: '礼制等级', desc: '详细记载了清代各品级官员的府邸规制、彩画等级、台基高度，逾越即斩。' },
-    { title: '样式雷图档', dynasty: '清代', author: '雷氏家族', category: '皇家图纸', desc: '清代掌管皇家建筑两百年的雷氏家族留下的万件图纸与烫样，是世界记忆遗产。' },
-    { title: '营造算例', dynasty: '清代', author: '匠人传抄', category: '民间算诀', desc: '民间工匠在实际施工中总结的材料估算口诀与经验数据，是对官方做法的民间补充。' },
-    { title: '营造法原', dynasty: '民国', author: '姚承祖', category: '江南木作', desc: '唯一系统总结江南地区传统木构（香山帮工匠）做法的专著，被誉为南方古建密码。' },
-    { title: '中国建筑史', dynasty: '现代', author: '梁思成', category: '现代考据', desc: '中国人用现代科学方法写出的第一部建筑通史，彻底打破西方“中国无建筑史”偏见。' },
-    { title: '清代匠作则例', dynasty: '现代', author: '王璞子', category: '文献整理', desc: '对清代各种官匠、民匠做法则例的系统整理，是古建大修必备的工具全书。' },
-    { title: '清式营造辞解', dynasty: '现代', author: '梁思成等', category: '术语辞典', desc: '用现代制图学图解的方式翻译清代古建生僻术语，是向“现代科学”转型的里程碑。' },
-    { title: '图像中国建筑史', dynasty: '现代', author: '梁思成', category: '测绘图鉴', desc: '以极其精美的全英文与线描图向世界展示中国古建之美，手绘测绘图至今无人超越。' },
-    { title: '华夏意匠', dynasty: '现代', author: '李允鉌', category: '理论综述', desc: '总结中国古典建筑设计原理的宏篇巨著。从文化、哲学、美学维度重塑中国建筑观。' }
-]
+// 🏮 引入你后端的 API
+import { listClassic } from '@/api/building'
+
+const router = useRouter()
+
+// 响应式的典籍数组
+const archiveBooks = ref([])
 
 let revealObserver = null
 let handleScroll = null
 
-onMounted(() => {
+// 🏮 从 API 动态加载数据
+const loadData = async () => {
+    try {
+        const res = await listClassic({ pageNum: 1, pageSize: 100, status: '0' });
+        // 获取数据，按照 orderNum 排序
+        const data = res.rows || res.data?.rows || res.data || [];
+        archiveBooks.value = data.sort((a, b) => a.orderNum - b.orderNum);
+        
+        // 数据渲染完后，初始化动画与吸附效果
+        nextTick(() => {
+            initAnimations();
+        });
+    } catch (e) {
+        console.error("获取营造典籍失败", e);
+    }
+}
+
+const initAnimations = () => {
     // 1. 浮现动画
     const revealElements = document.querySelectorAll('.reveal-up')
     revealObserver = new IntersectionObserver((entries) => {
@@ -252,6 +218,10 @@ onMounted(() => {
         }
         window.addEventListener('scroll', handleScroll)
     }
+}
+
+onMounted(() => {
+    loadData();
 })
 
 onUnmounted(() => {
@@ -272,8 +242,8 @@ p, h1, h2, h3, h4, span {
 }
 
 /* =========================================================================
-   动效 (Elegant Animations)
-   ========================================================================= */
+    动效 (Elegant Animations)
+    ========================================================================= */
 .reveal-up {
     opacity: 0;
     transform: translateY(40px);
@@ -295,5 +265,26 @@ p, h1, h2, h3, h4, span {
 
 @keyframes shimmer {
     100% { transform: translateX(100%); }
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-4 {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 </style>

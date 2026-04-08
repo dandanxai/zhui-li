@@ -32,35 +32,39 @@
         </div>
     </div>
 
-    <div class="absolute top-0 left-0 w-full z-10 pointer-events-none pt-[20vh] pb-[30vh]">
+    <div class="absolute top-0 left-0 w-full z-10 pointer-events-none pt-[20vh] pb-[30vh]" v-if="bookData.length > 0">
         
-        <div class="scroll-card min-h-[70vh] flex items-center px-6 md:px-[15%]">
-            <div class="card-content w-full md:w-[45%] bg-paper-bg/95 p-10 md:p-14 shadow-2xl pointer-events-auto border-t-4 border-palace-red hover-trigger">
-                <span class="text-palace-red text-xs tracking-[0.3em] mb-4 block uppercase">北宋李诫 · 巅峰专著</span>
-                <h3 class="text-4xl font-serif mb-6 text-ink-dark">《营造法式》</h3>
-                <p class="text-gray-700 leading-loose text-justify font-light text-lg">
-                中国古代最完整、最严谨的建筑技术专著。全书34卷，包含极其精密的“测算”与“制图”。<br><br>其最大的科学价值在于总结出了<b>“模数制（以材为祖）”</b>，代表了中国十一世纪建筑工程学的最高水平。
+        <div v-for="(book, index) in bookData" :key="book.id"
+             class="scroll-card min-h-[70vh] flex items-center px-6 md:px-[15%]"
+             :class="{ 'justify-end mt-[5vh]': index === 1, 'mt-[5vh]': index === 2 }">
+            
+            <div class="card-content w-full md:w-[45%] p-10 md:p-14 shadow-2xl pointer-events-auto border-t-4 hover-trigger cursor-pointer group transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
+                 :class="[
+                    index === 1 ? 'bg-ink-dark text-paper-bg border-gold-accent' : 
+                    index === 0 ? 'bg-paper-bg/95 border-palace-red' : 'bg-paper-bg/95 border-[#8a979e]'
+                 ]"
+                 @click="router.push(`/dianji/${book.id}`)">
+                
+                <div class="flex justify-between items-start mb-4">
+                    <span class="text-xs tracking-[0.3em] block uppercase"
+                          :class="index === 0 ? 'text-palace-red' : index === 1 ? 'text-gold-accent' : 'text-[#8a979e]'">
+                        {{ book.dynasty }} {{ book.author }} · {{ book.category }}
+                    </span>
+                    <span class="opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-[-10px] group-hover:translate-x-0"
+                          :class="index === 1 ? 'text-gold-accent' : 'text-palace-red'">
+                        ↗
+                    </span>
+                </div>
+                
+                <h3 class="text-4xl font-serif mb-6 transition-colors" :class="index === 1 ? '' : 'text-ink-dark group-hover:text-palace-red'">
+                    《{{ book.title }}》
+                </h3>
+                
+                <p class="leading-loose text-justify font-light text-lg line-clamp-4" 
+                   :class="index === 1 ? 'text-gray-400' : 'text-gray-700'">
+                    {{ book.desc }}
                 </p>
-            </div>
-        </div>
-
-        <div class="scroll-card min-h-[70vh] flex items-center justify-end px-6 md:px-[15%] mt-[5vh]">
-            <div class="card-content w-full md:w-[45%] bg-ink-dark text-paper-bg p-10 md:p-14 shadow-2xl pointer-events-auto border-t-4 border-gold-accent hover-trigger">
-                <span class="text-gold-accent text-xs tracking-[0.3em] mb-4 block uppercase">清代雍正 · 官方规范</span>
-                <h3 class="text-4xl font-serif mb-6">《工程做法则例》</h3>
-                <p class="text-gray-400 leading-loose text-justify font-light text-lg">
-                清雍正十二年工部颁布的官修建筑规范。相较于宋代，该书更加强调斗拱功能的退化与梁架结构的强化。它更是古代中央集权在工程预算审计上的管理学体现。
-                </p>
-            </div>
-        </div>
-
-        <div class="scroll-card min-h-[70vh] flex items-center px-6 md:px-[15%] mt-[5vh]">
-            <div class="card-content w-full md:w-[45%] bg-paper-bg/95 p-10 md:p-14 shadow-2xl pointer-events-auto border-t-4 border-[#8a979e] hover-trigger">
-                <span class="text-[#8a979e] text-xs tracking-[0.3em] mb-4 block uppercase">明代计成 · 园林圣典</span>
-                <h3 class="text-4xl font-serif mb-6 text-ink-dark">《园冶》</h3>
-                <p class="text-gray-700 leading-loose text-justify font-light text-lg">
-                世界造园学最早的专著。如果说前两部是冷硬的工程学，这部则是极具东方哲学的环境生态科学。全书提出<b>“虽由人作，宛自天开”</b>的核心思辨。
-                </p>
+                
             </div>
         </div>
 
@@ -70,22 +74,52 @@
 
 <script setup>
 import { onMounted, ref, nextTick, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router' // 🏮 引入 router
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { listClassic } from '@/api/building'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const currentBookTitle = ref('营造法式')
-const currentBgText = ref('法式')
+const router = useRouter() // 🏮 实例化 router
+const currentBookTitle = ref('')
+const currentBgText = ref('')
 const currentColor = ref('bg-palace-red')
-
-const bookData = [
-    { title: '营造法式', bg: '法式', color: 'bg-palace-red' },
-    { title: '工程做法则例', bg: '则例', color: 'bg-gold-accent' },
-    { title: '园冶', bg: '园冶', color: 'bg-[#8a979e]' }
-]
+const bookData = ref([])
+const colorMap = ['bg-palace-red', 'bg-gold-accent', 'bg-[#8a979e]']
 
 onMounted(async () => {
+    try {
+        const res = await listClassic({ pageNum: 1, pageSize: 100, status: '0' })
+        const allBooks = res.rows || res.data?.rows || res.data || []
+        
+        const sortedBooks = allBooks.sort((a, b) => a.orderNum - b.orderNum)
+        // 从索引 3（即第4项）开始截取，截取到索引 6 之前（不包含索引 6，即截取到第6项）
+        const lastThreeBooks = sortedBooks.slice(3, 6)
+
+        bookData.value = lastThreeBooks.map((item, index) => {
+            return {
+                id: item.id,
+                title: item.title,
+                bg: item.title ? item.title.substring(0, 2) : '典籍',
+                color: colorMap[index] || colorMap[0],
+                dynasty: item.dynasty || '未知',
+                author: item.author || '佚名',
+                category: item.category || '营造专著',
+                desc: item.spiritDetail || item.description || '暂无详细描述'
+            }
+        })
+
+        if (bookData.value.length > 0) {
+            currentBookTitle.value = bookData.value[0].title
+            currentBgText.value = bookData.value[0].bg
+            currentColor.value = bookData.value[0].color
+        }
+
+    } catch (error) {
+        console.error('获取典籍最后三条数据失败', error)
+    }
+
     await nextTick()
     setTimeout(() => {
         initAnimations()
@@ -93,16 +127,14 @@ onMounted(async () => {
 })
 
 const initAnimations = () => {
-    // 1. 强行钉住中间容器！(解决不跟着滚的问题)
     ScrollTrigger.create({
         trigger: ".book-section",
-        start: "top top",         // 区域到达屏幕顶部时触发
-        end: "bottom bottom",     // 区域底部到达屏幕底部时解除
-        pin: ".center-book-wrapper", // 死死钉住中间的书本层
-        pinSpacing: false         // 保证不影响原来的高度布局
+        start: "top top",         
+        end: "bottom bottom",     
+        pin: ".center-book-wrapper", 
+        pinSpacing: false         
     })
 
-    // 🍏 苹果风：中间的书本模型从下方优雅浮现
     gsap.from(".book-model", {
         y: 100, 
         opacity: 0, 
@@ -114,7 +146,6 @@ const initAnimations = () => {
         }
     })
 
-    // 🍏 苹果风：左下角标题也从下往上浮出
     gsap.fromTo(".book-title", 
         { y: 30, opacity: 0 },
         { 
@@ -123,12 +154,11 @@ const initAnimations = () => {
         }
     )
 
-    // 2. 书本从左向右倾斜 (解决倾斜效果)
     gsap.fromTo(".book-model", 
-        { rotation: -8, scale: 1 }, // 初始：向左倾斜8度
+        { rotation: -8, scale: 1 }, 
         {
-            rotation: 8,            // 结束：向右倾斜8度
-            scale: 1.1,             // 稍微放大
+            rotation: 8,            
+            scale: 1.1,             
             ease: "none",
             scrollTrigger: { 
                 trigger: ".book-section", 
@@ -139,21 +169,17 @@ const initAnimations = () => {
         }
     )
     
-    // 背景大字
     gsap.to(".book-bg-text", {
         yPercent: -100, ease: "none",
         scrollTrigger: { trigger: ".book-section", start: "top bottom", end: "bottom top", scrub: true }
     })
 
-    // 3. 卡片滚动与文字切换
     gsap.utils.toArray('.scroll-card').forEach((card, index) => {
-        // 卡片自身视差
         gsap.fromTo(card.querySelector('.card-content'), 
             { y: 150 }, 
             { y: -150, ease: "none", scrollTrigger: { trigger: card, start: "top bottom", end: "bottom top", scrub: true } }
         )
 
-        // 触发换书
         ScrollTrigger.create({
             trigger: card,
             start: "top 50%", 
@@ -167,7 +193,8 @@ const initAnimations = () => {
 }
 
 const changeBook = (index) => {
-    if (currentBookTitle.value === bookData[index].title) return;
+    if (!bookData.value[index]) return;
+    if (currentBookTitle.value === bookData.value[index].title) return;
 
     gsap.killTweensOf('.dynamic-cover');
 
@@ -175,12 +202,11 @@ const changeBook = (index) => {
         opacity: 0, 
         duration: 0.2, 
         onComplete: () => {
-            currentBookTitle.value = bookData[index].title
-            currentBgText.value = bookData[index].bg
-            currentColor.value = bookData[index].color
+            currentBookTitle.value = bookData.value[index].title
+            currentBgText.value = bookData.value[index].bg
+            currentColor.value = bookData.value[index].color
             
             gsap.to('h4.dynamic-cover', { opacity: 1, duration: 0.3 })
-            // 设定微弱透明度
             gsap.to('div.book-bg-text.dynamic-cover', { opacity: 0.08, duration: 0.3 })
         }
     })
@@ -198,5 +224,11 @@ onUnmounted(() => {
 }
 .mix-blend-difference {
     mix-blend-mode: difference;
+}
+.line-clamp-4 {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 </style>

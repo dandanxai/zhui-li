@@ -1,48 +1,55 @@
 <template>
-<header class="fixed top-0 left-0 w-full p-6 md:p-10 flex justify-between items-center z-[1000] pointer-events-none mix-blend-difference text-paper-bg">
+<header class="fixed top-0 left-0 w-full h-24 px-6 md:px-10 flex justify-between items-center z-[1000] pointer-events-none mix-blend-difference text-paper-bg">
     
-    <router-link to="/" class="text-lg font-serif tracking-[0.4em] font-bold pointer-events-auto hover-trigger cursor-pointer flex items-center">
-        <span class="w-2 h-2 bg-palace-red mr-3 rounded-full"></span>筑理
+    <router-link to="/" class="pointer-events-auto hover-trigger cursor-pointer flex items-center gap-4 group">
+        <div class="w-10 h-10 bg-palace-red text-paper-bg flex items-center justify-center font-serif text-xl font-black shrink-0 transition-transform duration-700 group-hover:rotate-90">
+            筑
+        </div>
+        <div class="flex flex-col">
+            <span class="text-xl font-serif tracking-[0.3em] font-bold leading-none mb-1.5">筑理</span>
+            <span class="text-[9px] uppercase tracking-[0.4em] font-sans opacity-60 leading-none block">The Kaogong Lab</span>
+        </div>
     </router-link>
     
-    <div class="hidden lg:flex space-x-10 pointer-events-auto text-xs tracking-[0.2em] font-serif items-start">
-        <a href="/dashboard" target="_blank" class="text-palace-red transition-colors relative group text-left font-bold cursor-pointer">
-            天枢 <span class="text-[9px] uppercase opacity-70 block text-center mt-1">Dashboard</span>
-            <div class="absolute -bottom-2 left-0 w-full h-[1px] bg-palace-red opacity-30"></div>
+    <div class="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 space-x-12 pointer-events-auto text-xs tracking-[0.2em] font-serif items-center">
+        
+        <a href="/dashboard" target="_blank" class="text-palace-red transition-colors relative group text-center font-bold cursor-pointer">
+            天枢 <span class="text-[9px] uppercase opacity-70 block text-center mt-1.5">Dashboard</span>
+            <div class="absolute -bottom-3 left-0 w-full h-[1px] bg-palace-red opacity-30"></div>
         </a>
 
-        <router-link to="/" class="hover:text-palace-red transition-colors relative group text-left">
-            首页 <span class="text-[9px] uppercase opacity-50 block text-center mt-1">Home</span>
-            <div class="absolute -bottom-2 left-1/2 w-0 h-[1px] bg-palace-red transition-all group-hover:w-full group-hover:left-0"></div>
+        <router-link to="/" class="hover:text-palace-red transition-colors relative group text-center">
+            首页 <span class="text-[9px] uppercase opacity-50 block text-center mt-1.5">Home</span>
+            <div class="absolute -bottom-3 left-1/2 w-0 h-[1px] bg-palace-red transition-all duration-300 group-hover:w-full group-hover:left-0"></div>
         </router-link>
         
-        <router-link to="/lanzhu" class="hover:text-palace-red transition-colors relative group text-left">
-            览筑 <span class="text-[9px] uppercase opacity-50 block text-center mt-1">Explore</span>
-            <div class="absolute -bottom-2 left-1/2 w-0 h-[1px] bg-palace-red transition-all group-hover:w-full group-hover:left-0"></div>
+        <router-link to="/lanzhu" class="hover:text-palace-red transition-colors relative group text-center">
+            览筑 <span class="text-[9px] uppercase opacity-50 block text-center mt-1.5">Explore</span>
+            <div class="absolute -bottom-3 left-1/2 w-0 h-[1px] bg-palace-red transition-all duration-300 group-hover:w-full group-hover:left-0"></div>
         </router-link>
         
-        <router-link to="/dajiang" class="hover:text-palace-red transition-colors relative group text-left">
-            大匠 <span class="text-[9px] uppercase opacity-50 block text-center mt-1">Masters</span>
-            <div class="absolute -bottom-2 left-1/2 w-0 h-[1px] bg-palace-red transition-all group-hover:w-full group-hover:left-0"></div>
+        <router-link to="/dajiang" class="hover:text-palace-red transition-colors relative group text-center">
+            大匠 <span class="text-[9px] uppercase opacity-50 block text-center mt-1.5">Masters</span>
+            <div class="absolute -bottom-3 left-1/2 w-0 h-[1px] bg-palace-red transition-all duration-300 group-hover:w-full group-hover:left-0"></div>
         </router-link>
         
-        <router-link to="/dianji" class="hover:text-palace-red transition-colors relative group text-left">
-            典籍 <span class="text-[9px] uppercase opacity-50 block text-center mt-1">Texts</span>
-            <div class="absolute -bottom-2 left-1/2 w-0 h-[1px] bg-palace-red transition-all group-hover:w-full group-hover:left-0"></div>
+        <router-link to="/dianji" class="hover:text-palace-red transition-colors relative group text-center">
+            典籍 <span class="text-[9px] uppercase opacity-50 block text-center mt-1.5">Texts</span>
+            <div class="absolute -bottom-3 left-1/2 w-0 h-[1px] bg-palace-red transition-all duration-300 group-hover:w-full group-hover:left-0"></div>
         </router-link>
         
-        <router-link to="/wenmai" class="hover:text-palace-red transition-colors relative group text-left">
-            文脉 <span class="text-[9px] uppercase opacity-50 block text-center mt-1">Heritage</span>
-            <div class="absolute -bottom-2 left-1/2 w-0 h-[1px] bg-palace-red transition-all group-hover:w-full group-hover:left-0"></div>
+        <router-link to="/wenmai" class="hover:text-palace-red transition-colors relative group text-center">
+            文脉 <span class="text-[9px] uppercase opacity-50 block text-center mt-1.5">Heritage</span>
+            <div class="absolute -bottom-3 left-1/2 w-0 h-[1px] bg-palace-red transition-all duration-300 group-hover:w-full group-hover:left-0"></div>
         </router-link>
         
-        <button @click="openAiMaster" class="hover:text-palace-red transition-colors relative group text-left outline-none pointer-events-auto">
+        <button @click="openAiMaster" class="hover:text-palace-red transition-colors relative group text-center outline-none pointer-events-auto">
             <span class="relative">
                 智脑
-                <span class="absolute -top-0.5 -right-3 w-1.5 h-1.5 bg-palace-red rounded-full animate-pulse"></span>
+                <span class="absolute -top-1 -right-4 w-1.5 h-1.5 bg-palace-red rounded-full animate-pulse"></span>
             </span>
-            <span class="text-[9px] uppercase opacity-50 block text-center mt-1">A.I.</span>
-            <div class="absolute -bottom-2 left-1/2 w-0 h-[1px] bg-palace-red transition-all group-hover:w-full group-hover:left-0"></div>
+            <span class="text-[9px] uppercase opacity-50 block text-center mt-1.5">A.I.</span>
+            <div class="absolute -bottom-3 left-1/2 w-0 h-[1px] bg-palace-red transition-all duration-300 group-hover:w-full group-hover:left-0"></div>
         </button>
     </div>
 
@@ -57,21 +64,18 @@
                 登 录
             </button>
 
-            <div v-else class="flex items-center gap-3 group relative cursor-pointer py-1">
-                <div class="w-6 h-6 bg-palace-red rounded-full flex items-center justify-center text-white font-bold text-[10px]">
-                    {{ userName.charAt(0) }}
+            <div v-else class="flex items-center gap-3 group relative cursor-pointer py-1 mix-blend-normal">
+                <div class="w-6 h-6 bg-palace-red rounded-full overflow-hidden flex items-center justify-center text-white font-bold text-[10px]">
+                    <img v-if="userAvatar" :src="userAvatar" class="w-full h-full object-cover" alt="avatar" />
+                    <span v-else>{{ userName.charAt(0) }}</span>
                 </div>
-                <span class="text-xs font-bold tracking-widest">{{ userName }}</span>
-
+                
+                <span class="text-xs font-bold tracking-widest text-paper-bg">{{ userName }}</span>
+                
                 <div class="absolute top-full right-0 w-28 bg-[#fcfaf5] border border-gray-200 shadow-xl 
-                            opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto
-                            before:content-[''] before:absolute before:-top-4 before:left-0 before:w-full before:h-4">
-                    
-                    <div class="pt-2"> <button @click="handleLogout" class="w-full text-center py-3 text-xs tracking-widest text-[#111] hover:text-palace-red hover:bg-gray-100 transition-colors">
-                            退出登录
-                        </button>
+                        opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto
+                        before:content-[''] before:absolute before:-top-4 before:left-0 before:w-full before:h-4">
                     </div>
-                </div>
             </div>
         </div>
 
@@ -121,13 +125,13 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-// 🏮 引入写好的登录鉴权接口
 import { getInfo } from '@/api/login'
 
 const isMenuOpen = ref(false)
 const router = useRouter()
 const isLoggedIn = ref(false)
 const userName = ref('')
+const userAvatar = ref('') // 🏮 新增头像变量
 
 const toggleMenu = () => {
     isMenuOpen.value = !isMenuOpen.value
@@ -141,36 +145,34 @@ const openAiMaster = () => {
     }
 }
 
-// 🏮 核心逻辑：检查 Token 状态并获取用户信息
 const checkAuth = () => {
-const token = localStorage.getItem('ZHL_TOKEN')
-if (token) {
-    isLoggedIn.value = true
-    getInfo().then(res => {
-    if (res.data && res.data.user) {
-        // 优先使用若依系统的昵称，没有则退化为账号名
-        userName.value = res.data.user.nickName || res.data.user.userName
+    const token = localStorage.getItem('ZHL_TOKEN')
+    if (token) {
+        isLoggedIn.value = true
+        getInfo().then(res => {
+            if (res.data && res.data.user) {
+                // 🏮 同时获取名字和头像
+                userName.value = res.data.user.nickName || res.data.user.userName
+                userAvatar.value = res.data.user.avatar || ''
+            }
+        }).catch(() => {
+            handleLogout()
+        })
     }
-    }).catch(() => {
-    // 捕获异常（Token失效等），执行退出
-    handleLogout()
-    })
-}
 }
 
-// 🏮 核心逻辑：退出登录
 const handleLogout = () => {
-localStorage.removeItem('ZHL_TOKEN')
-isLoggedIn.value = false
-userName.value = ''
-if(router.currentRoute.value.path !== '/') {
-    router.push('/')
-}
+    localStorage.removeItem('ZHL_TOKEN')
+    isLoggedIn.value = false
+    userName.value = ''
+    userAvatar.value = '' // 清除头像
+    if(router.currentRoute.value.path !== '/') {
+        router.push('/')
+    }
 }
 
-// 组件挂载时检查一次登录状态
 onMounted(() => {
-checkAuth()
+    checkAuth()
 })
 </script>
 
@@ -178,7 +180,6 @@ checkAuth()
 .menu-fade-enter-active, .menu-fade-leave-active { transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
 .menu-fade-enter-from, .menu-fade-leave-to { opacity: 0; transform: scale(1.05); }
 
-/* 导航链接的 hover 效果 */
 nav a, nav router-link {
     transition: transform 0.3s ease;
 }

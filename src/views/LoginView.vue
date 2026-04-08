@@ -1,6 +1,16 @@
 <template>
 <div class="min-h-screen bg-[#fcfaf5] flex items-center justify-center relative selection:bg-palace-red selection:text-white font-serif overflow-hidden">
     
+    <Transition name="toast-fade">
+        <div v-if="toast.show" 
+                class="fixed top-12 left-1/2 -translate-x-1/2 z-[9999] px-8 py-4 shadow-[0_20px_40px_rgba(0,0,0,0.1)] flex items-center gap-4 min-w-[280px] bg-[#111]"
+                :class="toast.type === 'error' ? 'border-l-4 border-palace-red' : 'border-l-4 border-[#c5a977]'">
+            <span class="w-1.5 h-1.5 rounded-full animate-pulse" 
+                    :class="toast.type === 'error' ? 'bg-palace-red' : 'bg-[#c5a977]'"></span>
+            <span class="font-serif tracking-[0.2em] text-sm text-white">{{ toast.msg }}</span>
+        </div>
+    </Transition>
+
     <div class="absolute inset-0 opacity-[0.03] pointer-events-none z-0" style="background-image: radial-gradient(#000000 1.5px, transparent 1.5px); background-size: 40px 40px;"></div>
     <div class="absolute -left-20 top-10 text-[20rem] font-black text-black/[0.02] select-none pointer-events-none leading-none">筑</div>
 
@@ -84,7 +94,6 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-// 🏮 核心：删掉 import axios from 'axios'，改为导入你的 API
 import { login, getCodeImg } from '@/api/login' 
 
 const router = useRouter()
@@ -93,59 +102,79 @@ const captchaEnabled = ref(true)
 const codeUrl = ref('')
 
 const loginForm = reactive({
-username: '',
-password: '',
-code: '',
-uuid: ''
+    username: '',
+    password: '',
+    code: '',
+    uuid: ''
 })
 
-// 获取若依验证码
-const getCode = async () => {
-try {
-    const res = await getCodeImg()
-    if (res.data.captchaEnabled === false) {
-    captchaEnabled.value = false
-    return
-    }
-    captchaEnabled.value = true
-    codeUrl.value = 'data:image/gif;base64,' + res.data.img
-    loginForm.uuid = res.data.uuid
-} catch (error) {
-    console.error("获取验证码失败", error)
-}
+// 🏮 告文 (Toast) 控制逻辑
+const toast = reactive({ show: false, msg: '', type: 'error' })
+let toastTimer = null
+const showToast = (msg, type = 'error') => {
+    toast.msg = msg
+    toast.type = type
+    toast.show = true
+    if (toastTimer) clearTimeout(toastTimer)
+    toastTimer = setTimeout(() => { toast.show = false }, 3000)
 }
 
-// 提交登录
-const handleLogin = async () => {
-loading.value = true
-try {
-    // 🏮 使用封装的 login 方法
-    const res = await login(loginForm.username, loginForm.password, loginForm.code, loginForm.uuid)
-    
-    // 如果若依后端返回 200，并且带有 token
-    if (res.data && res.data.token) {
-    // 1. 存入 Token (若依的 request 拦截器会自动去取它)
-    localStorage.setItem('ZHL_TOKEN', res.data.token)
-    
-    // 2. 跳转回首页，触发 NavBar 组件重新挂载和检查用户信息
-    router.push('/').then(() => {
-        // 可选：强制刷新一下页面以确保全局状态更新
-        window.location.reload()
-    })
-    } else {
-    // 后端返回错误（例如账号密码不对）
-    if(res.data.msg) alert(res.data.msg)
-    if (captchaEnabled.value) getCode()
+const getCode = async () => {
+    try {
+        const res = await getCodeImg()
+        if (res.data.captchaEnabled === false) {
+            captchaEnabled.value = false
+            return
+        }
+        captchaEnabled.value = true
+        codeUrl.value = 'data:image/gif;base64,' + res.data.img
+        loginForm.uuid = res.data.uuid
+    } catch (error) {
+        console.error("获取验证码失败", error)
+        showToast("令符获取失败，请重试", "error")
     }
-} catch (error) {
-    // 拦截器抛出异常
-    if (captchaEnabled.value) getCode()
-} finally {
-    loading.value = false
 }
+
+const handleLogin = async () => {
+    loading.value = true
+    try {
+        const res = await login(loginForm.username, loginForm.password, loginForm.code, loginForm.uuid)
+        
+        if (res.data && res.data.token) {
+            localStorage.setItem('ZHL_TOKEN', res.data.token)
+            showToast("登卷成功", "success")
+            
+            setTimeout(() => {
+                router.push('/').then(() => {
+                    window.location.reload()
+                })
+            }, 800) // 延迟跳转，让用户看清成功提示
+        } else {
+            // 🏮 替换丑陋的 alert
+            if(res.data.msg) showToast(res.data.msg, 'error')
+            if (captchaEnabled.value) getCode()
+        }
+    } catch (error) {
+        if (captchaEnabled.value) getCode()
+        // 这里如果有全局拦截器抛错，拦截器通常会自带提示，也可在此补底
+        showToast("登录遇阻，请检查通关令或重试", "error")
+    } finally {
+        loading.value = false
+    }
 }
 
 onMounted(() => {
-getCode()
+    getCode()
 })
 </script>
+
+<style scoped>
+/* 🏮 优雅告文的滑入滑出动画 */
+.toast-fade-enter-active, .toast-fade-leave-active {
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.toast-fade-enter-from, .toast-fade-leave-to {
+    opacity: 0;
+    transform: translate(-50%, -20px);
+}
+</style>

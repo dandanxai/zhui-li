@@ -1,5 +1,12 @@
 <template>
-    <div class="min-h-screen bg-[#fcfaf5] text-[#2c2825] selection:bg-palace-red selection:text-white overflow-x-hidden">
+    <div v-if="loading" class="min-h-screen bg-[#fcfaf5] flex items-center justify-center">
+        <div class="flex flex-col items-center gap-6">
+            <div class="w-16 h-16 border-[1px] border-palace-red rounded-full border-t-transparent animate-spin opacity-60"></div>
+            <div class="text-[#8c857d] font-serif tracking-[0.5em] animate-pulse text-sm">正在启扉入卷</div>
+        </div>
+    </div>
+
+    <div v-else class="min-h-screen bg-[#fcfaf5] text-[#2c2825] selection:bg-palace-red selection:text-white overflow-x-hidden">
         
         <div class="absolute top-0 left-0 w-full z-[1100] p-6 md:p-10 pt-28 md:pt-36 flex justify-between items-center mix-blend-difference pointer-events-none">
             <button @click="$router.back()" class="pointer-events-auto text-paper-bg font-serif text-sm hover:text-palace-red transition-colors flex items-center gap-3 group">
@@ -11,19 +18,19 @@
 
         <header ref="headerRef" class="w-full h-[75vh] relative overflow-hidden bg-black cursor-zoom-in group/header" @click="toggleFullScreen">
             <div class="hero-image-wrapper w-full h-full relative will-change-transform">
-                <img ref="imageRef" :src="building.img" class="w-full h-full object-cover scale-110 origin-center opacity-80 transition-opacity duration-700" :class="{ 'opacity-0': isFullScreen }" />
+                <img ref="imageRef" :src="building.coverImage" class="w-full h-full object-cover scale-110 origin-center opacity-80 transition-opacity duration-700" :class="{ 'opacity-0': isFullScreen }" />
             </div>
             <div class="absolute inset-0 bg-gradient-to-t from-[#fcfaf5] via-transparent to-black/40 z-10" :class="{ 'opacity-0': isFullScreen }"></div>
             
             <div class="absolute right-8 md:right-24 top-1/2 -translate-y-1/2 z-20 pointer-events-none hidden md:block opacity-20">
                 <h1 class="text-white text-8xl font-serif tracking-[0.5em]" style="writing-mode: vertical-rl; text-orientation: upright;">
-                    {{ building.name.split('·').pop().trim() }}
+                    {{ (building.name || '').split('·').pop().trim() }}
                 </h1>
             </div>
 
             <div class="absolute bottom-16 left-6 md:left-24 max-w-4xl z-20 hero-text pointer-events-none transition-all duration-700" :class="{ 'opacity-0 translate-y-10': isFullScreen }">
                 <div class="flex items-center gap-4 mb-8">
-                    <span v-for="tag in building.tags" :key="tag" class="text-white/80 font-serif text-xs tracking-[0.4em] border-l border-palace-red pl-3 uppercase">
+                    <span v-for="tag in (building.tags || '').split(',').filter(t => t.trim())" :key="tag" class="text-white/80 font-serif text-xs tracking-[0.4em] border-l border-palace-red pl-3 uppercase">
                         {{ tag }}
                     </span>
                 </div>
@@ -41,7 +48,7 @@
                 <div class="mb-24 relative">
                     <div class="absolute -left-8 top-0 text-palace-red text-6xl opacity-10 font-serif">❝</div>
                     <p class="text-2xl font-serif leading-[2.2] tracking-[0.2em] text-[#4a4540] text-justify italic pl-4">
-                        {{ building.desc }}
+                        {{ building.description }}
                     </p>
                 </div>
                 
@@ -49,7 +56,7 @@
                     <section v-for="(section, index) in parsedContent" :key="index" class="relative flex flex-col md:flex-row gap-8 md:gap-12 group">
                         
                         <div class="absolute -top-10 -right-4 text-9xl font-serif text-black/[0.03] select-none pointer-events-none transition-opacity duration-700 group-hover:text-palace-red/[0.04]">
-                            {{ cjkNumbers[index] }}
+                            {{ cjkNumbers[index] || '拾' }}
                         </div>
 
                         <div class="md:w-16 flex-shrink-0 flex md:justify-end">
@@ -63,15 +70,13 @@
                         </div>
 
                         <div class="flex-1 pt-2">
-                            <p class="text-lg leading-[2.6] tracking-[0.15em] font-light text-[#5a5550] whitespace-pre-line text-justify">
-                                {{ section.content }}
-                            </p>
+                            <div class="text-lg leading-[2.6] tracking-[0.15em] font-light text-[#5a5550] whitespace-pre-line text-justify html-content" v-html="section.content"></div>
                         </div>
                     </section>
                 </div>
 
-                <div v-else class="text-lg leading-[2.6] tracking-[0.15em] font-light text-[#5a5550] whitespace-pre-line text-justify">
-                    {{ building.fullContent }}
+                <div v-else class="text-lg leading-[2.6] tracking-[0.15em] font-light text-[#5a5550] whitespace-pre-line text-justify html-content">
+                    <div v-html="building.fullContent || '暂无详细营造记载'"></div>
                 </div>
             </div>
 
@@ -87,9 +92,12 @@
                         </div>
                         
                         <ul class="space-y-8 text-sm mb-16">
-                            <li v-for="(val, label) in archiveInfo" :key="label" class="flex flex-col gap-3">
+                            <li v-for="(val, label) in parsedArchive" :key="label" class="flex flex-col gap-3">
                                 <span class="text-[#8c857d] tracking-[0.3em] text-xs font-serif">{{ label }}</span>
                                 <span class="font-serif text-[#2c2825] tracking-[0.2em] text-base border-b border-black/5 pb-2">{{ val }}</span>
+                            </li>
+                            <li v-if="Object.keys(parsedArchive).length === 0" class="text-[#8c857d] italic text-xs tracking-widest">
+                                暂无归档规格数据
                             </li>
                         </ul>
                         
@@ -98,6 +106,11 @@
                             <span class="group-hover/btn:translate-x-2 transition-transform duration-500">→</span>
                         </button>
                     </div>
+
+                    <div v-if="building.remark" class="pl-8 border-l-2 border-stone-200 mt-12">
+                        <h5 class="text-[10px] font-sans tracking-[0.4em] text-gray-400 uppercase mb-4">营造备考</h5>
+                        <p class="text-sm text-gray-500 leading-relaxed text-justify">{{ building.remark }}</p>
+                    </div>
                 </div>
             </aside>
         </main>
@@ -105,7 +118,7 @@
         <Transition name="fade">
             <div v-if="show3D" class="fixed inset-0 z-[2000] bg-[#fcfaf5] flex flex-col">
                 <Transition name="fade">
-                    <div v-if="isLoading" class="absolute inset-0 z-[2100] bg-[#fcfaf5] flex flex-col items-center justify-center">
+                    <div v-if="is3DLoading" class="absolute inset-0 z-[2100] bg-[#fcfaf5] flex flex-col items-center justify-center">
                         <div class="relative w-24 h-24 mb-8">
                             <div class="absolute inset-0 border-[1px] border-palace-red/20 rounded-full"></div>
                             <div class="absolute inset-0 border-[1px] border-palace-red rounded-full border-t-transparent animate-spin"></div>
@@ -115,14 +128,14 @@
                     </div>
                 </Transition>
 
-                <div class="p-8 flex justify-between items-center z-10">
-                    <div class="font-serif">
+                <div class="p-8 flex justify-between items-center z-10 pointer-events-none">
+                    <div class="font-serif pointer-events-auto">
                         <h2 class="text-2xl tracking-[0.3em] text-ink-dark">{{ building.name }}</h2>
                     </div>
-                    <button @click="close3DView" class="w-12 h-12 flex items-center justify-center hover:rotate-90 transition-transform duration-500 text-xl font-light text-ink-dark">✕</button>
+                    <button @click="close3DView" class="pointer-events-auto w-12 h-12 flex items-center justify-center hover:rotate-90 transition-transform duration-500 text-xl font-light text-ink-dark">✕</button>
                 </div>
 
-                <div ref="threeContainer" class="flex-1 w-full relative">
+                <div ref="threeContainer" class="flex-1 w-full absolute inset-0 z-0">
                     <div class="absolute bottom-10 left-1/2 -translate-x-1/2 px-8 py-3 bg-[#fcfaf5]/80 backdrop-blur-md border border-[#e8dfd3] pointer-events-none z-20">
                         <p class="text-[10px] text-[#8c857d] tracking-[0.4em] uppercase font-serif">WASD 漫游 ｜ 鼠标观微</p>
                     </div>
@@ -132,7 +145,7 @@
 
         <Transition name="bg-expand">
             <div v-if="isFullScreen" class="fixed inset-0 z-[900] bg-black cursor-zoom-out" @click="toggleFullScreen">
-                <img :src="building.img" class="w-full h-full object-cover transition-transform duration-1000 ease-out" ref="fullImgRef" />
+                <img :src="building.coverImage" class="w-full h-full object-cover transition-transform duration-1000 ease-out" ref="fullImgRef" />
                 <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60 pointer-events-none"></div>
                 <div class="absolute bottom-20 left-10 md:left-24 z-10 animate-fade-up">
                     <h2 class="text-white/90 text-4xl md:text-7xl font-serif tracking-[0.3em] mb-4">{{ building.name }}</h2>
@@ -146,39 +159,76 @@
 <script setup>
 import { computed, ref, onMounted, onUnmounted, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
-import { buildingsData } from '../data/buildings';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
+// 🏮 导入建筑 API
+import { getArchitecture } from "@/api/building";
+
 gsap.registerPlugin(ScrollTrigger);
 
 const route = useRoute();
+const buildingId = route.params.id;
+
+// ================= 状态管理 =================
+const loading = ref(true); // 页面骨架屏加载状态
+const building = ref({});  // 存储后端返回的建筑数据
+
 const headerRef = ref(null);
 const imageRef = ref(null);
 const fullImgRef = ref(null);
 const isFullScreen = ref(false);
-const isMobile = ref(window.innerWidth < 768); // 用于判断是否禁用竖排
+const isMobile = ref(window.innerWidth < 768);
 
-// 🏮 古风数字序号
+// 古风数字序号
 const cjkNumbers = ['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌'];
 
-// 3D & 加载状态
+// 3D 状态
 const show3D = ref(false);
-const isLoading = ref(true);
+const is3DLoading = ref(true);
 const loadProgress = ref(0);
 const threeContainer = ref(null);
 let scene, camera, renderer, controls, animationId;
 const keys = { w: false, a: false, s: false, d: false };
 
-const building = computed(() => {
-    const id = route.params.id;
-    return buildingsData[id] || buildingsData['taihedian'];
+// ================= 核心逻辑 =================
+
+// 🏮 1. 获取动态数据
+const loadBuildingData = async () => {
+    loading.value = true;
+    try {
+        const res = await getArchitecture(buildingId);
+        // 安全取值
+        building.value = res.data?.data || res.data || {};
+        
+        // 数据渲染完后，立刻执行开场动画和鼠标特效
+        nextTick(() => {
+            gsap.from('.hero-text > *', { y: 30, opacity: 0, duration: 1, stagger: 0.15, ease: 'power3.out' });
+            window.addEventListener('mousemove', handleMouseMove);
+        });
+    } catch (err) {
+        console.error("加载建筑详情失败:", err);
+    } finally {
+        loading.value = false;
+    }
+};
+
+// 🏮 2. 动态解析 JSON 格式的建筑案卷
+const parsedArchive = computed(() => {
+    const info = building.value.archiveInfo;
+    if (!info) return {};
+    try {
+        return typeof info === 'string' ? JSON.parse(info) : info;
+    } catch (e) {
+        // 如果后端传的不是严谨的 JSON，当做普通字符串兜底显示
+        return { "规格描述": info };
+    }
 });
 
-// 文本解析
+// 🏮 3. 动态解析富文本中的 【段落标题】 (与你原有逻辑保持一致)
 const parsedContent = computed(() => {
     const content = building.value.fullContent;
     if (!content) return [];
@@ -196,21 +246,19 @@ const parsedContent = computed(() => {
     return sections;
 });
 
-const archiveInfo = { '所属体系': '中国古建筑', '核心材质': '木 / 石 / 砖', '保护级别': '世界文化遗产' };
-
-// --- 3D 逻辑保持不变 ---
+// ================= 3D 渲染逻辑 =================
 const initThreeJS = () => {
     const container = threeContainer.value;
     if (!container) return;
 
-    isLoading.value = true;
+    is3DLoading.value = true;
     loadProgress.value = 0;
 
     const manager = new THREE.LoadingManager();
     manager.onProgress = (url, itemsLoaded, itemsTotal) => {
         loadProgress.value = (itemsLoaded / itemsTotal) * 100;
     };
-    manager.onLoad = () => { setTimeout(() => { isLoading.value = false; }, 500); };
+    manager.onLoad = () => { setTimeout(() => { is3DLoading.value = false; }, 500); };
 
     scene = new THREE.Scene();
     scene.background = new THREE.Color('#fcfaf5');
@@ -233,7 +281,7 @@ const initThreeJS = () => {
     sunLight.position.set(10, 20, 10);
     scene.add(sunLight);
 
-    // const modelPath = building.value.modelUrl || `/models/${building.value.id}.glb`;
+    // 🏮 优先使用数据库配置的模型地址，没有则用你的 OSS 兜底
     const modelPath = building.value.modelUrl || 'https://dandanxia-hs.oss-cn-hangzhou.aliyuncs.com/dazhengdian.glb';
 
     const loader = new GLTFLoader(manager);
@@ -249,7 +297,7 @@ const initThreeJS = () => {
         camera.position.z = maxDim * 1.5;
     }, undefined, (err) => {
         console.error("模型加载失败:", err);
-        isLoading.value = false;
+        is3DLoading.value = false;
     });
 
     window.addEventListener('keydown', handleKeyDown);
@@ -281,6 +329,8 @@ const handleKeyUp = (e) => { const k = e.key.toLowerCase(); if(keys.hasOwnProper
 const open3DView = () => { show3D.value = true; document.body.style.overflow = 'hidden'; nextTick(() => initThreeJS()); };
 const close3DView = () => { show3D.value = false; document.body.style.overflow = ''; window.removeEventListener('keydown', handleKeyDown); window.removeEventListener('keyup', handleKeyUp); cancelAnimationFrame(animationId); if (renderer) renderer.dispose(); };
 
+// ================= 交互与生命周期 =================
+
 const handleMouseMove = (e) => {
     if (isFullScreen.value || !imageRef.value) return;
     const mx = (e.clientX / window.innerWidth - 0.5) * 2;
@@ -298,8 +348,8 @@ const toggleFullScreen = () => {
 
 onMounted(() => {
     window.addEventListener('resize', () => isMobile.value = window.innerWidth < 768);
-    gsap.from('.hero-text > *', { y: 30, opacity: 0, duration: 1, stagger: 0.15, ease: 'power3.out' });
-    window.addEventListener('mousemove', handleMouseMove);
+    // 启动数据加载
+    loadBuildingData();
 });
 
 onUnmounted(() => {
@@ -323,4 +373,13 @@ onUnmounted(() => {
 /* 东方美学色彩微调 */
 p { color: #5a5550; }
 h1, h2, h3, h4 { color: #2c2825; }
+
+/* 防止富文本渲染时图片过大溢出 */
+:deep(.html-content img) {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin: 1.5rem 0;
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
+}
 </style>

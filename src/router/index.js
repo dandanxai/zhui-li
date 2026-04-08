@@ -1,6 +1,6 @@
 // =====================================================================
 // 文件位置: src/router/index.js
-// 模块描述: Vue Router 全局路由配置（集成动态标题与加载动画逻辑）
+// 模块描述: Vue Router 全局路由配置（增加鉴权拦截与动态加载控制）
 // =====================================================================
 
 import { createRouter, createWebHistory } from 'vue-router'
@@ -18,14 +18,13 @@ const router = createRouter({
             component: HomeView,
             meta: { title: '筑理 · 开启营造之旅' }
         },
-        // 在 routes 数组中加入这段：
         {
             path: '/login',
             name: 'login',
             component: () => import('../views/LoginView.vue'),
             meta: { 
                 title: '入卷 · 考工台登录',
-                hideGlobalUI: true // 隐藏全局导航栏（如果你在 App.vue 里做了类似 dashboard 的判断）
+                hideGlobalUI: true 
             }
         },
         {
@@ -35,6 +34,16 @@ const router = createRouter({
             meta: { 
                 title: '入府 · 考工台登记',
                 hideGlobalUI: true 
+            }
+        },
+        // 🏮 核心修改：个人中心
+        {
+            path: '/profile',
+            name: 'profile',
+            component: () => import('../views/ProfileView.vue'),
+            meta: { 
+                title: '居士书斋 · 个人中心',
+                requireAuth: true // 🏮 关键标记：必须登录才能进
             }
         },
         {
@@ -74,6 +83,12 @@ const router = createRouter({
             meta: { title: '典籍 · 营造法式' }
         },
         {
+            path: '/dianji/:id',
+            name: 'dianji-info',
+            component: () => import('../views/BookDetailView.vue'),
+            meta: { title: '典籍 · 博览古今' }
+        },
+        {
             path: '/wenmai',
             name: 'wenmai',
             component: () => import('../views/WenmaiView.vue'),
@@ -99,27 +114,37 @@ const router = createRouter({
 })
 
 /**
- * 路由前置守卫：处理加载动画逻辑
+ * 🏮 核心修改：全局前置守卫 (处理权限 & 加载动画)
  */
 router.beforeEach((to, from, next) => {
-    if (to.name && !loadedRoutes.has(to.name)) {
-        to.meta.needLoading = true; 
-        loadedRoutes.add(to.name);  
+    // 1. 获取 Token
+    const token = localStorage.getItem('ZHL_TOKEN');
+
+    // 2. 鉴权判断：如果要去需要权限的页面，但没登录
+    if (to.meta.requireAuth && !token) {
+        // 强制跳转到登录页，并带上 redirect 参数以便登录后跳回来
+        next({ 
+            path: '/login', 
+            query: { redirect: to.fullPath } 
+        });
     } else {
-        to.meta.needLoading = false; 
+        // 3. 处理加载动画逻辑 (如果是第一次进入该路由)
+        if (to.name && !loadedRoutes.has(to.name)) {
+            to.meta.needLoading = true; 
+            loadedRoutes.add(to.name);  
+        } else {
+            to.meta.needLoading = false; 
+        }
+        next();
     }
-    next()
 })
 
 /**
- * 核心修改：路由后置守卫
- * 作用：每次跳转页面后，自动修改浏览器标签页的名称
+ * 路由后置守卫：修改标题
  */
 router.afterEach((to) => {
-    // 默认标题为“筑理 · 智能营造平台”
     const defaultTitle = '筑理 · 智能营造平台';
-    // 如果路由 meta 中定义了 title，则使用它，否则使用默认标题
     document.title = to.meta.title || defaultTitle;
 });
 
-export default router
+export default router;

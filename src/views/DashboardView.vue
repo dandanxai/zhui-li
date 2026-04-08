@@ -25,17 +25,28 @@
 
     <div class="flex-1 text-center relative group cursor-default">
         <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div class="w-64 h-16 bg-palace-red/[0.02] blur-2xl rounded-full scale-x-150"></div>
+            <div class="w-64 h-16 bg-palace-red/[0.02] blur-2xl rounded-full scale-x-150"></div>
         </div>
-        <div class="relative inline-block">
-        <h1 class="text-5xl tracking-[1.2em] text-[#1a1a1a] font-black font-serif ml-[1.2em] transition-all duration-700 hover:tracking-[1.3em]">
-            营造<span class="text-palace-red relative">·天枢
-            <span class="absolute -bottom-2 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-palace-red to-transparent opacity-40 scale-x-0 group-hover:scale-x-100 transition-transform duration-700"></span>
-            </span>
-        </h1>
-        <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap text-[8px] tracking-[0.8em] text-gray-400 uppercase font-mono opacity-60">
-            Ancient Architecture Digital Twin System
-        </div>
+        
+        <div class="relative inline-block w-full max-w-full overflow-hidden">
+            <h1 class="text-3xl md:text-4xl lg:text-5xl 
+                    tracking-[0.6em] md:tracking-[0.8em] lg:tracking-[1.2em] 
+                    text-[#1a1a1a] font-black font-serif 
+                    ml-[0.6em] md:ml-[0.8em] lg:ml-[1.2em]
+                    whitespace-nowrap
+                    transition-all duration-700 
+                    hover:tracking-[1.3em]">
+                营造<span class="text-palace-red relative">·天枢
+                    <span class="absolute -bottom-2 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-palace-red to-transparent opacity-40 scale-x-0 group-hover:scale-x-100 transition-transform duration-700"></span>
+                </span>
+            </h1>
+            
+            <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap 
+                        text-[6px] md:text-[8px] 
+                        tracking-[0.4em] md:tracking-[0.8em] 
+                        text-gray-400 uppercase font-mono opacity-60">
+                Ancient Architecture Digital Twin System
+            </div>
         </div>
     </div>
 

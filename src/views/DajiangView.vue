@@ -15,7 +15,7 @@
         </p>
     </header>
 
-    <div class="fixed right-8 top-1/2 -translate-y-1/2 z-50 hidden xl:flex flex-col gap-6 items-center">
+    <div v-if="!loading" class="fixed right-8 top-1/2 -translate-y-1/2 z-50 hidden xl:flex flex-col gap-6 items-center">
         <div class="w-[1px] h-20 bg-black/10 absolute top-0 -translate-y-full"></div>
         <button v-for="(era, index) in eraData" :key="era.id" @click="scrollTo(era.id)"
                 class="relative group flex items-center justify-center w-6 h-6">
@@ -23,17 +23,22 @@
                 {{era.eraName}}
             </span>
             <div class="w-2 h-2 rounded-full transition-all duration-500 border border-[#111]"
-                 :class="activeId === era.id ? 'bg-[#111] scale-150' : 'bg-transparent'"></div>
+                :class="activeId === era.id ? 'bg-[#111] scale-150' : 'bg-transparent'"></div>
         </button>
         <div class="w-[1px] h-20 bg-black/10 absolute bottom-0 translate-y-full"></div>
     </div>
 
-    <main class="w-full max-w-7xl mx-auto px-6 md:px-12 flex flex-col gap-48 relative z-10">
+    <div v-if="loading" class="w-full py-32 flex flex-col items-center justify-center opacity-50 relative z-10">
+        <div class="w-10 h-10 border-2 border-palace-red rounded-full border-t-transparent animate-spin mb-4"></div>
+        <p class="font-serif tracking-widest text-[#111]">正在研读名录...</p>
+    </div>
+
+    <main v-else class="w-full max-w-7xl mx-auto px-6 md:px-12 flex flex-col gap-48 relative z-10">
         
         <section v-for="(era, index) in eraData" :key="era.id" :id="era.id" class="content-section scroll-mt-32 relative">
             <div class="absolute top-10 pointer-events-none select-none z-0 text-[15vw] font-black text-black/[0.03] leading-none"
-                 :class="index % 2 === 0 ? '-right-10' : '-left-10'">
-                {{ era.eraName.substring(0, 2) }}
+                :class="index % 2 === 0 ? '-right-10' : '-left-10'">
+                {{ (era.eraName || '未知').substring(0, 2) }}
             </div>
 
             <div class="flex flex-col gap-16 relative z-10" :class="index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'">
@@ -66,7 +71,7 @@
                             <span class="text-[10px] text-gray-400 border border-gray-300 px-2 py-1 font-bold uppercase tracking-widest">Representative</span>
                             <h4 class="text-2xl font-black text-[#000] tracking-widest">{{ era.subChief.name }}</h4>
                         </div>
-                        <p class="text-[14px] text-[#333] leading-loose tracking-widest font-bold">{{ era.subChief.desc }}</p>
+                        <p class="text-[14px] text-[#333] leading-loose tracking-widest font-bold line-clamp-3">{{ era.subChief.desc }}</p>
                     </div>
 
                     <button @click="openDrawer(era)" class="group flex items-center justify-between w-full p-6 bg-[#111] text-white hover:bg-palace-red transition-colors duration-500 shadow-xl">
@@ -84,7 +89,7 @@
     </main>
 
     <transition name="slide-drawer">
-        <div v-if="drawerVisible" class="fixed inset-0 z-[100] flex justify-end">
+        <div v-if="drawerVisible && activeEra" class="fixed inset-0 z-[100] flex justify-end">
             <div class="absolute inset-0 bg-[#000]/60 backdrop-blur-sm transition-opacity" @click="drawerVisible = false"></div>
             
             <div class="relative w-full md:w-[600px] lg:w-[800px] bg-[#fcfaf5] h-full shadow-2xl flex flex-col border-l-4 border-palace-red">
@@ -154,69 +159,82 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
+
+// 导入后端的年代和大匠接口
+import { listHistory , listArtisan } from '@/api/building'
 
 const router = useRouter()
 const activeId = ref('era-1')
 const drawerVisible = ref(false)
 const activeEra = ref(null)
 const hoveredMaster = ref(null)
+const loading = ref(true)
 
-const eraData = [
-{
-    id: 'era-1',
-    period: 'BC 206 - AD 589',
-    eraName: '秦汉魏晋',
-    theme: '规制萌芽',
-    chief: { id: 'wuming', name: '将作大匠', slogan: '高台榭，美宫室', intro: '秦汉魏晋是规制的奠基期。虽匠名多佚，但阿房宫的宏阔与未央宫的深远确立了中国宫殿“高台重楼”的初始格局。', img: 'https://images.unsplash.com/photo-1599408031306-035985043812?q=80&w=1200' },
-    subChief: { id: 'xiandequan', name: '萧何', desc: '虽为大汉相国，却亲自监工并定下了未央宫的建筑规制，确立了“非壮丽无以重威”的千古基调。' },
-    allPeers: [
-        { id: 'xiandequan', name: '萧何', poetry: '非壮丽无以重威', desc: '虽为相国，却亲定未央宫规制，确立汉代礼制建筑基调。' },
-        { id: 'yangcheng', name: '阳城延', poetry: '覆压三百余里，隔离天日', desc: '秦代将作少府，主持营建阿房宫，开启了帝国建筑的宏大叙事。' },
-        { id: 'lvzhao', name: '吕昭', poetry: '太极殿高，以正中轴', desc: '主持营建魏太极殿，确立了宫殿中轴对称的千古雏形。' }
-    ]
-},
-{
-    id: 'era-2',
-    period: 'AD 581 - 1279',
-    eraName: '隋唐宋',
-    theme: '巅峰营造',
-    chief: { id: 'lijie', name: '李诫', slogan: '以材为祖，定法式', intro: '他编纂了《营造法式》，将原本师徒口授的经验转化为严密的标准化模数。自此，中国建筑有了不可动摇的法理基石。', img: 'https://images.unsplash.com/photo-1582650726715-db14757c23bc?q=80&w=1200' },
-    subChief: { id: 'lichun', name: '李春', desc: '隋代杰出工匠。首创敞肩式单孔石拱桥——赵州桥，其力学与几何学的完美结合，领先欧洲八百余年。' },
-    allPeers: [
-        { id: 'lichun', name: '李春', poetry: '如初月出云，长虹饮涧', desc: '隋代赵州桥设计者，首创敞肩石拱桥，领先世界八百余年。' },
-        { id: 'yuhao', name: '喻皓', poetry: '梵塔撑天，木石有灵', desc: '一代塔王，著有世界最早木结构专著《木经》，其技艺震古烁今。' },
-        { id: 'lijie-p', name: '李诫', poetry: '凡构屋之制，皆以材为祖', desc: '北宋营缮大匠，建筑标准化之父，著《营造法式》。' }
-    ]
-},
-{
-    id: 'era-3',
-    period: 'AD 1271 - 1644',
-    eraName: '元明',
-    theme: '大朝威仪',
-    chief: { id: 'kuaixiang', name: '蒯祥', slogan: '双手画龙，筑紫禁', intro: '香山帮鼻祖，主持营建北京故宫。承天门（天安门）及三大殿的宏伟规制皆出自其手，被宪宗尊为“蒯鲁班”。', img: 'https://images.unsplash.com/photo-1543013327-04669fec8935?q=80&w=1200' },
-    subChief: { id: 'jicheng', name: '计成', desc: '明代造园宗师。其著作《园冶》是中国第一部造园学专著，提出了“虽由人作，宛自天开”的至高理念。' },
-    allPeers: [
-        { id: 'jicheng', name: '计成', poetry: '虽由人作，宛自天开', desc: '一代造园宗师，著有园林理论神作《园冶》，将文人写意融于土木。' },
-        { id: 'kuailuban', name: '蔡信', poetry: '水抱皇城，金碧辉煌', desc: '参与明初北京城及故宫的规划设计，奠定九坛八庙之基。' },
-        { id: 'kuaixiang-p', name: '蒯祥', poetry: '双手同绘，紫禁神工', desc: '明代宫廷建筑师，故宫营建首功。' }
-    ]
-},
-{
-    id: 'era-4',
-    period: 'AD 1644 - 1912',
-    eraName: '明清',
-    theme: '集大成者',
-    chief: { id: 'yangshilei', name: '样式雷', slogan: '烫样微缩，皇家缩影', intro: '雷氏家族掌控清代皇家建筑两百年。独创“烫样”模型，将万千宏大建筑纳于方寸之间，留下了海量珍贵图档。', img: 'https://images.unsplash.com/photo-1579308101416-09257d079d85?q=80&w=1200' },
-    subChief: { id: 'leijinyu', name: '雷金玉', desc: '雷氏家族奠基人，受康熙皇帝赏识，出任圆明园“掌案”，开启了一个建筑世家的两百年传奇。' },
-    allPeers: [
-        { id: 'leijinyu', name: '雷金玉', poetry: '内廷样房，掌案天下', desc: '样式雷家族奠基人，受康熙赏识，主持营建万园之园圆明园。' },
-        { id: 'leitingchang', name: '雷廷昌', poetry: '三海营建，集大成者', desc: '样式雷末代辉煌，主持重修颐和园与三海工程。' },
-        { id: 'yangshilei-p', name: '雷发达', poetry: '一家雷氏，半部建筑史', desc: '清代宫廷建筑世家鼻祖。' }
-    ]
+// 响应式数据源
+const eraData = ref([])
+
+// 🏮 核心数据加载与组装映射
+const loadAllData = async () => {
+    loading.value = true
+    try {
+        const [historyRes, artisanRes] = await Promise.all([
+            listHistory({ pageNum: 1, pageSize: 50, status: '0' }),
+            listArtisan({ pageNum: 1, pageSize: 500, status: '0' })
+        ])
+
+        const eras = historyRes.rows || historyRes.data?.rows || []
+        const artisans = artisanRes.rows || artisanRes.data?.rows || []
+
+        eras.sort((a, b) => a.orderNum - b.orderNum)
+
+        eraData.value = eras.map(era => {
+            const peers = artisans.filter(a => a.eraId === era.id).sort((a, b) => a.orderNum - b.orderNum)
+            
+            const chiefMatch = artisans.find(a => a.id === era.chiefId) || peers[0] || {}
+            const subChiefMatch = artisans.find(a => a.id === era.subChiefId) || peers[1] || {}
+
+            return {
+                id: 'era-' + era.id,
+                period: era.period || '未知年份',
+                eraName: era.eraName,
+                theme: era.theme,
+                chief: {
+                    id: chiefMatch.id,
+                    name: chiefMatch.name || '佚名',
+                    slogan: chiefMatch.slogan || chiefMatch.poetry || '大匠无言',
+                    intro: chiefMatch.intro || chiefMatch.fullDesc || '暂无生平记载',
+                    img: chiefMatch.imgUrl || 'https://images.unsplash.com/photo-1599408031306-035985043812?q=80&w=1200'
+                },
+                subChief: {
+                    id: subChiefMatch.id,
+                    name: subChiefMatch.name || '佚名',
+                    desc: subChiefMatch.intro || subChiefMatch.contribution || '暂无事迹'
+                },
+                allPeers: peers.map(p => ({
+                    id: p.id,
+                    name: p.name,
+                    poetry: p.poetry || p.slogan || '大方无隅，大器晚成',
+                    desc: p.intro || p.contribution || '历史长河中一位熠熠生辉的营造者。'
+                }))
+            }
+        })
+    } catch (err) {
+        console.error('加载大匠数据失败', err)
+    } finally {
+        // 🏮 【关键修复】：先把 loading 置为 false，让页面渲染真实节点
+        loading.value = false
+        
+        // 🏮 然后在 nextTick 里去寻找渲染出来的节点绑定动画
+        nextTick(() => {
+            if (eraData.value.length > 0) {
+                activeId.value = eraData.value[0].id
+            }
+            initObservers()
+        })
+    }
 }
-]
 
 const scrollTo = (id) => {
     activeId.value = id
@@ -235,7 +253,10 @@ const openDrawer = (era) => {
 let scrollObserver = null
 let revealObserver = null
 
-onMounted(() => {
+const initObservers = () => {
+    if (scrollObserver) scrollObserver.disconnect()
+    if (revealObserver) revealObserver.disconnect()
+
     const sections = document.querySelectorAll('.content-section')
     scrollObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -246,6 +267,7 @@ onMounted(() => {
     }, { rootMargin: '-30% 0px -50% 0px' }) 
     sections.forEach(sec => scrollObserver.observe(sec))
 
+    // 🏮 这个时候，页面上真正的 .reveal-up 元素已经被拿到了！
     const revealElements = document.querySelectorAll('.reveal-up')
     revealObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -256,6 +278,10 @@ onMounted(() => {
         })
     }, { rootMargin: '0px 0px -10% 0px', threshold: 0.1 })
     revealElements.forEach(el => revealObserver.observe(el))
+}
+
+onMounted(() => {
+    loadAllData()
 })
 
 onUnmounted(() => {
@@ -265,37 +291,27 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* 竖排文字 */
 .writing-vertical { writing-mode: vertical-rl; text-orientation: upright; }
-
-/* 强制重墨防漂浮 */
 p, h1, h2, h3, h4, h5, span { font-variant-ligatures: none; -webkit-font-smoothing: antialiased; }
-
-/* =========================================================================
-   动效与抽屉样式
-   ========================================================================= */
 .reveal-up {
     opacity: 0; transform: translateY(40px);
     transition: opacity 1s cubic-bezier(0.25, 1, 0.5, 1), transform 1s cubic-bezier(0.25, 1, 0.5, 1);
 }
 .reveal-up.is-visible { opacity: 1; transform: translateY(0); }
 .delay-100 { transition-delay: 150ms; }
-
 .elegant-card {
     transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .elegant-card:hover { transform: translateY(-4px); }
-
-/* 抽屉划入动画 (右侧滑入) */
 .slide-drawer-enter-active, .slide-drawer-leave-active { transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
 .slide-drawer-enter-from, .slide-drawer-leave-to { transform: translateX(100%); }
-
-/* 抽屉内右侧详情淡入 */
 .fade-fast-enter-active, .fade-fast-leave-active { transition: opacity 0.3s ease, transform 0.3s ease; }
 .fade-fast-enter-from { opacity: 0; transform: translateY(10px); }
 .fade-fast-leave-to { opacity: 0; transform: translateY(-10px); }
-
-/* 滚动条 */
 .custom-scroll::-webkit-scrollbar { width: 4px; }
 .custom-scroll::-webkit-scrollbar-thumb { background: #111; }
+/* 防止简介过长溢出破坏排版 */
+.line-clamp-3 {
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
 </style>
