@@ -38,7 +38,7 @@ router.beforeEach((to, from, next) => {
 
 router.afterEach((to) => {
   if (to.meta.needLoading) {
-    setTimeout(() => { isLoading.value = false }, 3200)
+    setTimeout(() => { isLoading.value = false }, 1500)
   } else {
     isLoading.value = false
   }

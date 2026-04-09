@@ -4,7 +4,7 @@
     <div class="absolute inset-0 opacity-[0.03] pointer-events-none" style="background-image: radial-gradient(#000 1px, transparent 1px); background-size: 40px 40px;"></div>
 
     <header class="h-24 flex items-center justify-between px-12 relative z-30 bg-white/60 backdrop-blur-xl border-b-[3px] border-double border-palace-red/20 shadow-[0_4px_30px_rgba(155,46,46,0.03)] overflow-hidden">
-  
+    
     <div class="absolute inset-0 opacity-[0.04] pointer-events-none select-none mix-blend-multiply" 
         style="background-image: url('https://www.transparenttextures.com/patterns/natural-paper.png');"></div>
     <div class="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-full bg-gradient-to-b from-palace-red/[0.03] to-transparent pointer-events-none"></div>
@@ -70,50 +70,54 @@
     <div class="absolute bottom-0 left-0 w-full h-[1.5px] bg-gradient-to-r from-transparent via-palace-red/40 to-transparent animate-header-scan"></div>
     </header>
 
-    <div class="flex-1 flex gap-6 p-6 relative z-10 overflow-hidden">
+    <div class="flex-1 flex gap-4 xl:gap-6 p-4 xl:p-6 relative z-10 overflow-hidden min-h-0">
     
-    <aside class="w-[24%] flex flex-col gap-6">
-        <DashboardBox title="CHRONICLE" sub="营造漫谈" class="flex-1">
-        <ScrollLog />
-        </DashboardBox>
-        <DashboardBox title="SEASONAL" sub="四时意象" class="h-[25%]">
-        <SeasonalView />
-        </DashboardBox>
-        <DashboardBox title="PALETTE" sub="寻味中国" class="h-[20%]">
-        <PaletteBox />
-        </DashboardBox>
-    </aside>
+        <aside class="w-[260px] lg:w-[22%] xl:w-[24%] shrink-0 flex flex-col gap-4 xl:gap-6 min-h-0">
+            <DashboardBox title="CHRONICLE" sub="营造漫谈" class="flex-[5] min-h-[200px]">
+                <ScrollLog class="h-full overflow-y-auto custom-scrollbar pr-1" />
+            </DashboardBox>
+            <DashboardBox title="SEASONAL" sub="四时意象" class="flex-[3] min-h-[140px]">
+                <SeasonalView class="h-full overflow-y-auto custom-scrollbar pr-1" />
+            </DashboardBox>
+            <DashboardBox title="PALETTE" sub="寻味中国" class="flex-[2] min-h-[120px]">
+                <PaletteBox class="h-full overflow-y-auto custom-scrollbar pr-1" />
+            </DashboardBox>
+        </aside>
 
-    <main class="flex-1 flex flex-col gap-6">
-        <div class="flex-1 bg-white border border-palace-red/5 rounded-sm relative shadow-sm overflow-hidden">
-        <div class="absolute top-6 right-6 z-30 flex bg-[#fcfaf5]/80 p-1 border border-palace-red/10 shadow-sm backdrop-blur-md">
-            <button @click="viewMode = 'map'" :class="viewMode === 'map' ? 'bg-palace-red text-white' : 'text-gray-400'" class="px-6 py-1.5 text-[10px] tracking-[0.2em] transition-all">寻古舆图</button>
-            <button @click="viewMode = '3d'" :class="viewMode === '3d' ? 'bg-palace-red text-white' : 'text-gray-400'" class="px-6 py-1.5 text-[10px] tracking-[0.2em] transition-all">营造解构</button>
-        </div>
-        <transition name="fade-scale" mode="out-in">
-            <component :is="viewMode === 'map' ? MapView : ThreeDView" />
-        </transition>
-        </div>
-        <div class="h-40 bg-white border border-palace-red/5 rounded-sm p-6 shadow-sm">
-        <QuoteBox />
-        </div>
-    </main>
+        <main class="flex-1 flex flex-col gap-4 xl:gap-6 min-w-[400px] min-h-0">
+            <div class="flex-1 bg-white border border-palace-red/5 rounded-sm relative shadow-sm overflow-hidden min-h-[300px]">
+                
+                <div class="absolute top-4 right-4 xl:top-6 xl:right-6 z-30 flex bg-[#fcfaf5]/90 p-1 border border-palace-red/10 shadow-sm backdrop-blur-md">
+                    <button @click="viewMode = 'models'" :class="viewMode === 'models' ? 'bg-palace-red text-white' : 'text-gray-400'" class="px-4 py-1.5 xl:px-6 xl:py-1.5 text-[10px] tracking-[0.2em] transition-all">数字孪生</button>
+                    <button @click="viewMode = 'map'" :class="viewMode === 'map' ? 'bg-palace-red text-white' : 'text-gray-400'" class="px-4 py-1.5 xl:px-6 xl:py-1.5 text-[10px] tracking-[0.2em] transition-all">寻古舆图</button>
+                    <button @click="viewMode = '3d'" :class="viewMode === '3d' ? 'bg-palace-red text-white' : 'text-gray-400'" class="px-4 py-1.5 xl:px-6 xl:py-1.5 text-[10px] tracking-[0.2em] transition-all">营造解构</button>
+                </div>
+                
+                <transition name="fade-scale" mode="out-in">
+                    <component :is="viewMode === 'map' ? MapView : (viewMode === 'models' ? ModelDirectoryView : ThreeDView)" class="w-full h-full" />
+                </transition>
+            </div>
+            
+            <div class="h-auto min-h-[120px] xl:h-40 bg-white border border-palace-red/5 rounded-sm p-4 xl:p-6 shadow-sm flex flex-col justify-center">
+                <QuoteBox />
+            </div>
+        </main>
 
-    <aside class="w-[24%] flex flex-col gap-6">
-        <DashboardBox title="STRUCTURE" sub="构造挑战" class="flex-1">
-        <StructureChallenge />
-        </DashboardBox>
-        <DashboardBox title="SOCIAL" sub="云端共赏" class="h-[25%]">
-        <SocialFootprint />
-        </DashboardBox>
-        <DashboardBox title="SEAL" sub="数字朱印" class="h-[20%]">
-        <DigitalSeal />
-        </DashboardBox>
-    </aside>
+        <aside class="w-[260px] lg:w-[22%] xl:w-[24%] shrink-0 flex flex-col gap-4 xl:gap-6 min-h-0">
+            <DashboardBox title="STRUCTURE" sub="构造挑战" class="flex-[5] min-h-[200px]">
+                <StructureChallenge class="h-full overflow-y-auto custom-scrollbar pr-1" />
+            </DashboardBox>
+            <DashboardBox title="SOCIAL" sub="云端共赏" class="flex-[3] min-h-[140px]">
+                <SocialFootprint class="h-full overflow-y-auto custom-scrollbar pr-1" />
+            </DashboardBox>
+            <DashboardBox title="SEAL" sub="数字朱印" class="flex-[2] min-h-[120px]">
+                <DigitalSeal class="h-full overflow-y-auto custom-scrollbar pr-1" />
+            </DashboardBox>
+        </aside>
 
     </div>
 
-    <footer class="h-12 border-t border-palace-red/10 flex items-center justify-between px-10 relative z-20 bg-white/30 backdrop-blur-sm overflow-hidden">
+    <footer class="h-12 border-t border-palace-red/10 flex items-center justify-between px-10 relative z-20 bg-white/30 backdrop-blur-sm overflow-hidden shrink-0">
     
         <div class="flex items-center gap-6 text-[10px] font-mono tracking-widest text-gray-500">
             <div class="flex items-center gap-2">
@@ -166,8 +170,9 @@ import DigitalSeal from '../components/dashboard/DigitalSeal.vue'
 
 const MapView = defineAsyncComponent(() => import('../components/dashboard/MapView.vue'))
 const ThreeDView = defineAsyncComponent(() => import('../components/dashboard/ThreeDView.vue'))
+const ModelDirectoryView = defineAsyncComponent(() => import('../components/dashboard/ModelDirectoryView.vue'))
 
-const viewMode = ref('map')
+const viewMode = ref('models')
 const currentTime = ref('')
 
 onMounted(() => {
@@ -181,4 +186,23 @@ setInterval(() => {
 .fade-scale-enter-active, .fade-scale-leave-active { transition: all 0.5s ease; }
 .fade-scale-enter-from { opacity: 0; transform: scale(1.02); }
 .fade-scale-leave-to { opacity: 0; transform: scale(0.98); }
+
+/* 🏮 新增：极简东方美学隐藏式滚动条 */
+:deep(.custom-scrollbar::-webkit-scrollbar) {
+    width: 3px; 
+}
+:deep(.custom-scrollbar::-webkit-scrollbar-track) {
+    background: transparent;
+}
+:deep(.custom-scrollbar::-webkit-scrollbar-thumb) {
+    background: rgba(155, 46, 46, 0); 
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+:deep(.custom-scrollbar:hover::-webkit-scrollbar-thumb) {
+    background: rgba(155, 46, 46, 0.3); 
+}
+:deep(.custom-scrollbar::-webkit-scrollbar-thumb:hover) {
+    background: rgba(155, 46, 46, 0.6);
+}
 </style>

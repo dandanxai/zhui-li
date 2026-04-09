@@ -109,6 +109,19 @@ const router = createRouter({
                 hideGlobalUI: true, 
                 title: '天枢 · 数字化可视化平台' 
             }
+        },
+        // 🏮 1. 先定义 404 路由的具体组件
+        {
+            path: '/404',
+            name: 'NotFoundPage', // 确保 name 唯一
+            component: () => import('../views/error/404.vue'),
+            meta: { title: '404 - 页面不存在' }
+        },
+        // 🏮 2. 最后再定义通配符拦截，把它兜底到 /404 页面
+        {
+            path: '/:pathMatch(.*)*',
+            name: 'CatchAll', // 确保 name 唯一
+            redirect: '/404' 
         }
     ],
     scrollBehavior(to, from, savedPosition) {

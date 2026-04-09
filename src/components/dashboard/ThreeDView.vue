@@ -7,13 +7,13 @@
         <h2 class="text-2xl font-black font-serif tracking-[0.3em] text-[#111]">营造解构 · 斗拱</h2>
         <span class="text-[9px] font-mono text-palace-red/60 uppercase tracking-[0.5em] mt-1 italic">Structural_Deconstruction // V1.0</span>
         </div>
-    </div>
+    </div>  
     </div>
 
-    <div class="absolute top-8 right-32 z-20 font-mono text-[10px] text-gray-400 bg-white/50 px-3 py-1 border border-palace-red/10 flex items-center gap-2 backdrop-blur-sm">
+    <!-- <div class="absolute top-8 right-32 z-20 font-mono text-[10px] text-gray-400 bg-white/50 px-3 py-1 border border-palace-red/10 flex items-center gap-2 backdrop-blur-sm">
     <span class="w-1.5 h-1.5 bg-palace-red rounded-full animate-pulse"></span>
     ZOOM_LEVEL: {{ zoomPercent }}%
-    </div>
+    </div> -->
 
     <div ref="canvasContainer" class="w-full h-full z-10 cursor-grab active:cursor-grabbing"></div>
 
@@ -93,6 +93,7 @@ orbitControls.addEventListener('change', () => {
 // 加载模型
 new GLTFLoader().load('/dougong.glb', (gltf) => {
     const model = gltf.scene
+    model.scale.set(2.5, 2.5, 2.5);
     const box = new THREE.Box3().setFromObject(model)
     const center = box.getCenter(new THREE.Vector3())
     model.position.sub(center)
