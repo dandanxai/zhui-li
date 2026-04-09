@@ -29,7 +29,7 @@ export default defineConfig({
       // 🏮 匹配请求路径中的 /api
       '/api': {
         // target: 'http://47.99.105.118:9013',
-        target: 'http://localhost:8080', // 👈 这里填若依后端的实际地址和端口
+        target: 'http://localhost:8080',
         changeOrigin: true,              // 允许跨域
         rewrite: (path) => path.replace(/^\/api/, '') // 将 /api 替换为空，这样发给后端的路径才是正确的
       }

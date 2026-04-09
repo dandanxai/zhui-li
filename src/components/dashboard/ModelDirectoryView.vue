@@ -112,7 +112,7 @@ const isListLoading = ref(true)
 
 const queryParams = ref({
     pageNum: 1,
-    pageSize: 10
+    pageSize: 100
 })
 const total = ref(0)
 const hasMore = ref(true)
@@ -366,7 +366,7 @@ const initThreeJS = async (modelUrl) => {
         if (isCancelled) return
         animationId = requestAnimationFrame(animate)
         
-        const moveSpeed = 0.08
+        const moveSpeed = 0.2
         const forward = new THREE.Vector3()
         camera.getWorldDirection(forward)
         forward.y = 0

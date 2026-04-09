@@ -42,7 +42,7 @@ request.interceptors.response.use(
 
         // 🏮 核心修改：Token 失效直接弹窗提示，并踢回首页
         if (code === 401) {
-            alert('登录状态已失效，请重新登录！') // 若有 UI 库可替换为: ElMessage.warning('登录状态已失效，请重新登录！')
+            ElMessage.warning('登录状态已失效，请重新登录！') // 若有 UI 库可替换为: ElMessage.warning('登录状态已失效，请重新登录！')
             
             localStorage.removeItem('ZHL_TOKEN')
             // 直接定位回首页
@@ -83,7 +83,7 @@ request.interceptors.response.use(
             } 
             // 兜底：如果后端把 401 写在 HTTP 状态码里
             else if (status === 401) {
-                alert('登录状态已失效，请重新登录！')
+                ElMessage.warning('登录状态已失效，请重新登录！')
                 localStorage.removeItem('ZHL_TOKEN')
                 router.push('/')
                 return Promise.reject('认证失败')

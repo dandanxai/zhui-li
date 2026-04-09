@@ -1,170 +1,274 @@
 <template>
-<div class="min-h-screen bg-[#fcfaf5] pt-40 pb-24 px-6 md:px-12 selection:bg-palace-red selection:text-white">
-    <button @click="$router.back()" class="fixed top-32 left-6 md:left-12 z-30 flex items-center gap-2 text-gray-400 hover:text-palace-red transition-colors group nav-back">
+<div class="min-h-screen bg-[#fcfaf5] pt-40 pb-16 px-6 md:px-12 selection:bg-palace-red selection:text-white overflow-hidden">
+    <button @click="$router.back()" class="fixed top-32 left-6 md:left-12 z-30 flex items-center gap-2 text-gray-400 hover:text-palace-red transition-colors group nav-back reveal-up">
         <span class="text-xl group-hover:-translate-x-1 transition-transform">←</span>
         <span class="text-xs font-serif tracking-widest font-bold">归卷 BACK</span>
     </button>
 
     <div class="max-w-7xl mx-auto">
-        <div class="mb-20 page-header">
-            <h1 class="text-4xl md:text-6xl font-serif text-[#111] tracking-widest mb-4 font-black">
+        <div class="mb-32 page-header text-center relative reveal-up">
+            <h1 class="text-5xl md:text-6xl font-serif text-[#1a1818] tracking-[0.2em] mb-8 font-medium relative z-10">
                 {{ categoryInfo.title || '加载中...' }}
             </h1>
-            <p class="text-gray-500 font-sans font-bold tracking-[0.2em] uppercase text-sm">
-                {{ categoryInfo.enTitle || 'Loading...' }}
-            </p>
-            <div class="w-12 h-[2px] bg-palace-red/60 mt-8"></div>
+            <div class="flex items-center justify-center gap-6 relative z-10">
+                <span class="w-16 h-[1px] bg-palace-red/40"></span>
+                <p class="text-gray-400 font-sans tracking-[0.4em] uppercase text-xs">
+                    {{ categoryInfo.enTitle || 'Loading...' }}
+                </p>
+                <span class="w-16 h-[1px] bg-palace-red/40"></span>
+            </div>
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[8rem] md:text-[12rem] font-serif font-black text-[#f2ebd9] opacity-40 select-none z-0 whitespace-nowrap pointer-events-none">
+                {{ categoryInfo.title || '营造' }}
+            </div>
         </div>
 
-        <div v-if="!loading && architectureList.length === 0" class="text-center py-32 opacity-50">
-            <p class="text-xl font-serif tracking-widest text-[#111]">此卷暂无收录建筑</p>
-            <p class="text-xs font-sans tracking-widest mt-4 uppercase">No Architecture Found in this Category</p>
-        </div>
-
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+        <div class="flex flex-col gap-y-32 md:gap-y-48 pb-20">
             <div 
                 v-for="(item, index) in architectureList" 
                 :key="item.id" 
-                class="group cursor-pointer building-card opacity-0"
-                @click="$router.push(`/building/${item.id}`)"
+                class="group relative flex flex-col md:flex-row items-center building-card"
+                :class="{'md:flex-row-reverse': index % 2 !== 0}"
             >
-                <div class="aspect-[3/4] overflow-hidden rounded-sm mb-6 bg-gray-100 relative shadow-sm border border-black/5">
-                    <img :src="item.coverImage" :alt="item.name" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000">
+                <div class="absolute top-[-4rem] text-[10rem] md:text-[14rem] font-serif font-black text-[#eee8d5] -z-10 select-none leading-none scroll-reveal reveal-up"
+                     :class="index % 2 === 0 ? '-left-8 md:-left-16' : '-right-8 md:-right-16'">
+                    {{ String(index + 1).padStart(2, '0') }}
+                </div>
+
+                <div class="w-full md:w-[60%] aspect-[4/3] md:aspect-[16/10] relative overflow-hidden shadow-[0_30px_60px_-20px_rgba(0,0,0,0.15)] z-0 cursor-pointer scroll-reveal"
+                     :class="index % 2 === 0 ? 'reveal-left' : 'reveal-right'"
+                     @click="$router.push(`/building/${item.id}`)">
+                    <img :src="item.coverImage" :alt="item.name" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s] ease-out">
                     
-                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-700 flex flex-col items-center justify-center px-10 text-center backdrop-blur-sm">
-                        <span class="w-1.5 h-1.5 bg-palace-red rounded-full mb-6"></span>
-                        
-                        <p class="text-white font-serif text-lg leading-relaxed tracking-[0.2em] mb-8 font-medium italic">
-                            「 {{ item.poem || '巧夺天工，鬼斧神工' }} 」
+                    <div class="absolute inset-0 bg-[#1c1a18]/70 opacity-0 group-hover:opacity-100 transition-all duration-700 flex flex-col items-center justify-center p-8 backdrop-blur-sm">
+                        <div class="absolute inset-6 border border-white/10 scale-95 group-hover:scale-100 transition-transform duration-700 ease-out"></div>
+                        <p class="vertical-text text-white/95 font-serif text-xl leading-[3] tracking-[0.4em] font-light">
+                            {{ item.poem || '巧夺天工，鬼斧神工' }}
                         </p>
-                        
-                        <div class="flex flex-col items-center gap-2">
-                            <span class="text-white/50 text-[9px] tracking-[0.4em] uppercase font-sans">点击入卷探源</span>
-                            <div class="w-8 h-[1px] bg-white/20"></div>
-                        </div>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2 mb-4">
-                    <span class="w-2 h-[1px] bg-palace-red"></span>
-                    <span class="text-[10px] text-gray-400 font-sans font-black tracking-widest uppercase">{{ item.location || '未知地域' }}</span>
+                <div class="w-[90%] md:w-[45%] z-10 bg-[#fcfaf5]/95 backdrop-blur-md p-8 md:p-12 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.08)] border border-[#f0ead8] mt-[-60px] md:mt-0 cursor-pointer transition-transform duration-500 group-hover:-translate-y-2 scroll-reveal delay-200"
+                     :class="[
+                         index % 2 === 0 ? 'md:-ml-20 reveal-right' : 'md:-mr-20 reveal-left'
+                     ]"
+                     @click="$router.push(`/building/${item.id}`)">
+                    
+                    <div class="flex items-center gap-3 mb-8">
+                        <span class="w-8 h-[1px] bg-palace-red/60"></span>
+                        <span class="text-[11px] text-palace-red font-sans font-bold tracking-[0.2em] uppercase">{{ item.location || '未知地域' }}</span>
+                    </div>
+
+                    <h3 class="text-3xl md:text-4xl font-serif text-[#111] font-medium mb-6 tracking-[0.1em] group-hover:text-palace-red transition-colors duration-500">
+                        {{ item.name }}
+                    </h3>
+
+                    <p class="text-sm text-[#666] leading-[2.2] tracking-widest font-light line-clamp-4 text-justify">
+                        {{ item.remark || item.description || '暂无详细记载，待后人考究。' }}
+                    </p>
+
+                    <div class="mt-10 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                        <span class="text-xs font-serif tracking-widest text-[#111]">入卷探源</span>
+                        <span class="w-12 h-[1px] bg-[#111] transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 delay-200"></span>
+                    </div>
                 </div>
+            </div>
+        </div>
 
-                <h3 class="text-xl font-serif text-[#111] font-bold mb-3 tracking-widest group-hover:text-palace-red transition-colors duration-500">
-                    {{ item.name }}
-                </h3>
+        <div ref="bottomSentinel" class="py-12 flex flex-col items-center justify-center">
+            <div v-if="loadingMore" class="flex flex-col items-center gap-4 reveal-up is-visible">
+                <div class="w-6 h-6 border-2 border-palace-red border-t-transparent rounded-full animate-spin"></div>
+                <span class="text-xs font-serif tracking-widest text-gray-400">研墨展卷中...</span>
+            </div>
 
-                <p class="text-sm text-gray-500 leading-[2] tracking-wider font-light text-justify line-clamp-3">
-                    {{ item.remark || item.description || '暂无详细记载' }}
+            <div v-if="!hasMore && !loading" class="flex flex-col items-center gap-6 mt-8 reveal-up is-visible">
+                <div class="flex items-center gap-4">
+                    <span class="w-2 h-2 rotate-45 bg-gray-300"></span>
+                    <span class="w-32 h-[1px] bg-gradient-to-r from-transparent via-gray-300 to-transparent"></span>
+                    <span class="w-2 h-2 rotate-45 bg-gray-300"></span>
+                </div>
+                <p class="text-lg font-serif tracking-[0.5em] text-gray-400 italic">
+                    卷已展尽，墨迹至此
                 </p>
             </div>
         </div>
+
     </div>
 </div>
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
-import gsap from 'gsap'
-
-// 🏮 导入 API 接口
 import { getCategory , listArchitecture } from '@/api/building' 
 
 const route = useRoute()
-const categoryId = route.params.category // 这里的路由参数名字是 :category
+const categoryId = route.params.category 
 
 const loading = ref(true)
-const categoryInfo = ref({}) // 存储当前分类的信息（大标题）
-const architectureList = ref([]) // 存储建筑列表
+const categoryInfo = ref({})
+const architectureList = ref([])
 
-// 🏮 核心逻辑：加载当前分类详情和它下面的建筑列表
-const loadPageData = async () => {
-    loading.value = true
+// 🏮 分页与加载状态
+const pageNum = ref(1)
+const pageSize = ref(4) // 每次滚动加载的条数 (可自定义，建议少一点能看清动画)
+const hasMore = ref(true)
+const loadingMore = ref(false)
+const bottomSentinel = ref(null)
+
+// 🏮 核心加载逻辑
+const loadPageData = async (isLoadMore = false) => {
+    if (loadingMore.value || (!hasMore.value && isLoadMore)) return;
+    
+    if (isLoadMore) {
+        loadingMore.value = true;
+    } else {
+        loading.value = true;
+    }
+
     try {
-        // 1. 获取当前分类的大标题等信息
-        const catRes = await getCategory(categoryId);
-        if (catRes.data.data) {
-            categoryInfo.value = catRes.data.data;
-        } else {
-            // 兼容性兜底，万一找不到该分类
-            categoryInfo.value = { title: '营造寻迹', enTitle: 'Architectural Exploration' };
+        if (!isLoadMore) {
+            const catRes = await getCategory(categoryId);
+            categoryInfo.value = catRes.data?.data || { title: '营造寻迹', enTitle: 'Architectural Exploration' };
         }
 
-        // 2. 根据分类 ID 获取该分类下的所有建筑 (破除 10 条限制)
         const archRes = await listArchitecture({
             categoryId: categoryId,
-            pageNum: 1,
-            pageSize: 500, // 给一个大值，前端展示全部
-            status: '0' // 只查询状态为“展示”的建筑
+            pageNum: pageNum.value,
+            pageSize: pageSize.value,
+            status: '0' 
         });
         
-        // 适配若依的分页返回结构
-        architectureList.value = archRes.rows || archRes.data?.rows || archRes.data || [];
+        const newRows = archRes.rows || archRes.data?.rows || archRes.data || [];
         
-        // 3. 数据挂载后触发 GSAP 动画
+        if (isLoadMore) {
+            architectureList.value.push(...newRows);
+        } else {
+            architectureList.value = newRows;
+        }
+
+        // 判断是否还有下一页
+        if (newRows.length < pageSize.value) {
+            hasMore.value = false;
+        } else {
+            pageNum.value++;
+        }
+
+        // 数据更新后，重新绑定滚动动画监听
         nextTick(() => {
-            initGsapAnimation()
-        })
+            initScrollObserver();
+        });
+
     } catch (err) {
-        console.error("建筑列表加载失败", err)
+        console.error("数据加载失败", err)
     } finally {
-        loading.value = false
+        loading.value = false;
+        loadingMore.value = false;
     }
 }
 
-// 🏮 初始化 GSAP 页面浮现动画
-const initGsapAnimation = () => {
-    // 1. 返回按钮淡入
-    gsap.fromTo('.nav-back', 
-        { opacity: 0, x: -20 },
-        { opacity: 1, x: 0, duration: 1, ease: 'power2.out' }
-    );
-
-    // 2. 标题区上浮淡入
-    gsap.fromTo('.page-header', 
-        { opacity: 0, y: 40 },
-        { opacity: 1, y: 0, duration: 1.2, ease: 'power3.out', delay: 0.1 }
-    );
-
-    // 3. 卡片列表错落浮现 (如果有数据的话)
-    if (architectureList.value.length > 0) {
-        gsap.fromTo('.building-card', 
-            { opacity: 0, y: 60 },
-            { 
-                opacity: 1, 
-                y: 0, 
-                duration: 1, 
-                stagger: 0.15, // 每张卡片延迟0.15秒出现
-                ease: 'power3.out',
-                delay: 0.3     // 总体延迟，等标题先出来
+// 🏮 视差滚动 & 触底加载 核心观察器
+let observer = null;
+const initScrollObserver = () => {
+    if (observer) observer.disconnect();
+    
+    observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            // 1. 处理视差浮现动画
+            if (entry.target.classList.contains('scroll-reveal') || entry.target.classList.contains('reveal-up')) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target); // 出现后取消监听，只动画一次
+                }
             }
-        );
+            
+            // 2. 处理触底加载更多
+            if (entry.target === bottomSentinel.value && entry.isIntersecting) {
+                if (hasMore.value && !loadingMore.value) {
+                    loadPageData(true);
+                }
+            }
+        });
+    }, {
+        threshold: 0.15, // 元素露出 15% 时触发
+        rootMargin: '0px 0px 50px 0px' // 提前 50px 触发触底
+    });
+
+    // 绑定动画元素
+    document.querySelectorAll('.scroll-reveal, .reveal-up').forEach(el => {
+        if (!el.classList.contains('is-visible')) {
+            observer.observe(el);
+        }
+    });
+    
+    // 绑定底部哨兵元素 (用于触底加载)
+    if (bottomSentinel.value) {
+        observer.observe(bottomSentinel.value);
     }
 }
 
-// 页面挂载时启动
 onMounted(() => {
-    // 防止用户没传 id 进来报错
     if (categoryId) {
         loadPageData();
     }
+    // 页面刚加载时，让头部元素立刻浮现
+    setTimeout(() => {
+        document.querySelectorAll('.page-header, .nav-back').forEach(el => el.classList.add('is-visible'));
+    }, 100);
+})
+
+onUnmounted(() => {
+    if (observer) observer.disconnect();
 })
 </script>
 
 <style scoped>
-/* 悬停时整个卡片轻微上浮，配合文字变色 */
-.group:hover {
-    transform: translateY(-4px);
+/* =========================================
+   滚动浮现动画核心 CSS (代替 GSAP)
+   ========================================= */
+
+/* 初始状态：透明且带有位移 */
+.reveal-up {
+    opacity: 0;
+    transform: translateY(60px);
+    transition: all 1.2s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
-.building-card {
-    will-change: transform, opacity;
+
+.reveal-left {
+    opacity: 0;
+    transform: translateX(-80px);
+    transition: all 1.2s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
-/* 控制简介最多显示三行，多余显示省略号，保持排版整洁 */
-.line-clamp-3 {
+
+.reveal-right {
+    opacity: 0;
+    transform: translateX(80px);
+    transition: all 1.2s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+/* 延迟类 */
+.delay-200 { transition-delay: 200ms; }
+
+/* 触发状态：可见且归位 */
+.is-visible {
+    opacity: 1 !important;
+    transform: translate(0, 0) !important;
+}
+
+/* =========================================
+   排版细节
+   ========================================= */
+.line-clamp-4 {
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 4;
     -webkit-box-orient: vertical;
     overflow: hidden;
+}
+
+.vertical-text {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    height: 70%;
+    display: flex;
+    align-items: center;
 }
 </style>
