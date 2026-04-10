@@ -16,7 +16,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-6">
             <div v-for="model in models" :key="model.id" 
-                class="group relative bg-white border border-palace-red/10 p-5 shadow-sm transition-all duration-500 hover:shadow-[0_10px_30px_rgba(155,46,46,0.05)] hover:-translate-y-1"
+                class="group relative flex flex-col h-full bg-white border border-palace-red/10 p-5 shadow-sm transition-all duration-500 hover:shadow-[0_10px_30px_rgba(155,46,46,0.05)] hover:-translate-y-1"
                 :class="model.url ? 'cursor-pointer' : 'cursor-not-allowed opacity-70 grayscale'">
                 
                 <div class="absolute top-0 left-0 w-3 h-3 border-t border-l border-palace-red/40"></div>
@@ -29,10 +29,11 @@
                 </div>
 
                 <h3 class="text-xl font-bold tracking-widest mb-2 group-hover:text-palace-red transition-colors">{{ model.name }}</h3>
-                <p class="text-xs text-gray-500 leading-relaxed mb-6 h-10 line-clamp-2 italic">{{ model.desc }}</p>
+                
+                <p class="text-xs text-gray-500 leading-relaxed mb-6 line-clamp-2 italic">{{ model.desc }}</p>
 
                 <button @click="model.url && openModel(model)" 
-                    class="w-full py-2.5 text-[11px] tracking-[0.3em] font-bold border transition-colors duration-300"
+                    class="mt-auto w-full py-2.5 text-[11px] tracking-[0.3em] font-bold border transition-colors duration-300"
                     :class="model.url ? 'border-palace-red text-palace-red hover:bg-palace-red hover:text-white' : 'border-gray-200 text-gray-400 bg-gray-50'">
                     {{ model.url ? '载入孪生节点 // LOAD' : '测绘采集中 // PENDING' }}
                 </button>

@@ -17,6 +17,11 @@ const request = axios.create({
 // ==========================================
 request.interceptors.request.use(
     config => {
+        // 🏮 新增：发请求时，触发全局事件增加 Loading 计数
+        if (!config.hideLoading) {
+            window.dispatchEvent(new Event('network-start'))
+        }
+
         const token = localStorage.getItem('ZHL_TOKEN')
         if (token) {
             config.headers['Authorization'] = 'Bearer ' + token
@@ -24,6 +29,8 @@ request.interceptors.request.use(
         return config
     },
     error => {
+        // 🏮 新增：请求失败也要取消计数
+        window.dispatchEvent(new Event('network-end'))
         return Promise.reject(error)
     }
 )
@@ -32,7 +39,15 @@ request.interceptors.request.use(
 // 2. 响应拦截器：业务状态拦截与数据剥离
 // ==========================================
 request.interceptors.response.use(
-    res => {
+    async res => {
+        // 🚨🚨🚨 测试专用：强行让整个流程在这里睡上 3 秒钟 🚨🚨🚨
+        // await new Promise(resolve => setTimeout(resolve, 6000));
+
+        // 睡醒了之后，再发射网络结束的信号
+        if (!res.config || !res.config.hideLoading) {
+            window.dispatchEvent(new Event('network-end'))
+        }
+
         const code = res.data.code || 200
         const msg = res.data.msg || '系统未知错误'
 
@@ -67,6 +82,13 @@ request.interceptors.response.use(
         }
     },
     error => {
+        // 🏮 新增：异常/超时情况下，结束 Loading 计数
+        if (error.config && !error.config.hideLoading) {
+            window.dispatchEvent(new Event('network-end'))
+        } else if (!error.config) {
+            window.dispatchEvent(new Event('network-end'))
+        }
+
         // ==========================================
         // 3. 终极异常拦截：HTTP 维度的崩溃 (保留 404 处理)
         // ==========================================
@@ -101,4 +123,5 @@ request.interceptors.response.use(
     }
 )
 
+// 🏮 必须导出 request，解决之前的 import 报错
 export default request

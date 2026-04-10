@@ -8,8 +8,19 @@
   
   <NavBar v-if="!$route.meta.hideGlobalUI" />
   
-  <main :class="{ 'is-dashboard': $route.meta.hideGlobalUI }">
+  <!-- <main :class="{ 'is-dashboard': $route.meta.hideGlobalUI }">
     <router-view v-if="!isLoading" />
+  </main> -->
+
+  <!-- <main :class="{ 'is-dashboard': $route.meta.hideGlobalUI }">
+    <router-view />
+  </main> -->
+
+  <main :class="[
+    $route.meta.hideGlobalUI ? 'is-dashboard' : '',
+    isLoading ? 'opacity-0' : 'opacity-100 transition-opacity duration-1000'
+  ]">
+    <router-view />
   </main>
   
   <BackToTop v-if="!$route.meta.hideGlobalUI" />
@@ -17,7 +28,7 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick } from 'vue'
+import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import CustomCursor from './components/CustomCursor.vue'
@@ -25,23 +36,84 @@ import NavBar from './components/NavBar.vue'
 import AiMaster from './components/AiMaster.vue'
 import BackToTop from './components/BackToTop.vue'
 import ConstructionLoading from './components/ConstructionLoading.vue'
-import FloatingAsk from './components/FloatingAsk.vue'; // 引入组件
+import FloatingAsk from './components/FloatingAsk.vue';
 
 const router = useRouter()
 const isLoading = ref(false)
 
-// 路由逻辑保持不变...
+// 🏮 新增：核心加载控制变量
+let startTime = 0           // 记录动画开始的时间戳
+let activeRequests = 0      // 记录当前正在进行的网络请求数量
+let finishTimer = null      // 定时器引用，方便随时清除
+const MIN_LOADING_TIME = 1500 // 保底加载时间 1.5 秒
+
+// 1. 开启加载动画
+const startLoading = () => {
+  if (!isLoading.value) {
+    isLoading.value = true
+    startTime = Date.now() // 记录起跑时间
+  }
+}
+
+// 2. 尝试停止加载动画（核心逻辑：网络判断 + 1.5秒保底）
+const tryStopLoading = () => {
+  // 如果还有网络请求没回来，直接 return，继续转圈！
+  if (activeRequests > 0) return 
+
+  // 计算已经转了多久
+  const elapsed = Date.now() - startTime
+  // 如果已经超过 1.5 秒，remaining 就是 0；如果没到 1.5 秒，就算出还差多久
+  const remaining = Math.max(0, MIN_LOADING_TIME - elapsed)
+
+  clearTimeout(finishTimer)
+  finishTimer = setTimeout(() => {
+    // 定时器到了之后，再检查一次有没有新的请求混进来
+    if (activeRequests === 0) { 
+      isLoading.value = false
+    }
+  }, remaining)
+}
+
+// ==========================================
+// 路由拦截联动
+// ==========================================
 router.beforeEach((to, from, next) => {
-  if (to.meta.needLoading) { isLoading.value = true }
+  if (to.meta.needLoading) { startLoading() }
   next()
 })
 
 router.afterEach((to) => {
   if (to.meta.needLoading) {
-    setTimeout(() => { isLoading.value = false }, 1500)
+    tryStopLoading() // 路由跑完了，去算算还要不要继续转
   } else {
+    // 强制放行不需要 loading 的页面
     isLoading.value = false
+    activeRequests = 0
   }
+})
+
+// ==========================================
+// 监听来自 request.js 的网络状态事件
+// ==========================================
+const handleNetworkStart = () => {
+  activeRequests++
+  startLoading() // 网络一发起，立马保证 Loading 开启
+}
+
+const handleNetworkEnd = () => {
+  activeRequests--
+  if (activeRequests < 0) activeRequests = 0 // 兜底防负数
+  tryStopLoading() // 一个请求回来了，去算算能不能关 Loading
+}
+
+onMounted(() => {
+  window.addEventListener('network-start', handleNetworkStart)
+  window.addEventListener('network-end', handleNetworkEnd)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('network-start', handleNetworkStart)
+  window.removeEventListener('network-end', handleNetworkEnd)
 })
 
 watch(isLoading, async (newVal) => {
@@ -56,7 +128,9 @@ watch(isLoading, async (newVal) => {
 
 <style>
 /* 样式部分保持不变 */
-.construction-fade-enter-active, .construction-fade-leave-active { transition: opacity 0.8s; }
+/* 🏮 出现时瞬间罩住（无过渡），消失时缓慢淡出（0.8s） */
+.construction-fade-enter-active { transition: none; } 
+.construction-fade-leave-active { transition: opacity 0.8s ease-in-out; }
 .construction-fade-enter-from, .construction-fade-leave-to { opacity: 0; }
 body, html { margin: 0; padding: 0; background-color: #fcfaf5; overflow-x: hidden; }
 
