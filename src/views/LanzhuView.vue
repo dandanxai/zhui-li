@@ -280,8 +280,8 @@ const loadAllData = async () => {
         featuredList.value = featRes.rows || featRes.data?.rows || featRes.data || [];
 
         
-        console.log(categoryList.value);
-        console.log(featuredList.value);
+        // console.log(categoryList.value);
+        // console.log(featuredList.value);
         
         // 数据渲染 DOM 后，重新绑定滚动监听和出现动画，防止失效
         nextTick(() => {

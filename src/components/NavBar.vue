@@ -9,55 +9,70 @@
             </div>
         </router-link>
         
-        <div class="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 space-x-12 pointer-events-auto text-xs tracking-[0.2em] font-serif items-center">
-            <a href="/dashboard" target="_blank" class="text-palace-red transition-colors relative group text-center font-bold cursor-pointer">
-                天枢 <span class="text-[9px] uppercase opacity-70 block text-center mt-1.5">Dashboard</span>
-                <div class="absolute -bottom-3 left-0 w-full h-[1px] bg-palace-red opacity-30"></div>
-            </a>
-            <router-link to="/" class="hover:text-palace-red transition-colors relative group text-center">
-                首页 <span class="text-[9px] uppercase opacity-50 block text-center mt-1.5">Home</span>
-            </router-link>
-            <router-link to="/lanzhu" class="hover:text-palace-red transition-colors relative group text-center">
-                览筑 <span class="text-[9px] uppercase opacity-50 block text-center mt-1.5">Explore</span>
-            </router-link>
-            <router-link to="/dajiang" class="hover:text-palace-red transition-colors relative group text-center">
-                大匠 <span class="text-[9px] uppercase opacity-50 block text-center mt-1.5">Masters</span>
-            </router-link>
-            <router-link to="/dianji" class="hover:text-palace-red transition-colors relative group text-center">
-                典籍 <span class="text-[9px] uppercase opacity-50 block text-center mt-1.5">Texts</span>
-            </router-link>
-            <router-link to="/wenmai" class="hover:text-palace-red transition-colors relative group text-center">
-                文脉 <span class="text-[9px] uppercase opacity-50 block text-center mt-1.5">Heritage</span>
-            </router-link>
-            <button @click="openAiMaster" class="hover:text-palace-red transition-colors relative group text-center outline-none pointer-events-auto">
-                <span class="relative">
-                    智脑<span class="absolute -top-1 -right-4 w-1.5 h-1.5 bg-palace-red rounded-full animate-pulse"></span>
-                </span>
-                <span class="text-[9px] uppercase opacity-50 block text-center mt-1.5">A.I.</span>
-            </button>
+        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-auto flex justify-center items-center">
+            
+            <div :class="[
+                'hidden lg:flex items-center space-x-12 text-xs tracking-[0.2em] font-serif transition-all duration-500 ease-in-out',
+                isSearchOpen ? 'opacity-0 scale-95 pointer-events-none absolute' : 'opacity-100 scale-100 relative'
+            ]">
+                <a href="/dashboard" target="_blank" class="text-palace-red transition-colors relative group text-center font-bold cursor-pointer">
+                    天枢 <span class="text-[9px] uppercase opacity-70 block text-center mt-1.5">Dashboard</span>
+                    <div class="absolute -bottom-3 left-0 w-full h-[1px] bg-palace-red opacity-30"></div>
+                </a>
+                <router-link to="/" class="hover:text-palace-red transition-colors relative group text-center">
+                    首页 <span class="text-[9px] uppercase opacity-50 block text-center mt-1.5">Home</span>
+                </router-link>
+                <router-link to="/lanzhu" class="hover:text-palace-red transition-colors relative group text-center">
+                    览筑 <span class="text-[9px] uppercase opacity-50 block text-center mt-1.5">Explore</span>
+                </router-link>
+                <router-link to="/dajiang" class="hover:text-palace-red transition-colors relative group text-center">
+                    大匠 <span class="text-[9px] uppercase opacity-50 block text-center mt-1.5">Masters</span>
+                </router-link>
+                <router-link to="/dianji" class="hover:text-palace-red transition-colors relative group text-center">
+                    典籍 <span class="text-[9px] uppercase opacity-50 block text-center mt-1.5">Texts</span>
+                </router-link>
+                <router-link to="/wenmai" class="hover:text-palace-red transition-colors relative group text-center">
+                    文脉 <span class="text-[9px] uppercase opacity-50 block text-center mt-1.5">Heritage</span>
+                </router-link>
+                <button @click="openAiMaster" class="hover:text-palace-red transition-colors relative group text-center outline-none">
+                    <span class="relative">智脑<span class="absolute -top-1 -right-4 w-1.5 h-1.5 bg-palace-red rounded-full animate-pulse"></span></span>
+                    <span class="text-[9px] uppercase opacity-50 block text-center mt-1.5">A.I.</span>
+                </button>
+                
+                <button @click="toggleSearch" class="hover:text-palace-red transition-colors relative group text-center outline-none">
+                    <span class="relative inline-flex items-center justify-center h-[16px]">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    </span>
+                    <span class="text-[9px] uppercase opacity-50 block text-center mt-1.5">Search</span>
+                    <div class="absolute -bottom-3 left-1/2 w-0 h-[1px] bg-palace-red transition-all duration-300 group-hover:w-full group-hover:left-0"></div>
+                </button>
+            </div>
+
+            <div :class="[
+                'flex items-center justify-between transition-all duration-500 ease-in-out border-b border-palace-red/50 px-2',
+                isSearchOpen ? 'w-[75vw] md:w-[40rem] opacity-100 relative' : 'w-0 opacity-0 absolute pointer-events-none border-none'
+            ]">
+                <input ref="searchInput" v-model="searchQuery" type="text" placeholder="搜寻营造灵感..."
+                    class="bg-transparent border-none outline-none text-paper-bg placeholder:text-paper-bg/40 w-full text-sm tracking-widest py-3" @keyup.enter="handleSearch" />
+                <button @click="handleSearch" class="text-xs font-bold tracking-[0.3em] whitespace-nowrap text-paper-bg hover:text-palace-red transition-colors opacity-70 hover:opacity-100 mx-4">搜索</button>
+                <button @click="toggleSearch" class="p-2 hover:text-palace-red transition-colors outline-none flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+            </div>
         </div>
 
         <div class="flex items-center gap-6 md:gap-10 pointer-events-auto">
-            <div class="flex items-center relative">
-                <div :class="['flex items-center justify-between transition-all duration-500 ease-in-out overflow-hidden border-b border-palace-red/50', 
-                              isSearchOpen ? 'w-56 md:w-72 opacity-100 px-2' : 'w-0 opacity-0 border-none']">
-                    <input ref="searchInput" v-model="searchQuery" type="text" placeholder="搜寻营造灵感..."
-                        class="bg-transparent border-none outline-none text-paper-bg placeholder:text-paper-bg/40 w-full text-xs tracking-widest" @keyup.enter="handleSearch" />
-                    <button @click="handleSearch" class="text-[10px] font-bold tracking-[0.3em] whitespace-nowrap text-paper-bg hover:text-palace-red transition-colors opacity-70 hover:opacity-100 ml-2">搜索</button>
-                </div>
-                <button @click="toggleSearch" class="p-2 hover:text-palace-red transition-colors outline-none flex items-center justify-center">
-                    <svg v-if="!isSearchOpen" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                    <svg v-else xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                </button>
-            </div>
+            
+            <button @click="toggleSearch" class="lg:hidden p-2 hover:text-palace-red transition-colors outline-none flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            </button>
             
             <div class="flex items-center hidden md:flex border-r border-paper-bg/30 pr-6">
                 <button v-if="!isLoggedIn" @click="$router.push('/login')" class="border border-paper-bg px-4 py-1 text-xs font-bold tracking-widest hover:bg-paper-bg hover:text-[#111] transition-colors">
                     登 录
                 </button>
                 <div v-else class="flex items-center gap-3 group relative py-1">
-                    <div class="w-6 h-6 opacity-0"></div>
-                    <span class="text-xs font-bold tracking-widest">{{ userName }}</span>
+                    <div class="w-6 h-6 opacity-0"></div> <span class="text-xs font-bold tracking-widest">{{ userName }}</span>
                 </div>
             </div>
 
@@ -74,15 +89,12 @@
 
         <div class="flex items-center gap-6 md:gap-10 pointer-events-none">
             
-            <div class="flex items-center relative opacity-0">
-                <div :class="[isSearchOpen ? 'w-56 md:w-72 px-2' : 'w-0']" class="transition-all duration-500"><input class="w-full text-xs" /><button class="text-[10px] ml-2">搜索</button></div>
-                <button class="p-2 w-[34px] h-[34px]"></button>
-            </div>
+            <button class="lg:hidden p-2 w-[34px] h-[34px] opacity-0"></button>
             
-            <div class="flex items-center hidden md:flex border-r border-transparent pr-6 pointer-events-auto">
+            <div class="flex items-center hidden md:flex border-r border-transparent pr-6 pointer-events-none">
                 <button v-if="!isLoggedIn" class="border px-4 py-1 text-xs opacity-0 pointer-events-none">登 录</button>
                 
-                <div v-else class="flex items-center gap-3 group relative cursor-pointer py-1">
+                <div v-else class="flex items-center gap-3 group relative cursor-pointer py-1 pointer-events-auto">
                     <div class="w-6 h-6 bg-palace-red rounded-full overflow-hidden flex items-center justify-center text-white font-bold text-[10px] shadow-md">
                         <img v-if="userAvatar" :src="userAvatar" class="w-full h-full object-cover" alt="avatar" />
                         <span v-else>{{ userName.charAt(0) }}</span>
