@@ -26,10 +26,10 @@
                     览筑 <span class="text-[9px] uppercase opacity-50 block text-center mt-1.5">Explore</span>
                 </router-link>
                 
-                <router-link to="/factory" class="text-palace-red hover:text-white transition-colors relative group text-center font-bold">
+                <a href="/factory" target="_blank" class="text-palace-red hover:text-white transition-colors relative group text-center font-bold">
                     营造 <span class="text-[9px] uppercase opacity-70 block text-center mt-1.5">Craft</span>
                     <div class="absolute -top-1 -right-4 w-1.5 h-1.5 bg-palace-red rounded-full animate-pulse"></div>
-                </router-link>
+                </a>
 
                 <router-link to="/dajiang" class="hover:text-palace-red transition-colors relative group text-center">
                     大匠 <span class="text-[9px] uppercase opacity-50 block text-center mt-1.5">Masters</span>
@@ -134,7 +134,7 @@
                 <router-link to="/" @click="toggleMenu" class="text-3xl md:text-5xl font-serif text-paper-bg/80 hover:text-palace-red transition-all tracking-[0.2em]">首卷 · 开篇</router-link>
                 <router-link to="/lanzhu" @click="toggleMenu" class="text-3xl md:text-5xl font-serif text-paper-bg/80 hover:text-palace-red transition-all tracking-[0.2em]">览筑 · 规制</router-link>
                 
-                <router-link to="/factory" @click="toggleMenu" class="text-4xl md:text-6xl font-serif text-palace-red hover:text-white transition-all tracking-[0.2em] font-bold">营造 · 工坊</router-link>
+                <a href="/factory" target="_blank" @click="toggleMenu" class="text-4xl md:text-6xl font-serif text-palace-red hover:text-white transition-all tracking-[0.2em] font-bold">营造 · 工坊</a>
 
                 <router-link to="/dajiang" @click="toggleMenu" class="text-3xl md:text-5xl font-serif text-paper-bg/80 hover:text-palace-red transition-all tracking-[0.2em]">大匠 · 匠心</router-link>
                 <router-link to="/dianji" @click="toggleMenu" class="text-3xl md:text-5xl font-serif text-paper-bg/80 hover:text-palace-red transition-all tracking-[0.2em]">典籍 · 法式</router-link>

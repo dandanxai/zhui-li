@@ -1,403 +1,787 @@
 <template>
-  <div class="virtual-factory-container min-h-screen w-full relative overflow-hidden bg-[#1a1c20]">
-    
-    <div class="absolute top-0 left-0 w-full p-6 z-10 pointer-events-none flex justify-between items-center text-[#fcfaf5]">
-      <div>
-        <h1 class="text-2xl font-serif tracking-widest">考工台 · 营造工坊 <span class="text-palace-red text-sm ml-2 border border-palace-red px-2 rounded">绝对网格引擎版</span></h1>
-        <p class="text-[11px] opacity-80 mt-2 tracking-widest bg-black/40 px-3 py-1 rounded inline-block backdrop-blur-sm border border-white/10">
-          <strong class="text-palace-red">左键拖拽</strong> 旋转视角 (选中墙/地/梁时为拉伸建造) ｜ <strong class="text-palace-red">右键</strong> 拆除 ｜ <strong class="text-palace-red">WASD + Space/Shift</strong> 漫游<br/>
-          已开启绝对网格对齐与智能榫卯穿插 ｜ 按 <strong class="text-palace-red">1~8</strong> 切换构件 ｜ <strong class="text-palace-red">R</strong> 旋转
-        </p>
+  <div class="app" @contextmenu.prevent>
+    <canvas ref="canvas" class="canvas" />
+
+    <!-- 顶部标题 -->
+    <div class="hud-top">
+      <div class="title-block">
+        <span class="title-zh">考工台 · 营造工坊</span>
+        <span class="title-en">CHINESE ARCHITECTURE BUILDER</span>
       </div>
-      <button @click="$router.back()" class="pointer-events-auto border border-white/20 px-4 py-2 text-sm hover:bg-palace-red transition-colors backdrop-blur-md">
-        归卷退出
-      </button>
+      <div class="hint-bar">
+        <span><b>左键</b> 放置 / 拖拽建造</span>
+        <span><b>右键</b> 拆除构件</span>
+        <span><b>中键</b> 平移视角</span>
+        <span><b>滚轮</b> 缩放</span>
+        <span><b>WASD</b> 漫游</span>
+        <span><b>R</b> 旋转构件</span>
+        <span><b>Ctrl+Z</b> 撤销</span>
+      </div>
     </div>
 
-    <div class="absolute left-6 top-24 bottom-24 z-10 w-24 overflow-y-auto hidden-scrollbar flex flex-col gap-3 pointer-events-auto pr-2">
-      <div 
-        v-for="(part, index) in partsList" 
+    <!-- 左侧构件面板 -->
+    <div class="parts-panel">
+      <div class="panel-title">构件库</div>
+      <div
+        v-for="(part, i) in PARTS"
         :key="part.id"
-        @click="selectPart(index)"
-        class="part-btn w-full flex-shrink-0 aspect-square bg-[#2c2825]/80 backdrop-blur-md border-2 cursor-pointer flex flex-col items-center justify-center gap-1 transition-all duration-300 relative"
-        :class="activePart.id === part.id ? 'border-palace-red text-palace-red scale-105 shadow-[0_0_20px_rgba(155,46,46,0.4)]' : 'border-white/10 text-white/50 hover:border-white/30'"
+        class="part-item"
+        :class="{ active: activeId === part.id }"
+        @mouseenter="isOverUI = true"
+        @mouseleave="isOverUI = false"
+        @click="setActive(i)"
       >
-        <span class="absolute top-1 left-2 text-[9px] opacity-50 font-sans">{{ index + 1 }}</span>
-        <span class="text-2xl font-serif">{{ part.icon }}</span>
-        <span class="text-[10px] tracking-widest">{{ part.name }}</span>
-        <div v-if="part.draw.includes('drag')" class="absolute bottom-0 right-0 bg-palace-red text-white text-[8px] px-1 scale-75 origin-bottom-right">拉伸</div>
+        <span class="part-key">{{ i + 1 }}</span>
+        <span class="part-glyph">{{ part.glyph }}</span>
+        <span class="part-label">{{ part.name }}</span>
+        <span v-if="part.drag" class="part-drag">拉</span>
       </div>
     </div>
 
-    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex gap-6">
-      <button @click="clearScene" class="bg-palace-red/80 hover:bg-palace-red border border-palace-red text-[#fcfaf5] backdrop-blur-md px-8 py-3 text-sm tracking-[0.3em] font-serif transition-all shadow-lg pointer-events-auto">
-        清空全景重建
-      </button>
+    <!-- 右侧信息面板 -->
+    <div
+      class="info-panel"
+      @mouseenter="isOverUI = true"
+      @mouseleave="isOverUI = false"
+    >
+      <div class="info-row">
+        <span class="info-k">当前构件</span>
+        <span class="info-v accent">{{ activePart.name }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-k">已建数量</span>
+        <span class="info-v">{{ builtCount }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-k">吸附高度</span>
+        <span class="info-v">Y {{ snapY.toFixed(2) }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-k">网格坐标</span>
+        <span class="info-v">{{ snapX }}, {{ snapZ }}</span>
+      </div>
+      <div class="divider" />
+      <div class="info-row">
+        <span class="info-k">旋转角</span>
+        <span class="info-v">{{ rotDeg }}°</span>
+      </div>
+      <div class="info-row">
+        <span class="info-k">模式</span>
+        <span class="info-v" :class="{ 'accent-blue': activePart.drag }">
+          {{ activePart.drag ? '拖拽建造' : '点击放置' }}
+        </span>
+      </div>
     </div>
 
-    <div ref="threeContainer" class="w-full h-screen cursor-crosshair" @contextmenu.prevent></div>
+    <!-- 底部按钮 -->
+    <div
+      class="btns"
+      @mouseenter="isOverUI = true"
+      @mouseleave="isOverUI = false"
+    >
+      <button class="btn" @click="undo">↩ 撤销上步</button>
+      <button class="btn btn-danger" @click="clearAll">◎ 清空重建</button>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
-import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import gsap from 'gsap';
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import * as THREE from 'three'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import gsap from 'gsap'
 
-const threeContainer = ref(null);
+/* ═══════════════════════════════════════════════════
+   构件定义
+═══════════════════════════════════════════════════ */
+const PARTS = [
+  { id: 'base',    name: '柱础', glyph: '础', color: 0xCDC8BE, rough: 0.95, metal: 0.05,
+    size: [0.9, 0.18, 0.9],   drag: false, anchor: 'stack',     type: 'box' },
+  { id: 'pillar',  name: '朱柱', glyph: '柱', color: 0x7A2A18, rough: 0.6,  metal: 0.1,
+    size: [0.38, 4.2, 0.38],  drag: false, anchor: 'stack',     type: 'cylinder8' },
+  { id: 'dougong', name: '斗拱', glyph: '拱', color: 0x8B2020, rough: 0.7,  metal: 0.05,
+    size: [1.1, 0.6, 1.1],   drag: false, anchor: 'pillarTop',  type: 'dougong' },
+  { id: 'beam',    name: '横梁', glyph: '梁', color: 0x4A2610, rough: 0.75, metal: 0.0,
+    size: [1.0, 0.32, 0.32],  drag: true,  anchor: 'pillarTop', type: 'box' },
+  { id: 'wall',    name: '粉墙', glyph: '墙', color: 0xEAE6DC, rough: 0.9,  metal: 0.0,
+    size: [0.18, 3.8, 1.0],   drag: true,  anchor: 'stack',     type: 'box' },
+  { id: 'floor',   name: '青砖', glyph: '地', color: 0x6A7475, rough: 0.95, metal: 0.0,
+    size: [1.0, 0.14, 1.0],   drag: true,  anchor: 'stack',     type: 'box' },
+  { id: 'sunmao',  name: '榫卯', glyph: '榫', color: 0x3A2010, rough: 0.85, metal: 0.0,
+    size: [0.7, 0.22, 0.36],  drag: false, anchor: 'stack',     type: 'sunmao' },
+  { id: 'roof',    name: '攒顶', glyph: '顶', color: 0x272F3C, rough: 0.55, metal: 0.15,
+    size: [5.0, 2.8, 5.0],   drag: false, anchor: 'stack',     type: 'cone4' },
+]
 
-// ================== 🚨 绝对模数化尺寸 (严丝合缝的核心) ==================
-const partsList = [
-  { id: 'base', name: '柱础', icon: '础', type: 'box', size: [0.8, 0.2, 0.8], color: 0xD3CFC8, roughness: 0.9, draw: 'click' },
-  { id: 'pillar', name: '立柱', icon: '柱', type: 'cylinder', size: [0.5, 4, 0.5], color: 0x8B3A2B, roughness: 0.7, draw: 'click' }, 
-  { id: 'beam', name: '横梁', icon: '梁', type: 'box', size: [0.5, 0.4, 0.5], color: 0x5C3A21, roughness: 0.8, draw: 'drag-wall' }, 
-  { id: 'wall', name: '白粉墙', icon: '墙', type: 'box', size: [0.3, 4, 0.3], color: 0xE8E6E1, roughness: 0.9, draw: 'drag-wall' },
-  { id: 'floor', name: '青砖地', icon: '地', type: 'box', size: [1, 0.2, 1], color: 0x8A8D8F, roughness: 0.9, draw: 'drag-floor' },
-  { id: 'dougong', name: '斗拱', icon: '拱', type: 'box', size: [1.0, 0.6, 1.0], color: 0x9B2E2E, roughness: 0.8, draw: 'click' },
-  { id: 'sunmao', name: '榫头', icon: '榫', type: 'box', size: [0.8, 0.3, 0.8], color: 0x4A2F1D, roughness: 0.8, draw: 'click' },
-  { id: 'roof', name: '攒尖顶', icon: '顶', type: 'pyramid', size: [6, 3, 6], color: 0x333A42, roughness: 0.6, draw: 'click' }
-];
+/* ═══════════════════════════════════════════════════
+   几何体工厂
+═══════════════════════════════════════════════════ */
+function makeGeo(type, s) {
+  switch (type) {
+    case 'cylinder8':
+      return new THREE.CylinderGeometry(s[0]/2, s[0]/2 * 1.06, s[1], 8)
+    case 'cone4': {
+      const g = new THREE.ConeGeometry(s[0] * 0.75, s[1], 4)
+      g.rotateY(Math.PI / 4)
+      return g
+    }
+    case 'dougong': {
+      // 手工合并：坐斗 + 横拱 + 纵拱
+      const parts = [
+        { g: new THREE.BoxGeometry(s[0]*0.48, s[1]*0.55, s[2]*0.48), dy: -s[1]*0.22 },
+        { g: new THREE.BoxGeometry(s[0],      s[1]*0.28, s[2]*0.22), dy:  s[1]*0.12 },
+        { g: new THREE.BoxGeometry(s[0]*0.22, s[1]*0.28, s[2]),      dy:  s[1]*0.12 },
+      ]
+      return mergeGeos(parts)
+    }
+    case 'sunmao': {
+      const parts = [
+        { g: new THREE.BoxGeometry(s[0],      s[1],      s[2]),      dy: 0 },
+        { g: new THREE.BoxGeometry(s[0]*0.35, s[1]*0.6,  s[2]*0.35), dy: s[1]*0.3 },
+      ]
+      return mergeGeos(parts)
+    }
+    default:
+      return new THREE.BoxGeometry(s[0], s[1], s[2])
+  }
+}
 
-const activePart = ref(partsList[0]); 
-let currentRotation = 0; 
+function mergeGeos(pieces) {
+  const pos = [], nor = [], uv = []
+  for (const { g, dy } of pieces) {
+    const p = g.attributes.position
+    const n = g.attributes.normal
+    const u = g.attributes.uv
+    for (let i = 0; i < p.count; i++) {
+      pos.push(p.getX(i), p.getY(i) + dy, p.getZ(i))
+      nor.push(n.getX(i), n.getY(i), n.getZ(i))
+      if (u) uv.push(u.getX(i), u.getY(i))
+    }
+    g.dispose()
+  }
+  const merged = new THREE.BufferGeometry()
+  merged.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3))
+  merged.setAttribute('normal',   new THREE.Float32BufferAttribute(nor, 3))
+  if (uv.length) merged.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2))
+  return merged
+}
 
-let isDragging = false;
-let dragStartPos = null; 
-let dragMesh = null; 
+/* ═══════════════════════════════════════════════════
+   Vue 响应式
+═══════════════════════════════════════════════════ */
+const canvas     = ref(null)
+const activeId   = ref('base')
+const builtCount = ref(0)
+const snapX      = ref(0)
+const snapZ      = ref(0)
+const snapY      = ref(0)
+const rotRad     = ref(0)
+const isOverUI   = ref(false)
 
-let scene, camera, renderer, controls;
-let gridHelper, planeMesh;
-let raycaster, mouse;
-let ghostMesh = null; 
-const builtObjects = []; 
+const activePart = computed(() => PARTS.find(p => p.id === activeId.value) || PARTS[0])
+const rotDeg     = computed(() => Math.round(rotRad.value * 180 / Math.PI))
 
-const keys = { w: false, a: false, s: false, d: false, space: false, shift: false };
-let mouseDownPos = { x: 0, y: 0 };
+/* ═══════════════════════════════════════════════════
+   Three.js 变量（非响应式）
+═══════════════════════════════════════════════════ */
+let scene, camera, renderer, controls, raycaster
+let groundMesh
+let ghostGroup = null
+let dragPreviewGroup = null
+let builtObjs = []           // { mesh, partId }
 
-const ghostMaterial = new THREE.MeshStandardMaterial({ 
-  color: 0x9B2E2E, transparent: true, opacity: 0.7, emissive: 0x9B2E2E, emissiveIntensity: 0.4, depthWrite: false
-});
+let isDragging    = false
+let dragStart     = null     // THREE.Vector3
+let mouseDownAt   = { x: 0, y: 0 }
 
-const createGeometry = (part, dynamicSize = null) => {
-  const s = dynamicSize || part.size;
-  if (part.type === 'cylinder') {
-    return new THREE.CylinderGeometry(s[0]/2, s[0]/2, s[1], 32); 
-  } else if (part.type === 'pyramid') {
-    const geo = new THREE.ConeGeometry(s[0] * 0.707, s[1], 4);
-    geo.rotateY(Math.PI / 4);
-    return geo;
+const keys = { w:0, s:0, a:0, d:0, space:0, shift:0 }
+
+// 预建实心材质
+const mats = {}
+
+/* ═══════════════════════════════════════════════════
+   初始化
+═══════════════════════════════════════════════════ */
+function init() {
+  const el = canvas.value
+  const W = el.clientWidth, H = el.clientHeight
+
+  // Renderer
+  renderer = new THREE.WebGLRenderer({ canvas: el, antialias: true })
+  renderer.setSize(W, H)
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
+  renderer.shadowMap.enabled = true
+  renderer.shadowMap.type    = THREE.PCFSoftShadowMap
+  renderer.outputColorSpace  = THREE.SRGBColorSpace
+  renderer.toneMapping       = THREE.ACESFilmicToneMapping
+  renderer.toneMappingExposure = 1.25
+
+  // Scene
+  scene = new THREE.Scene()
+  scene.background = new THREE.Color(0x070910)
+  scene.fog = new THREE.FogExp2(0x070910, 0.007)
+
+  // Camera
+  camera = new THREE.PerspectiveCamera(46, W / H, 0.1, 600)
+  camera.position.set(20, 16, 26)
+
+  // Controls
+  controls = new OrbitControls(camera, renderer.domElement)
+  controls.enableDamping = true
+  controls.dampingFactor = 0.07
+  controls.maxPolarAngle = Math.PI / 2 - 0.02
+  controls.minDistance   = 2
+  controls.maxDistance   = 150
+  controls.mouseButtons  = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.PAN, RIGHT: null }
+
+  // Lights
+  scene.add(new THREE.AmbientLight(0xBBA882, 0.55))
+
+  const sun = new THREE.DirectionalLight(0xFFF2D8, 2.2)
+  sun.position.set(25, 40, 30)
+  sun.castShadow = true
+  sun.shadow.mapSize.set(4096, 4096)
+  sun.shadow.camera.near   = 0.5;  sun.shadow.camera.far  = 200
+  sun.shadow.camera.left   = -50;  sun.shadow.camera.right = 50
+  sun.shadow.camera.bottom = -50;  sun.shadow.camera.top   = 50
+  sun.shadow.bias = -0.0004
+  scene.add(sun)
+
+  const fillLight = new THREE.DirectionalLight(0x8AACCC, 0.5);
+  fillLight.position.set(-15, 12, -20);
+  scene.add(fillLight);
+
+  // Ground
+  groundMesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(200, 200),
+    new THREE.MeshStandardMaterial({ color: 0x0C0F16, roughness: 1 })
+  )
+  groundMesh.rotation.x = -Math.PI / 2
+  groundMesh.receiveShadow = true
+  scene.add(groundMesh)
+
+  // Grid
+  const grid = new THREE.GridHelper(100, 100, 0x1A2533, 0x111820)
+  grid.position.y = 0.001
+  scene.add(grid)
+
+  // Raycaster
+  raycaster = new THREE.Raycaster()
+
+  // 预建材质
+  for (const p of PARTS) {
+    mats[p.id] = new THREE.MeshStandardMaterial({
+      color: p.color, roughness: p.rough, metalness: p.metal
+    })
+  }
+
+  rebuildGhost()
+
+  // 事件
+  el.addEventListener('mousemove', onMouseMove)
+  el.addEventListener('mousedown', onMouseDown)
+  el.addEventListener('mouseup',   onMouseUp)
+  window.addEventListener('keydown', onKeyDown)
+  window.addEventListener('keyup',   onKeyUp)
+  window.addEventListener('resize',  onResize)
+
+  loop()
+}
+
+/* ═══════════════════════════════════════════════════
+   主循环
+═══════════════════════════════════════════════════ */
+function loop() {
+  requestAnimationFrame(loop)
+  const spd = 0.28
+  const fwd = new THREE.Vector3(); camera.getWorldDirection(fwd); fwd.y = 0; fwd.normalize()
+  const rgt = new THREE.Vector3().crossVectors(fwd, camera.up).normalize()
+  if (keys.w) { camera.position.addScaledVector(fwd,  spd); controls.target.addScaledVector(fwd,  spd) }
+  if (keys.s) { camera.position.addScaledVector(fwd, -spd); controls.target.addScaledVector(fwd, -spd) }
+  if (keys.a) { camera.position.addScaledVector(rgt, -spd); controls.target.addScaledVector(rgt, -spd) }
+  if (keys.d) { camera.position.addScaledVector(rgt,  spd); controls.target.addScaledVector(rgt,  spd) }
+  if (keys.space) { camera.position.y += spd; controls.target.y += spd }
+  if (keys.shift && camera.position.y > 0.5) { camera.position.y -= spd; controls.target.y -= spd }
+  controls.update()
+  renderer.render(scene, camera)
+}
+
+/* ═══════════════════════════════════════════════════
+   Ghost（预览）管理
+═══════════════════════════════════════════════════ */
+function rebuildGhost() {
+  if (ghostGroup) { scene.remove(ghostGroup); ghostGroup = null }
+  const p   = activePart.value
+  const geo = makeGeo(p.type, [...p.size])
+
+  ghostGroup = new THREE.Group()
+
+  // 半透明体
+  ghostGroup.add(new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
+    color: 0xC8A040, transparent: true, opacity: 0.42,
+    emissive: 0x6A4A10, emissiveIntensity: 0.4, depthWrite: false, side: THREE.DoubleSide
+  })))
+
+  // 轮廓线
+  ghostGroup.add(new THREE.LineSegments(
+    new THREE.EdgesGeometry(geo, 5),
+    new THREE.LineBasicMaterial({ color: 0xFFCC44, transparent: true, opacity: 0.9 })
+  ))
+
+  // 底部吸附环
+  const ring = new THREE.Mesh(
+    new THREE.RingGeometry(0.55, 0.68, 32),
+    new THREE.MeshBasicMaterial({ color: 0xFFCC44, transparent: true, opacity: 0.55, side: THREE.DoubleSide, depthWrite: false })
+  )
+  ring.rotation.x = -Math.PI / 2
+  ring.position.y = -p.size[1] / 2 + 0.01
+  ghostGroup.add(ring)
+
+  ghostGroup.rotation.y = rotRad.value
+  ghostGroup.visible    = false
+  ghostGroup.renderOrder = 999
+  scene.add(ghostGroup)
+}
+
+function clearDragPreview() {
+  if (!dragPreviewGroup) return
+  dragPreviewGroup.traverse(o => { if (o.isMesh) { o.geometry.dispose(); o.material.dispose() } })
+  scene.remove(dragPreviewGroup)
+  dragPreviewGroup = null
+}
+
+/* ─── 计算拖拽尺寸 & 中心 ─────────────────────────── */
+function calcDrag(start, end, p) {
+  const s  = [...p.size]
+  let cx = start.x, cy = start.y, cz = start.z
+
+  if (p.id === 'floor') {
+    const [minX, maxX] = [Math.min(start.x, end.x), Math.max(start.x, end.x)]
+    const [minZ, maxZ] = [Math.min(start.z, end.z), Math.max(start.z, end.z)]
+    s[0] = maxX - minX + p.size[0]
+    s[2] = maxZ - minZ + p.size[2]
+    cx   = (minX + maxX) / 2
+    cz   = (minZ + maxZ) / 2
   } else {
-    return new THREE.BoxGeometry(s[0], s[1], s[2]);
-  }
-};
-
-const selectPart = (index) => {
-  if (partsList[index]) {
-    activePart.value = partsList[index];
-    updateGhostMesh();
-  }
-};
-
-const rotatePart = (angle) => {
-  currentRotation += angle; 
-  if (ghostMesh) gsap.to(ghostMesh.rotation, { y: currentRotation, duration: 0.15, ease: "power2.out" });
-};
-
-// ================== 初始化场景 ==================
-const initThree = () => {
-  const container = threeContainer.value;
-  scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x1a1c20, 0.012);
-
-  camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000);
-  camera.position.set(15, 12, 20);
-
-  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setSize(container.clientWidth, container.clientHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.shadowMap.enabled = true; 
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
-  container.appendChild(renderer.domElement);
-
-  controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.maxPolarAngle = Math.PI / 2; 
-  controls.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.PAN, RIGHT: null };
-
-  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-  const dirLight = new THREE.DirectionalLight(0xfff5e6, 1.5);
-  dirLight.position.set(15, 30, 20);
-  dirLight.castShadow = true;
-  dirLight.shadow.mapSize.width = 2048; dirLight.shadow.mapSize.height = 2048;
-  scene.add(dirLight);
-
-  gridHelper = new THREE.GridHelper(80, 80, 0x3B5E6E, 0x333333);
-  scene.add(gridHelper);
-
-  const planeGeo = new THREE.PlaneGeometry(80, 80);
-  const planeMat = new THREE.MeshStandardMaterial({ color: 0x1a1c20, roughness: 1 });
-  planeMesh = new THREE.Mesh(planeGeo, planeMat);
-  planeMesh.rotation.x = -Math.PI / 2;
-  planeMesh.receiveShadow = true;
-  scene.add(planeMesh);
-
-  raycaster = new THREE.Raycaster();
-  mouse = new THREE.Vector2();
-
-  updateGhostMesh();
-
-  window.addEventListener('resize', onWindowResize);
-  window.addEventListener('keydown', onKeyDown);
-  window.addEventListener('keyup', onKeyUp);
-  container.addEventListener('mousemove', onMouseMove);
-  container.addEventListener('mousedown', onMouseDown);
-  container.addEventListener('mouseup', onMouseUp);
-
-  const animate = () => {
-    requestAnimationFrame(animate);
-    
-    const moveSpeed = 0.4; 
-    const forward = new THREE.Vector3();
-    camera.getWorldDirection(forward);
-    forward.y = 0; forward.normalize();
-    const rightVector = new THREE.Vector3().crossVectors(forward, camera.up).normalize();
-
-    if (keys.w) { camera.position.addScaledVector(forward, moveSpeed); controls.target.addScaledVector(forward, moveSpeed); }
-    if (keys.s) { camera.position.addScaledVector(forward, -moveSpeed); controls.target.addScaledVector(forward, -moveSpeed); }
-    if (keys.a) { camera.position.addScaledVector(rightVector, -moveSpeed); controls.target.addScaledVector(rightVector, -moveSpeed); }
-    if (keys.d) { camera.position.addScaledVector(rightVector, moveSpeed); controls.target.addScaledVector(rightVector, moveSpeed); }
-    
-    if (keys.space) { camera.position.y += moveSpeed; controls.target.y += moveSpeed; }
-    if (keys.shift) { 
-      const MIN_HEIGHT = 1.0; 
-      if (camera.position.y - moveSpeed >= MIN_HEIGHT) { camera.position.y -= moveSpeed; controls.target.y -= moveSpeed; } 
-      else { const diff = camera.position.y - MIN_HEIGHT; camera.position.y = MIN_HEIGHT; controls.target.y -= diff; }
-    }
-
-    controls.update();
-    renderer.render(scene, camera);
-  };
-  animate();
-};
-
-const updateGhostMesh = () => {
-  if (ghostMesh) scene.remove(ghostMesh);
-  ghostMesh = new THREE.Mesh(createGeometry(activePart.value), ghostMaterial);
-  ghostMesh.rotation.y = currentRotation;
-  scene.add(ghostMesh);
-};
-
-// 🚨 史诗级 Y轴 雷达：解决屋顶悬空和柱子堆叠问题
-const getHighestYAt = (x, z) => {
-  let maxY = 0;
-  // 给一个小容差，防止查找到旁边的方块
-  const TOLERANCE = 0.05; 
-  for (let obj of builtObjects) {
-    const box = new THREE.Box3().setFromObject(obj);
-    if (x >= box.min.x - TOLERANCE && x <= box.max.x + TOLERANCE &&
-        z >= box.min.z - TOLERANCE && z <= box.max.z + TOLERANCE) {
-      if (box.max.y > maxY) maxY = box.max.y;
-    }
-  }
-  return maxY;
-};
-
-// 🚨 完美拉伸算法：保证两端正好嵌入柱子中心
-const updateDragMesh = (currentSnappedPos) => {
-  if (!dragStartPos) return;
-
-  let lengthX = Math.abs(currentSnappedPos.x - dragStartPos.x);
-  let lengthZ = Math.abs(currentSnappedPos.z - dragStartPos.z);
-  
-  let dynamicSize = [...activePart.value.size];
-  let centerX = dragStartPos.x;
-  let centerZ = dragStartPos.z;
-  let centerY = dragStartPos.y; 
-
-  if (activePart.value.draw === 'drag-floor') {
-    dynamicSize[0] = lengthX + 1; // 覆盖整个网格区块
-    dynamicSize[2] = lengthZ + 1; 
-    centerX = (currentSnappedPos.x + dragStartPos.x) / 2;
-    centerZ = (currentSnappedPos.z + dragStartPos.z) / 2;
-  } 
-  else if (activePart.value.draw === 'drag-wall') {
-    if (lengthX >= lengthZ) { // X 轴为主
-      dynamicSize[0] = Math.max(lengthX, activePart.value.size[0]); 
-      dynamicSize[2] = activePart.value.size[2]; 
-      centerX = (currentSnappedPos.x + dragStartPos.x) / 2;
-      centerZ = dragStartPos.z; 
-    } else { // Z 轴为主
-      dynamicSize[0] = activePart.value.size[0]; 
-      dynamicSize[2] = Math.max(lengthZ, activePart.value.size[2]);
-      centerX = dragStartPos.x;
-      centerZ = (currentSnappedPos.z + dragStartPos.z) / 2; 
-    }
-  }
-
-  if (dragMesh) scene.remove(dragMesh);
-  dragMesh = new THREE.Mesh(createGeometry(activePart.value, dynamicSize), ghostMaterial);
-  dragMesh.position.set(centerX, centerY, centerZ);
-  scene.add(dragMesh);
-};
-
-// ================== 🚨 核心交互：绝对网格十字定位法 ==================
-const onMouseMove = (event) => {
-  const rect = threeContainer.value.getBoundingClientRect();
-  mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-  mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-  raycaster.setFromCamera(mouse, camera);
-  const targets = [planeMesh, ...builtObjects];
-  const intersects = raycaster.intersectObjects(targets, false);
-
-  if (intersects.length > 0) {
-    const intersect = intersects[0];
-    
-    // 🔥 最重要的一步：强制一切位置回到网格绝对十字路口！
-    const snappedX = Math.round(intersect.point.x);
-    const snappedZ = Math.round(intersect.point.z);
-
-    // 调用智能雷达获取准确的地基高度
-    let targetY = getHighestYAt(snappedX, snappedZ) + activePart.value.size[1] / 2;
-    const currentPos = new THREE.Vector3(snappedX, targetY, snappedZ);
-
-    if (isDragging) {
-      if (ghostMesh) ghostMesh.visible = false;
-      updateDragMesh(currentPos);
+    const dx = Math.abs(end.x - start.x)
+    const dz = Math.abs(end.z - start.z)
+    if (dx >= dz) {
+      s[0] = Math.max(dx + p.size[0], p.size[0])
+      s[2] = p.size[2]
+      cx   = (start.x + end.x) / 2
+      cz   = start.z
     } else {
-      if (ghostMesh) {
-        ghostMesh.visible = true;
-        ghostMesh.position.copy(currentPos);
-      }
+      s[0] = p.size[2]
+      s[2] = Math.max(dz + p.size[2], p.size[2])
+      cx   = start.x
+      cz   = (start.z + end.z) / 2
     }
+  }
+  return { s, cx, cy, cz }
+}
+
+function refreshDragPreview(start, end) {
+  clearDragPreview()
+  const p = activePart.value
+  const { s, cx, cy, cz } = calcDrag(start, end, p)
+
+  dragPreviewGroup = new THREE.Group()
+  const geo = makeGeo(p.type, s)
+  dragPreviewGroup.add(new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
+    color: 0xC8A040, transparent: true, opacity: 0.42,
+    emissive: 0x6A4A10, emissiveIntensity: 0.4, depthWrite: false, side: THREE.DoubleSide
+  })))
+  dragPreviewGroup.add(new THREE.LineSegments(
+    new THREE.EdgesGeometry(geo, 5),
+    new THREE.LineBasicMaterial({ color: 0x88DDFF, transparent: true, opacity: 0.9 })
+  ))
+  dragPreviewGroup.position.set(cx, cy, cz)
+  dragPreviewGroup.rotation.y = rotRad.value
+  dragPreviewGroup.renderOrder = 999
+  scene.add(dragPreviewGroup)
+  return { s, cx, cy, cz }
+}
+
+/* ═══════════════════════════════════════════════════
+   吸附 & 高度检测
+═══════════════════════════════════════════════════ */
+const SNAP_SIZE = 1.0
+const snap = v => Math.round(v / SNAP_SIZE) * SNAP_SIZE
+
+function topYAt(sx, sz, tol = 0.46) {
+  let best = 0
+  for (const { mesh } of builtObjs) {
+    const b = new THREE.Box3().setFromObject(mesh)
+    if (sx > b.min.x - tol && sx < b.max.x + tol &&
+        sz > b.min.z - tol && sz < b.max.z + tol) {
+      best = Math.max(best, b.max.y)
+    }
+  }
+  return best
+}
+
+function nearPillarTop(sx, sz, r = 1.3) {
+  let best = null, bestD = Infinity
+  for (const { mesh, partId } of builtObjs) {
+    if (!['pillar', 'base', 'dougong'].includes(partId)) continue
+    const b  = new THREE.Box3().setFromObject(mesh)
+    const cx = (b.min.x + b.max.x) / 2, cz = (b.min.z + b.max.z) / 2
+    const d  = Math.hypot(sx - cx, sz - cz)
+    if (d < r && d < bestD) { bestD = d; best = b.max.y }
+  }
+  return best
+}
+
+function calcY(part, sx, sz) {
+  if (part.anchor === 'pillarTop') {
+    const py = nearPillarTop(sx, sz)
+    if (py !== null) return py + part.size[1] / 2
+  }
+  return topYAt(sx, sz) + part.size[1] / 2
+}
+
+function getSnap(e) {
+  const rect = canvas.value.getBoundingClientRect()
+  const nx = ((e.clientX - rect.left) / rect.width)  * 2 - 1
+  const ny = -((e.clientY - rect.top) / rect.height) * 2 + 1
+  raycaster.setFromCamera(new THREE.Vector2(nx, ny), camera)
+  const hits = raycaster.intersectObjects([groundMesh, ...builtObjs.map(o => o.mesh)], false)
+  if (!hits.length) return null
+  const pt = hits[0].point
+  const sx = snap(pt.x), sz = snap(pt.z)
+  return new THREE.Vector3(sx, calcY(activePart.value, sx, sz), sz)
+}
+
+/* ═══════════════════════════════════════════════════
+   放置 & 拆除
+═══════════════════════════════════════════════════ */
+function place(pos, dynSize = null) {
+  const p    = activePart.value
+  const geo  = makeGeo(p.type, dynSize || [...p.size])
+  const mesh = new THREE.Mesh(geo, mats[p.id].clone())
+  mesh.castShadow    = true
+  mesh.receiveShadow = true
+  mesh.position.copy(pos)
+  mesh.rotation.y = rotRad.value
+  mesh.scale.setScalar(0.01)
+  scene.add(mesh)
+  builtObjs.push({ mesh, partId: p.id })
+  builtCount.value = builtObjs.length
+  gsap.to(mesh.scale, { x: 1, y: 1, z: 1, duration: 0.22, ease: 'back.out(1.8)' })
+}
+
+function demolish(mesh) {
+  const idx = builtObjs.findIndex(o => o.mesh === mesh)
+  if (idx < 0) return
+  builtObjs.splice(idx, 1)
+  builtCount.value = builtObjs.length
+  gsap.to(mesh.scale, {
+    x: 0, y: 0, z: 0, duration: 0.18, ease: 'back.in(2.5)',
+    onComplete: () => { scene.remove(mesh); mesh.geometry.dispose(); mesh.material.dispose() }
+  })
+}
+
+/* ═══════════════════════════════════════════════════
+   鼠标事件
+═══════════════════════════════════════════════════ */
+function onMouseMove(e) {
+  if (isOverUI.value) { if (ghostGroup) ghostGroup.visible = false; return }
+  const sp = getSnap(e)
+  if (!sp) { if (ghostGroup) ghostGroup.visible = false; return }
+  snapX.value = sp.x; snapZ.value = sp.z; snapY.value = sp.y
+
+  if (isDragging && dragStart) {
+    if (ghostGroup) ghostGroup.visible = false
+    refreshDragPreview(dragStart, sp)
   } else {
-    if(ghostMesh) ghostMesh.visible = false;
+    clearDragPreview()
+    if (ghostGroup) { ghostGroup.visible = true; ghostGroup.position.copy(sp) }
   }
-};
+}
 
-const onMouseDown = (event) => {
-  if (event.button !== 0) return; // 只有左键触发
-  mouseDownPos = { x: event.clientX, y: event.clientY };
-  
-  if (ghostMesh && ghostMesh.visible && activePart.value.draw.includes('drag')) {
-    isDragging = true;
-    controls.enabled = false; 
-    dragStartPos = ghostMesh.position.clone();
+function onMouseDown(e) {
+  if (isOverUI.value || e.button !== 0) return
+  mouseDownAt = { x: e.clientX, y: e.clientY }
+  if (activePart.value.drag) {
+    const sp = getSnap(e)
+    if (sp) { isDragging = true; dragStart = sp.clone(); controls.enabled = false }
   }
-};
+}
 
-const onMouseUp = (event) => {
-  if (event.target.tagName === 'BUTTON' || event.target.closest('.part-btn')) return;
+function onMouseUp(e) {
+  // 右键拆除
+  if (e.button === 2) {
+    const rect = canvas.value.getBoundingClientRect()
+    raycaster.setFromCamera(
+      new THREE.Vector2(
+        ((e.clientX - rect.left) / rect.width)  * 2 - 1,
+        -((e.clientY - rect.top) / rect.height) * 2 + 1
+      ), camera
+    )
+    const hits = raycaster.intersectObjects(builtObjs.map(o => o.mesh), false)
+    if (hits.length) demolish(hits[0].object)
+    return
+  }
+  if (e.button !== 0) return
 
-  // 1. 处理拖拽结束
+  const moved = Math.hypot(e.clientX - mouseDownAt.x, e.clientY - mouseDownAt.y) > 5
+
+  // 结束拖拽
   if (isDragging) {
-    controls.enabled = true;
-    isDragging = false;
-    
-    let targetMesh = dragMesh ? dragMesh : ghostMesh; // 如果没挪动鼠标，退化为点击
-    
-    if (targetMesh && targetMesh.visible) {
-      const solidMaterial = new THREE.MeshStandardMaterial({ color: activePart.value.color, roughness: activePart.value.roughness });
-      const newPart = new THREE.Mesh(targetMesh.geometry.clone(), solidMaterial);
-      newPart.position.copy(targetMesh.position);
-      newPart.rotation.copy(targetMesh.rotation);
-      newPart.castShadow = true; newPart.receiveShadow = true;
-      
-      scene.add(newPart);
-      builtObjects.push(newPart);
-      gsap.from(newPart.position, { y: newPart.position.y + 0.5, duration: 0.3, ease: "bounce.out" });
+    controls.enabled = true; isDragging = false
+    const sp = getSnap(e) || dragStart
+    if (sp && dragStart) {
+      const { s, cx, cy, cz } = calcDrag(dragStart, sp, activePart.value)
+      place(new THREE.Vector3(cx, cy, cz), s)
+    } else if (!moved && ghostGroup?.visible) {
+      place(ghostGroup.position.clone())
     }
-    
-    if (dragMesh) { scene.remove(dragMesh); dragMesh = null; }
-    return; 
+    clearDragPreview(); dragStart = null
+    return
   }
 
-  // 2. 处理单次点击放置
-  const dx = Math.abs(event.clientX - mouseDownPos.x);
-  const dy = Math.abs(event.clientY - mouseDownPos.y);
-  if (dx > 5 || dy > 5) return; 
-
-  if (event.button === 0 && ghostMesh && ghostMesh.visible) {
-    const geometry = createGeometry(activePart.value);
-    const solidMaterial = new THREE.MeshStandardMaterial({ color: activePart.value.color, roughness: activePart.value.roughness });
-    const newPart = new THREE.Mesh(geometry, solidMaterial);
-    newPart.castShadow = true; newPart.receiveShadow = true;
-    
-    newPart.position.copy(ghostMesh.position);
-    newPart.rotation.copy(ghostMesh.rotation);
-    scene.add(newPart); builtObjects.push(newPart);
-    gsap.from(newPart.position, { y: newPart.position.y + 0.5, duration: 0.3, ease: "bounce.out" });
+  // 单击放置（非拖拽模式，且未移动鼠标）
+  if (!moved && !activePart.value.drag && ghostGroup?.visible) {
+    place(ghostGroup.position.clone())
   }
-  // 3. 处理右键敲除
-  else if (event.button === 2) {
-    raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(builtObjects, false);
-    if (intersects.length > 0) {
-      const targetObj = intersects[0].object;
-      const index = builtObjects.indexOf(targetObj);
-      if (index > -1) builtObjects.splice(index, 1);
-      gsap.to(targetObj.scale, {
-        x: 0, y: 0, z: 0, duration: 0.2, ease: "back.in(2)",
-        onComplete: () => { scene.remove(targetObj); targetObj.geometry.dispose(); targetObj.material.dispose(); }
-      });
-    }
-  }
-};
+}
 
-const clearScene = () => {
-  builtObjects.forEach(obj => {
-    gsap.to(obj.scale, { x: 0, y: 0, z: 0, duration: 0.3, ease: "back.in(1.7)", onComplete: () => { scene.remove(obj); obj.geometry.dispose(); obj.material.dispose(); } });
-  });
-  builtObjects.length = 0;
-};
-
-const onKeyDown = (e) => {
+/* ═══════════════════════════════════════════════════
+   键盘
+═══════════════════════════════════════════════════ */
+function onKeyDown(e) {
+  if (e.target.tagName === 'INPUT') return
   switch (e.code) {
-    case 'KeyW': keys.w = true; break; case 'KeyA': keys.a = true; break;
-    case 'KeyS': keys.s = true; break; case 'KeyD': keys.d = true; break;
-    case 'Space': keys.space = true; break;
-    case 'ShiftLeft': case 'ShiftRight': keys.shift = true; break;
-    case 'KeyR': rotatePart(Math.PI / 2); break;  
-    case 'Digit1': selectPart(0); break; case 'Digit2': selectPart(1); break;
-    case 'Digit3': selectPart(2); break; case 'Digit4': selectPart(3); break;
-    case 'Digit5': selectPart(4); break; case 'Digit6': selectPart(5); break;
-    case 'Digit7': selectPart(6); break; case 'Digit8': selectPart(7); break;
+    case 'KeyW': keys.w = 1; break
+    case 'KeyS': keys.s = 1; break
+    case 'KeyA': keys.a = 1; break
+    case 'KeyD': keys.d = 1; break
+    case 'Space': e.preventDefault(); keys.space = 1; break
+    case 'ShiftLeft': case 'ShiftRight': keys.shift = 1; break
+    case 'KeyR':
+      rotRad.value = (rotRad.value + Math.PI / 2) % (Math.PI * 2)
+      if (ghostGroup) gsap.to(ghostGroup.rotation, { y: rotRad.value, duration: 0.14, ease: 'power2.out' })
+      break
+    case 'KeyZ':
+      if (e.ctrlKey || e.metaKey) undo()
+      break
+    default:
+      if (e.code.startsWith('Digit')) {
+        const n = parseInt(e.key) - 1
+        if (n >= 0 && n < PARTS.length) setActive(n)
+      }
   }
-};
-
-const onKeyUp = (e) => {
+}
+function onKeyUp(e) {
   switch (e.code) {
-    case 'KeyW': keys.w = false; break; case 'KeyA': keys.a = false; break;
-    case 'KeyS': keys.s = false; break; case 'KeyD': keys.d = false; break;
-    case 'Space': keys.space = false; break;
-    case 'ShiftLeft': case 'ShiftRight': keys.shift = false; break;
+    case 'KeyW': keys.w = 0; break; case 'KeyS': keys.s = 0; break
+    case 'KeyA': keys.a = 0; break; case 'KeyD': keys.d = 0; break
+    case 'Space': keys.space = 0; break
+    case 'ShiftLeft': case 'ShiftRight': keys.shift = 0; break
   }
-};
+}
 
-const onWindowResize = () => {
-  if (!camera || !renderer || !threeContainer.value) return;
-  camera.aspect = threeContainer.value.clientWidth / threeContainer.value.clientHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(threeContainer.value.clientWidth, threeContainer.value.clientHeight);
-};
+/* ═══════════════════════════════════════════════════
+   UI Actions
+═══════════════════════════════════════════════════ */
+function setActive(i) {
+  activeId.value = PARTS[i].id
+  rotRad.value   = 0
+  rebuildGhost()
+}
 
-onMounted(() => { initThree(); });
+function undo() {
+  if (builtObjs.length) demolish(builtObjs[builtObjs.length - 1].mesh)
+}
+
+function clearAll() {
+  const list = [...builtObjs]
+  list.forEach((o, i) => setTimeout(() => demolish(o.mesh), i * 35))
+}
+
+function onResize() {
+  if (!renderer || !canvas.value) return
+  const W = canvas.value.clientWidth, H = canvas.value.clientHeight
+  camera.aspect = W / H; camera.updateProjectionMatrix()
+  renderer.setSize(W, H)
+}
+
+/* ═══════════════════════════════════════════════════
+   生命周期
+═══════════════════════════════════════════════════ */
+onMounted(init)
+
 onUnmounted(() => {
-  window.removeEventListener('resize', onWindowResize);
-  window.removeEventListener('keydown', onKeyDown); window.removeEventListener('keyup', onKeyUp);
-  if (threeContainer.value) {
-    threeContainer.value.removeEventListener('mousemove', onMouseMove);
-    threeContainer.value.removeEventListener('mousedown', onMouseDown);
-    threeContainer.value.removeEventListener('mouseup', onMouseUp);
+  window.removeEventListener('keydown', onKeyDown)
+  window.removeEventListener('keyup', onKeyUp)
+  window.removeEventListener('resize', onResize)
+  if (canvas.value) {
+    canvas.value.removeEventListener('mousemove', onMouseMove)
+    canvas.value.removeEventListener('mousedown', onMouseDown)
+    canvas.value.removeEventListener('mouseup', onMouseUp)
   }
-  if (renderer) renderer.dispose();
-});
+  renderer?.dispose()
+})
 </script>
 
 <style scoped>
-.text-palace-red { color: #9B2E2E; }
-.border-palace-red { border-color: #9B2E2E; }
-.hidden-scrollbar::-webkit-scrollbar { display: none; }
-.hidden-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0 }
+
+.app {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: #070910;
+  font-family: 'Noto Serif SC', 'Source Han Serif CN', 'SimSun', Georgia, serif;
+  color: #E8DFC8;
+  user-select: none;
+}
+
+.canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+}
+
+/* ── 顶部 ─────────────────────────────────────── */
+.hud-top {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  padding: 14px 20px 24px;
+  background: linear-gradient(to bottom, rgba(7,9,16,.95), transparent);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.title-block { display: flex; align-items: baseline; gap: 14px }
+
+.title-zh {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: .22em;
+  text-shadow: 0 0 22px rgba(200,150,40,.35);
+}
+
+.title-en {
+  font-size: 9px;
+  letter-spacing: .35em;
+  color: rgba(200,160,60,.42);
+  font-family: 'Helvetica Neue', sans-serif;
+}
+
+.hint-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 14px;
+  font-size: 10px;
+  color: rgba(232,223,200,.32);
+  letter-spacing: .06em;
+}
+.hint-bar b { color: #C8960A; font-weight: 600 }
+
+/* ── 左侧面板 ─────────────────────────────────── */
+.parts-panel {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  z-index: 10;
+}
+
+.panel-title {
+  font-size: 8px;
+  letter-spacing: .22em;
+  color: rgba(200,160,60,.38);
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.part-item {
+  position: relative;
+  width: 72px; height: 72px;
+  background: rgba(7,9,16,.82);
+  border: 1px solid rgba(200,160,60,.12);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  transition: border-color .18s, background .18s, box-shadow .18s;
+  backdrop-filter: blur(10px);
+  flex-shrink: 0;
+}
+.part-item:hover {
+  border-color: rgba(200,160,60,.36);
+  background: rgba(20,14,6,.9);
+}
+.part-item.active {
+  border-color: #C8960A;
+  background: rgba(38,20,3,.92);
+  box-shadow: 0 0 16px rgba(200,150,10,.28), inset 0 0 12px rgba(200,150,10,.07);
+}
+.part-key {
+  position: absolute; top: 4px; left: 6px;
+  font-size: 8px; color: rgba(232,223,200,.2); font-family: monospace;
+}
+.part-glyph { font-size: 23px; line-height: 1 }
+.part-label { font-size: 9px; letter-spacing: .1em; color: rgba(232,223,200,.52) }
+.part-item.active .part-label { color: #E8DFC8 }
+.part-drag {
+  position: absolute; bottom: 3px; right: 3px;
+  font-size: 7px; color: #C8960A;
+  background: rgba(200,150,10,.12);
+  padding: 0 3px; border-radius: 2px;
+}
+
+/* ── 右侧信息 ─────────────────────────────────── */
+.info-panel {
+  position: absolute;
+  right: 16px; top: 50%;
+  transform: translateY(-50%);
+  width: 146px;
+  background: rgba(7,9,16,.82);
+  border: 1px solid rgba(200,160,60,.11);
+  backdrop-filter: blur(10px);
+  padding: 13px 12px;
+  z-index: 10;
+}
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 9px;
+}
+.info-row:last-child { margin-bottom: 0 }
+.info-k { font-size: 9px; color: rgba(232,223,200,.33); letter-spacing: .08em }
+.info-v { font-size: 10px; color: rgba(232,223,200,.72); font-family: monospace }
+.info-v.accent { color: #C8960A }
+.info-v.accent-blue { color: #88CCFF }
+.divider { height: 1px; background: rgba(200,160,60,.1); margin: 8px 0 10px }
+
+/* ── 底部按钮 ─────────────────────────────────── */
+.btns {
+  position: absolute;
+  bottom: 20px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; gap: 10px; z-index: 10;
+}
+.btn {
+  background: rgba(7,9,16,.88);
+  border: 1px solid rgba(200,160,60,.24);
+  color: #E8DFC8;
+  padding: 9px 22px;
+  font-family: inherit; font-size: 11px;
+  letter-spacing: .2em; cursor: pointer;
+  transition: all .18s; backdrop-filter: blur(8px);
+}
+.btn:hover { background: rgba(200,150,10,.15); border-color: #C8960A; color: #C8960A }
+.btn-danger:hover { background: rgba(155,46,46,.2); border-color: #9B2E2E; color: #E06060 }
 </style>
