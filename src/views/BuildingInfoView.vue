@@ -101,10 +101,16 @@
                             </li>
                         </ul>
                         
-                        <button @click="open3DView" class="w-full py-5 border border-ink-dark text-ink-dark hover:bg-ink-dark hover:text-[#fcfaf5] transition-colors duration-500 flex items-center justify-center gap-4 group/btn">
+                        <button v-if="building.modelUrl" @click="open3DView" class="w-full py-5 border border-ink-dark text-ink-dark hover:bg-ink-dark hover:text-[#fcfaf5] transition-colors duration-500 flex items-center justify-center gap-4 group/btn">
                             <span class="font-serif tracking-[0.5em] text-sm">观其形 · 3D</span>
                             <span class="group-hover/btn:translate-x-2 transition-transform duration-500">→</span>
                         </button>
+                        
+                        <button v-else disabled class="w-full py-5 border border-[#d6d0c4] text-[#a8a196] cursor-not-allowed flex items-center justify-center gap-4 opacity-70">
+                            <span class="font-serif tracking-[0.5em] text-sm">暂无三维案卷</span>
+                            <span class="opacity-50 text-lg leading-none">⊘</span>
+                        </button>
+
                     </div>
 
                     <div v-if="building.remark" class="pl-8 border-l-2 border-stone-200 mt-12">
@@ -165,7 +171,6 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-// 🏮 导入建筑 API
 import { getArchitecture } from "@/api/building";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -173,9 +178,8 @@ gsap.registerPlugin(ScrollTrigger);
 const route = useRoute();
 const buildingId = route.params.id;
 
-// ================= 状态管理 =================
-const loading = ref(true); // 页面骨架屏加载状态
-const building = ref({});  // 存储后端返回的建筑数据
+const loading = ref(true); 
+const building = ref({});  
 
 const headerRef = ref(null);
 const imageRef = ref(null);
@@ -183,10 +187,8 @@ const fullImgRef = ref(null);
 const isFullScreen = ref(false);
 const isMobile = ref(window.innerWidth < 768);
 
-// 古风数字序号
 const cjkNumbers = ['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌'];
 
-// 3D 状态
 const show3D = ref(false);
 const is3DLoading = ref(true);
 const loadProgress = ref(0);
@@ -194,17 +196,12 @@ const threeContainer = ref(null);
 let scene, camera, renderer, controls, animationId;
 const keys = { w: false, a: false, s: false, d: false };
 
-// ================= 核心逻辑 =================
-
-// 🏮 1. 获取动态数据
 const loadBuildingData = async () => {
     loading.value = true;
     try {
         const res = await getArchitecture(buildingId);
-        // 安全取值
         building.value = res.data?.data || res.data || {};
         
-        // 数据渲染完后，立刻执行开场动画和鼠标特效
         nextTick(() => {
             gsap.from('.hero-text > *', { y: 30, opacity: 0, duration: 1, stagger: 0.15, ease: 'power3.out' });
             window.addEventListener('mousemove', handleMouseMove);
@@ -216,19 +213,16 @@ const loadBuildingData = async () => {
     }
 };
 
-// 🏮 2. 动态解析 JSON 格式的建筑案卷
 const parsedArchive = computed(() => {
     const info = building.value.archiveInfo;
     if (!info) return {};
     try {
         return typeof info === 'string' ? JSON.parse(info) : info;
     } catch (e) {
-        // 如果后端传的不是严谨的 JSON，当做普通字符串兜底显示
         return { "规格描述": info };
     }
 });
 
-// 🏮 3. 动态解析富文本中的 【段落标题】 (与你原有逻辑保持一致)
 const parsedContent = computed(() => {
     const content = building.value.fullContent;
     if (!content) return [];
@@ -246,7 +240,6 @@ const parsedContent = computed(() => {
     return sections;
 });
 
-// ================= 3D 渲染逻辑 =================
 const initThreeJS = () => {
     const container = threeContainer.value;
     if (!container) return;
@@ -256,7 +249,7 @@ const initThreeJS = () => {
 
     const manager = new THREE.LoadingManager();
     manager.onProgress = (url, itemsLoaded, itemsTotal) => {
-        loadProgress.value = (itemsLoaded / itemsTotal) * 100;
+        // Fallback progress if Content-Length is missing
     };
     manager.onLoad = () => { setTimeout(() => { is3DLoading.value = false; }, 500); };
 
@@ -281,24 +274,34 @@ const initThreeJS = () => {
     sunLight.position.set(10, 20, 10);
     scene.add(sunLight);
 
-    // 🏮 优先使用数据库配置的模型地址，没有则用你的 OSS 兜底
-    const modelPath = building.value.modelUrl || 'https://dandanxia-hs.oss-cn-hangzhou.aliyuncs.com/dazhengdian.glb';
+    const modelPath = building.value.modelUrl;
 
     const loader = new GLTFLoader(manager);
-    loader.load(modelPath, (gltf) => {
-        const model = gltf.scene;
-        const box = new THREE.Box3().setFromObject(model);
-        const center = box.getCenter(new THREE.Vector3());
-        model.position.sub(center); 
-        scene.add(model);
-        
-        const size = box.getSize(new THREE.Vector3());
-        const maxDim = Math.max(size.x, size.y, size.z);
-        camera.position.z = maxDim * 1.5;
-    }, undefined, (err) => {
-        console.error("模型加载失败:", err);
-        is3DLoading.value = false;
-    });
+    
+    loader.load(
+        modelPath, 
+        (gltf) => {
+            const model = gltf.scene;
+            const box = new THREE.Box3().setFromObject(model);
+            const center = box.getCenter(new THREE.Vector3());
+            model.position.sub(center); 
+            scene.add(model);
+            
+            const size = box.getSize(new THREE.Vector3());
+            const maxDim = Math.max(size.x, size.y, size.z);
+            camera.position.z = maxDim * 1.5;
+        }, 
+        (xhr) => {
+            if (xhr.lengthComputable && xhr.total > 0) {
+                const percentComplete = (xhr.loaded / xhr.total) * 100;
+                loadProgress.value = percentComplete;
+            }
+        }, 
+        (err) => {
+            console.error("模型加载失败:", err);
+            is3DLoading.value = false;
+        }
+    );
 
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
@@ -329,8 +332,6 @@ const handleKeyUp = (e) => { const k = e.key.toLowerCase(); if(keys.hasOwnProper
 const open3DView = () => { show3D.value = true; document.body.style.overflow = 'hidden'; nextTick(() => initThreeJS()); };
 const close3DView = () => { show3D.value = false; document.body.style.overflow = ''; window.removeEventListener('keydown', handleKeyDown); window.removeEventListener('keyup', handleKeyUp); cancelAnimationFrame(animationId); if (renderer) renderer.dispose(); };
 
-// ================= 交互与生命周期 =================
-
 const handleMouseMove = (e) => {
     if (isFullScreen.value || !imageRef.value) return;
     const mx = (e.clientX / window.innerWidth - 0.5) * 2;
@@ -348,7 +349,6 @@ const toggleFullScreen = () => {
 
 onMounted(() => {
     window.addEventListener('resize', () => isMobile.value = window.innerWidth < 768);
-    // 启动数据加载
     loadBuildingData();
 });
 
@@ -362,19 +362,17 @@ onUnmounted(() => {
 .fade-enter-active, .fade-leave-active { transition: opacity 0.8s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 
-.bg-expand-enter-active { transition: all 1s cubic-bezier(0.22, 1, 0.36, 1); }
-.bg-expand-leave-active { transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
-.bg-expand-enter-from { opacity: 0; clip-path: inset(10% 10% 10% 10%); }
-.bg-expand-enter-to { opacity: 1; clip-path: inset(0 0 0 0); }
+/* 🚨 核心修改：补充了 leave-to 和 leave-from 状态，修复关闭时“卡一下”消失的 Bug */
+.bg-expand-enter-active, .bg-expand-leave-active { transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
+.bg-expand-enter-from, .bg-expand-leave-to { opacity: 0; clip-path: inset(10% 10% 10% 10%); }
+.bg-expand-enter-to, .bg-expand-leave-from { opacity: 1; clip-path: inset(0 0 0 0); }
 
 .animate-fade-up { animation: fadeUp 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
 
-/* 东方美学色彩微调 */
 p { color: #5a5550; }
 h1, h2, h3, h4 { color: #2c2825; }
 
-/* 防止富文本渲染时图片过大溢出 */
 :deep(.html-content img) {
     max-width: 100%;
     height: auto;

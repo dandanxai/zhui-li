@@ -36,7 +36,7 @@
             <div class="grid grid-cols-1 md:grid-cols-12 gap-16 items-center relative z-10">
                 <div class="md:col-span-5 relative group">
                     <div class="aspect-[4/5] bg-[#e8e4d3] shadow-2xl overflow-hidden relative elegant-card border-4 border-white">
-                        <img src="https://images.unsplash.com/photo-1543013327-04669fec8935?q=80&w=1000" class="w-full h-full object-cover grayscale mix-blend-multiply opacity-90 group-hover:scale-105 transition-transform duration-[1.5s]" />
+                        <img src="https://dandanxia-hs.oss-cn-hangzhou.aliyuncs.com/%E6%95%85%E5%AE%AB.jpg" class="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-[1.5s]" />
                         <div class="absolute top-0 right-0 bg-[#111] text-white p-6 shadow-xl">
                             <p class="writing-vertical font-black tracking-[0.5em] text-lg">秩序骨气</p>
                         </div>
@@ -126,9 +126,13 @@
                 </div>
 
                 <div class="lg:w-5/12 relative group w-full">
-                    <div class="aspect-[3/4] bg-[#e8e4d3] shadow-2xl overflow-hidden relative elegant-card border-4 border-white">
-                        <img src="https://images.unsplash.com/photo-1529982412356-901cc3a363bc?q=80&w=1000" class="w-full h-full object-cover grayscale mix-blend-multiply opacity-90 transition-transform duration-[2s] group-hover:scale-110 ease-out" />
-                        <div class="absolute bottom-10 -left-6 lg:left-[-3rem] bg-white/95 backdrop-blur-sm p-6 shadow-2xl border border-black/5 group-hover:-translate-y-2 transition-transform duration-700">
+                    <div class="aspect-[3/4] bg-[#e8e4d3] shadow-2xl relative elegant-card border-4 border-white">
+                        
+                        <div class="absolute inset-0 overflow-hidden">
+                            <img src="https://dandanxia-hs.oss-cn-hangzhou.aliyuncs.com/%E5%BE%BD%E6%B4%BE.jpg" class="w-full h-full object-cover opacity-90 transition-transform duration-[2s] group-hover:scale-110 ease-out" />
+                        </div>
+                        
+                        <div class="absolute bottom-10 -left-6 lg:left-[-3rem] z-10 bg-white/95 backdrop-blur-sm p-6 shadow-2xl border border-black/5 group-hover:-translate-y-2 transition-transform duration-700">
                             <p class="text-xl font-black tracking-widest text-[#000] mb-2">一生痴绝处</p>
                             <p class="text-sm font-bold text-gray-500 tracking-[0.3em]">无梦到徽州</p>
                         </div>

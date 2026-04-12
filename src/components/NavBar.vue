@@ -25,6 +25,12 @@
                 <router-link to="/lanzhu" class="hover:text-palace-red transition-colors relative group text-center">
                     览筑 <span class="text-[9px] uppercase opacity-50 block text-center mt-1.5">Explore</span>
                 </router-link>
+                
+                <router-link to="/factory" class="text-palace-red hover:text-white transition-colors relative group text-center font-bold">
+                    营造 <span class="text-[9px] uppercase opacity-70 block text-center mt-1.5">Craft</span>
+                    <div class="absolute -top-1 -right-4 w-1.5 h-1.5 bg-palace-red rounded-full animate-pulse"></div>
+                </router-link>
+
                 <router-link to="/dajiang" class="hover:text-palace-red transition-colors relative group text-center">
                     大匠 <span class="text-[9px] uppercase opacity-50 block text-center mt-1.5">Masters</span>
                 </router-link>
@@ -127,6 +133,9 @@
                 <a href="/dashboard" target="_blank" @click="toggleMenu" class="text-4xl md:text-6xl font-serif text-palace-red hover:text-white transition-all tracking-[0.2em] font-bold cursor-pointer">天枢 · 舆图</a>
                 <router-link to="/" @click="toggleMenu" class="text-3xl md:text-5xl font-serif text-paper-bg/80 hover:text-palace-red transition-all tracking-[0.2em]">首卷 · 开篇</router-link>
                 <router-link to="/lanzhu" @click="toggleMenu" class="text-3xl md:text-5xl font-serif text-paper-bg/80 hover:text-palace-red transition-all tracking-[0.2em]">览筑 · 规制</router-link>
+                
+                <router-link to="/factory" @click="toggleMenu" class="text-4xl md:text-6xl font-serif text-palace-red hover:text-white transition-all tracking-[0.2em] font-bold">营造 · 工坊</router-link>
+
                 <router-link to="/dajiang" @click="toggleMenu" class="text-3xl md:text-5xl font-serif text-paper-bg/80 hover:text-palace-red transition-all tracking-[0.2em]">大匠 · 匠心</router-link>
                 <router-link to="/dianji" @click="toggleMenu" class="text-3xl md:text-5xl font-serif text-paper-bg/80 hover:text-palace-red transition-all tracking-[0.2em]">典籍 · 法式</router-link>
                 <router-link to="/wenmai" @click="toggleMenu" class="text-3xl md:text-5xl font-serif text-paper-bg/80 hover:text-palace-red transition-all tracking-[0.2em]">文脉 · 传承</router-link>
@@ -148,7 +157,6 @@
 </template>
 
 <script setup>
-// 🏮 新增了 nextTick 用于搜索框自动聚焦
 import { ref, onMounted, nextTick } from 'vue' 
 import { useRouter } from 'vue-router'
 import { getInfo } from '@/api/login'
@@ -159,7 +167,6 @@ const isLoggedIn = ref(false)
 const userName = ref('')
 const userAvatar = ref('')
 
-// 🏮 新增：搜索功能状态与逻辑
 const isSearchOpen = ref(false)
 const searchQuery = ref('')
 const searchInput = ref(null)
@@ -167,18 +174,16 @@ const searchInput = ref(null)
 const toggleSearch = () => {
     isSearchOpen.value = !isSearchOpen.value
     if (isSearchOpen.value) {
-        // 展开时自动获取焦点
         nextTick(() => {
             if (searchInput.value) searchInput.value.focus()
         })
     } else {
-        searchQuery.value = '' // 收起时清空内容
+        searchQuery.value = '' 
     }
 }
 
 const handleSearch = () => {
     if (!searchQuery.value.trim()) return
-    // 触发搜索跳转 (可根据你的实际路由路径修改 /search)
     router.push({ path: '/search', query: { keyword: searchQuery.value } })
     isSearchOpen.value = false
     searchQuery.value = ''
@@ -237,7 +242,6 @@ nav a:hover {
     transform: scale(1.1);
 }
 
-/* 🏮 新增：适配差值模式的占位符颜色 */
 input::placeholder {
     color: inherit;
     opacity: 0.4;

@@ -24,7 +24,9 @@ export function listArchitecture(query) {
     return request({
     url: '/building/architecture/list',
     method: 'get',
-    params: query
+    params: query,
+    // 🚨 核心魔法：加上这个属性，它就会悄悄地发请求，绝对不触发全屏 Loading！
+    hideLoading: true
     })
 }
 

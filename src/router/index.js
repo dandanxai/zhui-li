@@ -122,6 +122,12 @@ const router = createRouter({
             path: '/:pathMatch(.*)*',
             name: 'CatchAll', // 确保 name 唯一
             redirect: '/404' 
+        },
+        {
+            path: '/factory',
+            name: 'VirtualFactory',
+            component: () => import('@/views/VirtualFactoryDemo.vue'),
+            meta: { hideGlobalUI: true } 
         }
     ],
     scrollBehavior(to, from, savedPosition) {
