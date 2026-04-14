@@ -101,7 +101,10 @@ import { ref, onMounted, onUnmounted, nextTick } from 'vue';
 import { marked } from 'marked';
 // 🏮 核心引入：使用抽离出去的规范化 API
 import { drawImage, chatStream } from '@/api/ai';
+import { useRouter } from 'vue-router'
+import { showToast } from '@/utils/toast' // 🏮 引入全局提示
 
+const router = useRouter()
 const isOpen = ref(false); 
 const mode = ref('chat'); 
 const userMessage = ref(''); 
@@ -127,6 +130,14 @@ const stopGenerating = () => {
 };
 
 const askMaster = async () => {
+
+    if (!localStorage.getItem('ZHL_TOKEN')) {
+        showToast('居士，请先登录系统再进行推演。', "error"); 
+        closeChat();
+        router.push('/login'); 
+        return;
+    }
+
     if (!userMessage.value.trim() || isLoading.value) return; 
     const text = userMessage.value;
     const currentMode = mode.value;

@@ -1,16 +1,6 @@
 <template>
 <div class="min-h-screen bg-[#fcfaf5] flex items-center justify-center relative selection:bg-palace-red selection:text-white font-serif overflow-hidden">
     
-    <Transition name="toast-fade">
-        <div v-if="toast.show" 
-                class="fixed top-12 left-1/2 -translate-x-1/2 z-[9999] px-8 py-4 shadow-[0_20px_40px_rgba(0,0,0,0.1)] flex items-center gap-4 min-w-[280px] bg-[#111]"
-                :class="toast.type === 'error' ? 'border-l-4 border-palace-red' : 'border-l-4 border-[#c5a977]'">
-            <span class="w-1.5 h-1.5 rounded-full animate-pulse" 
-                    :class="toast.type === 'error' ? 'bg-palace-red' : 'bg-[#c5a977]'"></span>
-            <span class="font-serif tracking-[0.2em] text-sm text-white">{{ toast.msg }}</span>
-        </div>
-    </Transition>
-
     <div class="absolute inset-0 opacity-[0.03] pointer-events-none z-0" style="background-image: radial-gradient(#000000 1.5px, transparent 1.5px); background-size: 40px 40px;"></div>
     <div class="absolute -left-20 top-10 text-[20rem] font-black text-black/[0.02] select-none pointer-events-none leading-none">筑</div>
 
@@ -78,6 +68,27 @@
             </button>
         </div>
         
+        <div class="pt-6 border-t border-gray-100 mt-6">
+            <div class="text-center mb-4 relative">
+                <span class="bg-white px-4 text-xs tracking-[0.3em] text-gray-300 relative z-10">其他通关印信</span>
+                <div class="absolute top-1/2 left-0 w-full h-[1px] bg-gray-100 -z-0"></div>
+            </div>
+            
+            <div class="flex justify-center gap-6">
+                <button type="button" @click="mockThirdParty('微信')" class="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:text-[#07C160] hover:border-[#07C160] transition-colors group relative" title="微信登录">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M8.5 13.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm5.5-3c-.83 0-1.5-.67-1.5-1.5S13.17 7.5 14 7.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4.5 1.5c0-2.76-2.69-5-6-5s-6 2.24-6 5c0 1.53.82 2.89 2.08 3.79-.17.65-.48 1.48-.52 1.59-.03.09.06.18.15.13.11-.06.84-.46 1.53-.87C10.72 16.92 11.59 17 12.5 17c3.31 0 6-2.24 6-5zm-9.5-3c-.83 0-1.5-.67-1.5-1.5S8.17 6 9 6s1.5.67 1.5 1.5S9.83 9 9 9zm10.5 4.5c0 2.48-2.42 4.5-5.4 4.5-.82 0-1.6-.14-2.31-.38-.63.37-1.28.74-1.38.79-.08.04-.16-.04-.13-.12.04-.1.32-.84.47-1.42C9.5 15.65 8.7 14.63 8.7 13.5c0-2.48 2.42-4.5 5.4-4.5s5.4 2.02 5.4 4.5z"/></svg>
+                </button>
+                
+                <button type="button" @click="mockThirdParty('手机号')" class="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:text-palace-red hover:border-palace-red transition-colors group relative" title="手机号登录">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+                </button>
+                
+                <button type="button" @click="mockThirdParty('邮箱')" class="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:text-[#c5a977] hover:border-[#c5a977] transition-colors group relative" title="邮箱登录">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                </button>
+            </div>
+        </div>
+
         <div class="text-center mt-6">
         <span class="text-xs text-gray-400 tracking-widest">
             尚无名号？
@@ -95,6 +106,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { login, getCodeImg } from '@/api/login' 
+import { showToast } from '@/utils/toast' 
 
 const router = useRouter()
 const loading = ref(false)
@@ -107,17 +119,6 @@ const loginForm = reactive({
     code: '',
     uuid: ''
 })
-
-// 🏮 告文 (Toast) 控制逻辑
-const toast = reactive({ show: false, msg: '', type: 'error' })
-let toastTimer = null
-const showToast = (msg, type = 'error') => {
-    toast.msg = msg
-    toast.type = type
-    toast.show = true
-    if (toastTimer) clearTimeout(toastTimer)
-    toastTimer = setTimeout(() => { toast.show = false }, 3000)
-}
 
 const getCode = async () => {
     try {
@@ -142,39 +143,31 @@ const handleLogin = async () => {
         
         if (res.data && res.data.token) {
             localStorage.setItem('ZHL_TOKEN', res.data.token)
-            showToast("登卷成功", "success")
+            showToast("登卷成功，正在入府...", "success") 
             
             setTimeout(() => {
                 router.push('/').then(() => {
                     window.location.reload()
                 })
-            }, 800) // 延迟跳转，让用户看清成功提示
+            }, 800) 
         } else {
-            // 🏮 替换丑陋的 alert
-            if(res.data.msg) showToast(res.data.msg, 'error')
+            if(res.data.msg) showToast(res.data.msg, 'error') 
             if (captchaEnabled.value) getCode()
         }
     } catch (error) {
         if (captchaEnabled.value) getCode()
-        // 这里如果有全局拦截器抛错，拦截器通常会自带提示，也可在此补底
         showToast("登录遇阻，请检查通关令或重试", "error")
     } finally {
         loading.value = false
     }
 }
 
+// 🏮 占位按钮点击事件
+const mockThirdParty = (provider) => {
+    showToast(`系统暂未开启${provider}验证通道`, "error")
+}
+
 onMounted(() => {
     getCode()
 })
 </script>
-
-<style scoped>
-/* 🏮 优雅告文的滑入滑出动画 */
-.toast-fade-enter-active, .toast-fade-leave-active {
-    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.toast-fade-enter-from, .toast-fade-leave-to {
-    opacity: 0;
-    transform: translate(-50%, -20px);
-}
-</style>

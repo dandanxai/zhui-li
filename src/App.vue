@@ -41,13 +41,13 @@ import FloatingAsk from './components/FloatingAsk.vue';
 const router = useRouter()
 const isLoading = ref(false)
 
-// 🏮 新增：核心加载控制变量
+// 核心加载控制变量
 let startTime = 0           // 记录动画开始的时间戳
 let activeRequests = 0      // 记录当前正在进行的网络请求数量
 let finishTimer = null      // 定时器引用，方便随时清除
 const MIN_LOADING_TIME = 1500 // 保底加载时间 1.5 秒
 
-// 1. 开启加载动画
+// 1. 开启加载动画 (现在只有 Router 有资格调用它)
 const startLoading = () => {
   if (!isLoading.value) {
     isLoading.value = true
@@ -62,7 +62,6 @@ const tryStopLoading = () => {
 
   // 计算已经转了多久
   const elapsed = Date.now() - startTime
-  // 如果已经超过 1.5 秒，remaining 就是 0；如果没到 1.5 秒，就算出还差多久
   const remaining = Math.max(0, MIN_LOADING_TIME - elapsed)
 
   clearTimeout(finishTimer)
@@ -78,6 +77,7 @@ const tryStopLoading = () => {
 // 路由拦截联动
 // ==========================================
 router.beforeEach((to, from, next) => {
+  // 只有路由判定是第一次进这个页面，才允许唤醒动画
   if (to.meta.needLoading) { startLoading() }
   next()
 })
@@ -86,24 +86,30 @@ router.afterEach((to) => {
   if (to.meta.needLoading) {
     tryStopLoading() // 路由跑完了，去算算还要不要继续转
   } else {
-    // 强制放行不需要 loading 的页面
+    // 强制放行不需要 loading 的页面 (二次访问直接秒进)
     isLoading.value = false
     activeRequests = 0
   }
 })
 
 // ==========================================
-// 监听来自 request.js 的网络状态事件
+// 🚨 核心修复：监听来自 request.js 的网络状态事件
 // ==========================================
 const handleNetworkStart = () => {
   activeRequests++
-  startLoading() // 网络一发起，立马保证 Loading 开启
+  // 删除了这里的 startLoading() ！！！
+  // 解释：普通的网络请求只负责告诉系统“我正在忙(activeRequests++)”，
+  // 但它没有资格去“擅自唤醒”全屏过场动画。
 }
 
 const handleNetworkEnd = () => {
   activeRequests--
   if (activeRequests < 0) activeRequests = 0 // 兜底防负数
-  tryStopLoading() // 一个请求回来了，去算算能不能关 Loading
+  
+  // 只有在全屏动画确实开启着的情况下，才需要去尝试停止它
+  if (isLoading.value) {
+    tryStopLoading() 
+  }
 }
 
 onMounted(() => {

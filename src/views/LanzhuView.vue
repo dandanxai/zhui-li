@@ -117,7 +117,7 @@
                 <div class="relative z-10 max-w-4xl mb-20">
                     <h3 class="text-palace-red font-black text-4xl tracking-widest mb-10 drop-shadow-lg">“九五之尊”的数字解构</h3>
                     <p class="text-white text-[16px] leading-loose tracking-[0.15em] font-bold text-justify">
-                    开间必为奇数，此谓“阳数”。在紫禁城的最高等级规制中，**面阔九间、进深五间**。这种模数化的比例控制，不仅是受力逻辑，更是对皇权的数字化测量。
+                    开间必为奇数，此谓“阳数”。在紫禁城的最高等级规制中，面阔九间、进深五间。这种模数化的比例控制，不仅是受力逻辑，更是对皇权的数字化测量。
                     </p>
                 </div>
                 <div class="grid grid-cols-9 h-16 gap-2 mb-6 relative z-10">

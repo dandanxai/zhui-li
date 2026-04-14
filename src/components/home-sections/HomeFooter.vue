@@ -60,9 +60,9 @@
         </div>
 
         <div class="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-white/10 text-xs tracking-[0.2em] text-gray-500 space-y-4 md:space-y-0">
-        <p>© 2026 弘扬中华优秀传统文化系列之六 · 参赛作品专用</p>
+        <p>© 2026 弘扬中华优秀传统文化系列之六 · 参赛作品</p>
         <p class="uppercase font-sans text-[10px] tracking-[0.4em] flex items-center gap-2">
-            Designed & Coded by <span class="text-gray-300 font-bold">Dàndànxiá</span>
+            Designed & Coded by <span class="text-gray-300 font-bold">XXXXXX</span>
         </p>
         </div>
 

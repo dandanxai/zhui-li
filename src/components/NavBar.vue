@@ -15,22 +15,34 @@
                 'hidden lg:flex items-center space-x-12 text-xs tracking-[0.2em] font-serif transition-all duration-500 ease-in-out',
                 isSearchOpen ? 'opacity-0 scale-95 pointer-events-none absolute' : 'opacity-100 scale-100 relative'
             ]">
-                <a href="/dashboard" target="_blank" class="text-palace-red transition-colors relative group text-center font-bold cursor-pointer">
-                    天枢 <span class="text-[9px] uppercase opacity-70 block text-center mt-1.5">Dashboard</span>
-                    <div class="absolute -bottom-3 left-0 w-full h-[1px] bg-palace-red opacity-30"></div>
-                </a>
+                <div class="relative group pointer-events-auto">
+                    <button class="text-palace-red transition-colors relative text-center font-bold outline-none pb-2">
+                        天枢 <span class="text-[9px] uppercase opacity-70 block text-center mt-1.5">Hub</span>
+                        <div class="absolute bottom-0 left-0 w-full h-[1px] bg-palace-red opacity-30"></div>
+                        <div class="absolute -top-1 -right-4 w-1.5 h-1.5 bg-palace-red rounded-full animate-pulse"></div>
+                    </button>
+                    
+                    <div class="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-32 bg-[#1a1a1a]/90 backdrop-blur-md border border-white/10 shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 flex flex-col py-2 z-50 before:content-[''] before:absolute before:-top-6 before:left-0 before:w-full before:h-6">
+                        
+                        <a href="/dashboard" target="_blank" class="px-4 py-3 text-center text-paper-bg hover:text-palace-red hover:bg-white/5 transition-colors relative group/item">
+                            <span class="relative z-10 font-bold tracking-widest">天枢 · 舆图</span>
+                            <span class="block text-[8px] uppercase opacity-40 mt-1">Dashboard</span>
+                        </a>
+                        <div class="h-[1px] w-16 mx-auto bg-white/10 my-1"></div>
+                        <a href="/factory" target="_blank" class="px-4 py-3 text-center text-paper-bg hover:text-palace-red hover:bg-white/5 transition-colors relative group/item">
+                            <span class="relative z-10 font-bold tracking-widest">营造 · 工坊</span>
+                            <span class="block text-[8px] uppercase opacity-40 mt-1">Craft 3D</span>
+                        </a>
+                        
+                    </div>
+                </div>
+
                 <router-link to="/" class="hover:text-palace-red transition-colors relative group text-center">
                     首页 <span class="text-[9px] uppercase opacity-50 block text-center mt-1.5">Home</span>
                 </router-link>
                 <router-link to="/lanzhu" class="hover:text-palace-red transition-colors relative group text-center">
                     览筑 <span class="text-[9px] uppercase opacity-50 block text-center mt-1.5">Explore</span>
                 </router-link>
-                
-                <a href="/factory" target="_blank" class="text-palace-red hover:text-white transition-colors relative group text-center font-bold">
-                    营造 <span class="text-[9px] uppercase opacity-70 block text-center mt-1.5">Craft</span>
-                    <div class="absolute -top-1 -right-4 w-1.5 h-1.5 bg-palace-red rounded-full animate-pulse"></div>
-                </a>
-
                 <router-link to="/dajiang" class="hover:text-palace-red transition-colors relative group text-center">
                     大匠 <span class="text-[9px] uppercase opacity-50 block text-center mt-1.5">Masters</span>
                 </router-link>
@@ -130,21 +142,25 @@
             </div>
 
             <nav class="relative z-10 flex flex-col items-center space-y-6 md:space-y-10 text-center pointer-events-auto">
-                <a href="/dashboard" target="_blank" @click="toggleMenu" class="text-4xl md:text-6xl font-serif text-palace-red hover:text-white transition-all tracking-[0.2em] font-bold cursor-pointer">天枢 · 舆图</a>
                 <router-link to="/" @click="toggleMenu" class="text-3xl md:text-5xl font-serif text-paper-bg/80 hover:text-palace-red transition-all tracking-[0.2em]">首卷 · 开篇</router-link>
                 <router-link to="/lanzhu" @click="toggleMenu" class="text-3xl md:text-5xl font-serif text-paper-bg/80 hover:text-palace-red transition-all tracking-[0.2em]">览筑 · 规制</router-link>
                 
-                <a href="/factory" target="_blank" @click="toggleMenu" class="text-4xl md:text-6xl font-serif text-palace-red hover:text-white transition-all tracking-[0.2em] font-bold">营造 · 工坊</a>
+                <div class="flex gap-8 md:gap-16 my-4 border-y border-white/10 py-8 relative">
+                    <a href="/dashboard" target="_blank" @click="toggleMenu" class="text-4xl md:text-6xl font-serif text-palace-red hover:text-white transition-all tracking-[0.2em] font-bold cursor-pointer hover:scale-105 duration-300">天枢</a>
+                    <div class="w-[1px] bg-white/20"></div>
+                    <a href="/factory" target="_blank" @click="toggleMenu" class="text-4xl md:text-6xl font-serif text-palace-red hover:text-white transition-all tracking-[0.2em] font-bold hover:scale-105 duration-300">营造</a>
+                    <div class="absolute -top-1.5 left-1/2 -translate-x-1/2 text-[10px] tracking-[0.5em] text-white/30 bg-[#0a0a0a] px-4">工具集 HUB</div>
+                </div>
 
                 <router-link to="/dajiang" @click="toggleMenu" class="text-3xl md:text-5xl font-serif text-paper-bg/80 hover:text-palace-red transition-all tracking-[0.2em]">大匠 · 匠心</router-link>
                 <router-link to="/dianji" @click="toggleMenu" class="text-3xl md:text-5xl font-serif text-paper-bg/80 hover:text-palace-red transition-all tracking-[0.2em]">典籍 · 法式</router-link>
                 <router-link to="/wenmai" @click="toggleMenu" class="text-3xl md:text-5xl font-serif text-paper-bg/80 hover:text-palace-red transition-all tracking-[0.2em]">文脉 · 传承</router-link>
                 
-                <button @click="openAiMaster" class="text-3xl md:text-5xl font-serif text-palace-red hover:text-white transition-all tracking-[0.2em] relative outline-none">
+                <button @click="openAiMaster" class="text-3xl md:text-5xl font-serif text-palace-red hover:text-white transition-all tracking-[0.2em] relative outline-none mt-4">
                     智脑 · 推演<span class="absolute top-2 -right-6 md:-right-8 w-3 h-3 bg-palace-red rounded-full animate-pulse"></span>
                 </button>
 
-                <div class="pt-10 mt-10 border-t border-white/10 flex flex-col items-center">
+                <div class="pt-10 mt-10 flex flex-col items-center">
                     <button v-if="!isLoggedIn" @click="$router.push('/login'); toggleMenu()" class="text-xl tracking-widest text-gray-400 hover:text-white transition-colors">登 录</button>
                     <div v-else class="flex flex-col items-center gap-4">
                         <span class="text-xl tracking-widest text-white">居士：{{ userName }}</span>
@@ -160,6 +176,7 @@
 import { ref, onMounted, nextTick } from 'vue' 
 import { useRouter } from 'vue-router'
 import { getInfo } from '@/api/login'
+import { showToast } from '@/utils/toast' // 🏮 引入全局告文弹窗
 
 const isMenuOpen = ref(false)
 const router = useRouter()
@@ -172,6 +189,16 @@ const searchQuery = ref('')
 const searchInput = ref(null)
 
 const toggleSearch = () => {
+    // 🏮 核心拦截：展开搜索框前，先查验身份
+    const token = localStorage.getItem('ZHL_TOKEN')
+    
+    if (!token && !isSearchOpen.value) {
+        // 如果没登录，且当前搜索框是关闭状态，则直接拒绝展开并提示
+        showToast('请先入卷登录，再使用全局寻觅与智脑推演。', 'error')
+        router.push('/login'); 
+        return // 🚨 强行阻断后续逻辑，搜索框不会展开
+    }
+
     isSearchOpen.value = !isSearchOpen.value
     if (isSearchOpen.value) {
         nextTick(() => {
@@ -181,7 +208,6 @@ const toggleSearch = () => {
         searchQuery.value = '' 
     }
 }
-
 const handleSearch = () => {
     if (!searchQuery.value.trim()) return
     router.push({ path: '/search', query: { keyword: searchQuery.value } })
@@ -237,9 +263,6 @@ onMounted(() => {
 
 nav a, nav router-link {
     transition: transform 0.3s ease;
-}
-nav a:hover {
-    transform: scale(1.1);
 }
 
 input::placeholder {
