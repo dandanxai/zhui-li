@@ -170,7 +170,8 @@ function mergeGeos(pieces) {
    Vue 响应式
 ═══════════════════════════════════════════════════ */
 const canvas     = ref(null)
-const activeId   = ref('base')
+// const activeId   = ref('base')
+const activeId   = ref('pillar')
 const builtCount = ref(0)
 const snapX      = ref(0)
 const snapZ      = ref(0)
@@ -223,7 +224,8 @@ function init() {
 
   // Camera
   camera = new THREE.PerspectiveCamera(46, W / H, 0.1, 600)
-  camera.position.set(20, 16, 26)
+  // camera.position.set(20, 16, 26)
+  camera.position.set(8, 7, 10)
 
   // Controls
   controls = new OrbitControls(camera, renderer.domElement)
