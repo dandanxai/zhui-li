@@ -114,8 +114,8 @@ const captchaEnabled = ref(true)
 const codeUrl = ref('')
 
 const loginForm = reactive({
-    username: '',
-    password: '',
+    username: 'admin',
+    password: 'admin123',
     code: '',
     uuid: ''
 })
